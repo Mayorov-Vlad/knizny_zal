@@ -23,12 +23,13 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;text-wrap:balance;margin:0}
 .top{padding-block:22px 6px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .top h1{font-size:30px;letter-spacing:-.01em}
 .top p{margin:2px 0 0;color:var(--muted);font-size:13px}
-.stats{display:flex;gap:18px;font-variant-numeric:tabular-nums}
+.stats{display:flex;flex-wrap:wrap;gap:12px 18px;font-variant-numeric:tabular-nums}
 .stats div{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .stats b{display:block;font-family:var(--serif);font-size:22px;color:var(--ink);letter-spacing:0;text-transform:none;font-weight:600}
 
 .view{display:none;animation:fade .3s ease}
-.view.on{display:block}
+.view.on{display:block;will-change:transform}
+html,body{overflow-x:hidden}
 @keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
 
 /* shelves */
@@ -50,7 +51,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;text-wrap:balance;margin:0}
 /* covers */
 .cover{position:relative;border-radius:3px 6px 6px 3px;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 1px 1px rgba(0,0,0,.08),0 10px 24px -10px rgba(30,30,20,.45);flex:none}
 .cover::before{content:"";position:absolute;inset:0 auto 0 0;width:6%;background:linear-gradient(90deg,rgba(0,0,0,.18),rgba(255,255,255,.08));}
-.cover .ct{font-family:var(--serif);font-weight:600;line-height:1.1;position:relative;z-index:1;text-wrap:balance;overflow-wrap:break-word}
+.cover .ct{font-family:var(--serif);font-weight:600;line-height:1.1;position:relative;z-index:1;text-wrap:balance;overflow-wrap:break-word;hyphens:auto;-webkit-hyphens:auto}
 .cover .ca{font-size:.62em;letter-spacing:.1em;text-transform:uppercase;opacity:.85;position:relative;z-index:1;line-height:1.2}
 .cover.mini{padding:0;align-items:center;justify-content:center}
 .cover .ini{font-family:var(--serif);font-weight:600;position:relative;z-index:1}
@@ -123,13 +124,14 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;text-wrap:balance;margin:0}
 .tl-row .tx span{font-size:13px;color:var(--muted)}
 
 /* authors */
-.authors{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-top:20px;align-items:start}
+.authors{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(270px,100%),1fr));gap:12px;margin-top:20px;align-items:start}
 .au-card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:flex;flex-direction:column;gap:10px}
 .au-card h3{font-size:18px}
 .au-card .sub{font-size:13px;color:var(--muted);margin-top:-6px}
 .au-books{display:grid;gap:6px}
 .au-book{display:flex;gap:12px;align-items:center;text-align:left;background:none;border:none;padding:4px 0;width:100%}
-.au-book b{font-family:var(--serif);font-weight:600;font-size:15px;line-height:1.25;flex:1;min-width:0}
+.au-book{font-family:var(--serif);font-size:16px;line-height:1.3;color:var(--ink);padding:6px 0;border-top:1px solid var(--line)}
+.au-book:first-child{border-top:none}
 .au-book .r{color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums;flex:none}
 
 /* Тевосгинк */
@@ -164,7 +166,7 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;text-wrap:balance;margin:0}
 .ask input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;background:var(--card);color:var(--ink)}
 .ask input:focus{outline:2px solid var(--gold);outline-offset:0;border-color:transparent}
 .status{font-size:13px;color:var(--muted);margin-top:10px;min-height:20px}
-.letters{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:8px}
+.letters{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:16px;margin-top:8px}
 .letter{position:relative;border-radius:16px;background:var(--card);border:1px solid var(--line);overflow:hidden;animation:rise .5s ease both}
 .letter:nth-child(2){animation-delay:.12s}.letter:nth-child(3){animation-delay:.24s}
 @keyframes rise{from{opacity:.2;transform:translateY(14px)}to{opacity:1;transform:none}}
@@ -196,13 +198,14 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;text-wrap:balance;margin:0}
 .want-head{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
 .want-head h2{font-size:26px}
 .want-head p{margin:4px 0 0;color:var(--muted);font-size:14px}
-.now{margin-top:16px;display:flex;gap:14px;align-items:center;background:var(--green);color:#F4F1E8;border-radius:16px;padding:14px}
-.now .tx{min-width:0}
+.now{width:100%;border:none;text-align:left;margin-top:16px;display:flex;gap:14px;align-items:center;background:var(--green);color:#F4F1E8;border-radius:16px;padding:14px}
+.now .tx{min-width:0;flex:1}
+.now .chev{font-size:26px;opacity:.6;padding-right:4px}
 .now .k{font-size:11px;text-transform:uppercase;letter-spacing:.1em;font-weight:700;opacity:.75}
 .now b{display:block;font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.2;margin-top:2px}
 .now span{font-size:13px;opacity:.8}
-.wants{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin-top:16px}
-.w-item{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:left;width:100%}
+.wants{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:10px;margin-top:16px}
+.w-item{min-width:0;display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:left;width:100%}
 .w-item .tx{flex:1;min-width:0}
 .w-item b{font-family:var(--serif);font-weight:600;font-size:16px;display:block;line-height:1.25}
 .w-item .when{font-size:14px;margin-top:6px}
@@ -212,8 +215,8 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;text-wrap:balance;margin:0}
 
 /* nav */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
-nav.tabs .in{display:flex;width:100%;max-width:560px}
-nav.tabs button{flex:1;min-width:0;background:none;border:none;padding:5px 1px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;line-height:1.1;font-weight:600;color:var(--muted);text-align:center}
+nav.tabs .in{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%;max-width:520px;padding-inline:max(4px,env(safe-area-inset-left,0px)) max(4px,env(safe-area-inset-right,0px))}
+nav.tabs button{min-width:0;background:none;border:none;padding:5px 0;justify-content:flex-start;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;line-height:1.1;font-weight:600;color:var(--muted);text-align:center}
 nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
 nav.tabs button.on{color:var(--green)}
 nav.tabs button.tev.on{color:var(--gold-deep)}
@@ -225,7 +228,7 @@ nav.tabs button.tev.on{color:var(--gold-deep)}
 
 </head><body><div class="wrap" lang="ru">
   <header class="top" id="top">
-    <div><h1>Книжный зал</h1><p>Всё прочитанное — по странам, жанрам и векам</p></div>
+    <div><h1>Книжный зал</h1></div>
     <div class="stats" id="stats"></div>
   </header>
 
@@ -241,7 +244,7 @@ nav.tabs button.tev.on{color:var(--gold-deep)}
     </div>
     <div class="tev-intro">
       <h2>Тевосгинк</h2>
-      <p>Он живёт в щели между книгами и по ночам перечитывает всё, что стоит на полках. В его норе больше четырёхсот книг — только те, что получили премии и любовь критиков и читателей много лет подряд. Тиражи он презирает. Вытяни записку или скажи своими словами, чего хочется, — он пришлёт запечатанное письмо.</p>
+      <p hidden>Он живёт в щели между книгами и по ночам перечитывает всё, что стоит на полках. В его норе больше четырёхсот книг — только те, что получили премии и любовь критиков и читателей много лет подряд. Тиражи он презирает. Вытяни записку или скажи своими словами, чего хочется, — он пришлёт запечатанное письмо.</p>
     </div>
     <div class="sec-head">
       <h3>Вытяни записку</h3>
@@ -259,12 +262,10 @@ nav.tabs button.tev.on{color:var(--gold-deep)}
 
   <section class="view" id="v-want" lang="ru">
     <div class="want-head">
-      <div><h2>Хочу прочитать</h2><p id="wantCount"></p></div>
-      <button class="btn btn-gold" id="pullBtn">Что читать дальше?</button>
+      <div><h2>Хочу прочитать</h2></div>
     </div>
-    <div class="now" id="now"></div>
-    <div class="pulled" id="pulled"></div>
-    <div class="wants" id="wants"></div>
+    <button class="now" id="now" aria-label="Сейчас читаю — подробнее"></button>
+        <div class="wants" id="wants"></div>
   </section>
 </div>
 
@@ -425,7 +426,7 @@ const WANT={
  flow:{t:"Поток",a:"Михай Чиксентмихайи",c:"США",y:1990,g:"nonfic",bg:"#1F5D8C",fg:"#F3E7C9",when:"Читай, когда хочется понять, откуда берётся счастье",why:"Психология состояния, когда занята делом и не замечаешь времени. Хорошая пара к «Запискам о счастье» Чехова."},
  carrie:{t:"Сестра Керри",a:"Теодор Драйзер",c:"США",y:1900,g:"classic",bg:"#C77FB5",fg:"#2E1530",when:"Читай, когда хочется истории о большом городе и мечте",why:"Как «Мартин Иден» (9): человек рвётся наверх в Америке на рубеже веков. Девушка из провинции приезжает в Чикаго за новой жизнью."}
 };
-const NOW_READING={t:"Игра престолов",a:"Джордж Мартин",c:"США",y:1996,g:"fantasy",bg:"#3A2A24",fg:"#E6C27A"};
+const NOW_READING={t:"Игра престолов",a:"Джордж Мартин",c:"США",y:1996,g:"fantasy",bg:"#3A2A24",fg:"#E6C27A",when:"Читай, когда хочется пропасть в другом мире надолго",ann:"Первая книга саги «Песнь льда и огня». Знатные дома Вестероса борются за Железный трон, а с севера надвигается зима, которая может длиться годами. Мартин не жалеет героев — никто здесь не защищён сюжетом.",acclaim:["Локус, лучший роман фэнтези, 1997","Шорт-лист Небьюлы, 1997"]};
 const WHISPERS=["Шшш… Я как раз перебирал твои полки.","Этой ночью я снова перечитал «Анну Каренину». Плакал в переплёт.","Кто-то поставил Мураками ноль. Я его понимаю.","Сёстры Бронте передают привет. Они подождут.","У меня есть кое-что для дождливого вечера.","«Игра престолов»? Смело. Я держу за тебя кулачки — все шесть.","Записки шуршат. Вытяни любую.","В моей норе больше четырёхсот книг. Тиражи меня не впечатляют.","Премии я читаю внимательнее, чем аннотации."];
 
 // ---------- storage: localStorage + (в Telegram) облако ----------
@@ -456,8 +457,8 @@ function plural(n,a,b,c){const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&
 function cover(b,w){
   const h=Math.round(w*1.5),g=b.g||"modern";
   if(w<60){const ch=(b.t||"?").replace(/[«»"'\s]/g,"")[0]||"?";return `<div class="cover mini c-${g}" style="width:${w}px;height:${h}px;background:${b.bg};color:${b.fg}"><span class="mo"></span><span class="ini" style="font-size:${Math.round(w*.5)}px">${esc(ch)}</span></div>`}
-  let fs=w/8.2;const L=(b.t||"").length;if(L>16)fs*=.88;if(L>26)fs*=.82;const lw=Math.max(...String(b.t||"").split(/\s+/).map(x=>x.length));fs=Math.min(fs,(w*.74)/(lw*.6));fs=Math.max(8,Math.round(fs*10)/10);
-  return `<div class="cover c-${g}" style="width:${w}px;height:${h}px;padding:${Math.round(h*.09)}px ${Math.round(w*.1)}px ${Math.round(h*.08)}px ${Math.round(w*.13)}px;background:${b.bg};color:${b.fg};font-size:${Math.max(9,Math.round(w/11))}px"><span class="mo"></span><div class="ct" style="font-size:${fs}px">${esc(b.t)}</div><div class="ca">${esc(b.a)}</div></div>`;
+  let fs=w/8.2;const L=(b.t||"").length;if(L>16)fs*=.88;if(L>26)fs*=.82;const lw=Math.max(...String(b.t||"").split(/[\s'-]+/).map(x=>x.length));fs=Math.min(fs,(w*.76)/(lw*.6));fs=Math.max(7,Math.round(fs*10)/10);
+  return `<div class="cover c-${g}" style="width:${w}px;height:${h}px;padding:${Math.round(h*.09)}px ${Math.round(w*.1)}px ${Math.round(h*.08)}px ${Math.round(w*.13)}px;background:${b.bg};color:${b.fg};font-size:${Math.max(9,Math.round(w/11))}px"><span class="mo"></span><div class="ct" style="font-size:${fs}px">${esc(b.t).replace(/'/g,"'\u200b")}</div><div class="ca">${esc(b.a)}</div></div>`;
 }
 function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("on"),2000)}
 
@@ -482,7 +483,7 @@ function renderShelves(){
        byG[g].sort((a,b)=>(a.y||9999)-(b.y||9999)).map(b=>{
          const w=Math.min(44,Math.max(30,Math.round(24+b.pg/30)));const h=214+((b.pg*7)%30);
          const sur=b.a==="Автор не указан"?"?":b.a.split(" ").slice(-1)[0];
-         return `<button class="spine" data-id="${b.id}" style="min-width:${w}px;height:${h}px;background:${b.bg};color:${b.fg}" aria-label="${esc(b.t)}, ${esc(b.a)}">${b.r!=null?`<span class="score">${b.r}</span>`:""}<span class="band"></span><span class="st" style="inline-size:${h-34-sur.length*6.2}px">${esc(b.t)}</span><span class="sa">${esc(sur)}</span></button>`;
+         return `<button class="spine" data-id="${b.id}" style="min-width:${w}px;height:${h}px;background:${b.bg};color:${b.fg}" aria-label="${esc(b.t)}, ${esc(b.a)}"><span class="band"></span><span class="st" style="inline-size:${h-34-sur.length*6.2}px">${esc(b.t)}</span><span class="sa">${esc(sur)}</span></button>`;
        }).join("")}</div><div class="ledge"></div></div>`).join("")+`</div>`;
   }).join("");
 }
@@ -494,15 +495,14 @@ function renderTime(){
   const undated=BOOKS.filter(b=>!b.y);
   $("#v-time").innerHTML=Object.keys(byCt).map(ct=>`<div class="cent"><h2>${ROMAN[ct]||ct} век <small>${byCt[ct].length} ${plural(byCt[ct].length,"книга","книги","книг")}</small></h2><div class="tl">${
     byCt[ct].map(b=>`<button class="tl-row" data-id="${b.id}"><span class="yr">${b.y}</span>${cover(b,40)}<span class="tx"><b>${esc(b.t)}</b><span>${esc(b.a)} · ${esc(b.c)}${b.r!=null?` · ${b.r}/10`:""}</span></span></button>`).join("")
-  }</div></div>`).join("")+(undated.length?`<p class="status">Без года: ${undated.map(b=>"«"+esc(b.t)+"»").join(", ")}.</p>`:"");
+  }</div></div>`).join("");
 }
 
 // ---------- authors ----------
 function renderAuthors(){
   const by={};BOOKS.filter(b=>b.c!=="Неразобранное").forEach(b=>(by[b.a]=by[b.a]||[]).push(b));
-  const list=Object.entries(by).map(([a,bs])=>{const rs=bs.filter(b=>b.r!=null).map(b=>b.r);return{a,bs,avg:rs.length?rs.reduce((x,y)=>x+y,0)/rs.length:null}})
-    .sort((x,y)=>(y.bs.length-x.bs.length)||((y.avg??-1)-(x.avg??-1)));
-  $("#v-authors").innerHTML=`<div class="authors">${list.map(x=>`<div class="au-card"><h3>${esc(x.a)}</h3><div class="sub">${esc(x.bs[0].c)} · ${x.bs.length} ${plural(x.bs.length,"книга","книги","книг")}${x.avg!=null?` · средняя ${Number.isInteger(x.avg)?x.avg:x.avg.toFixed(1)}`:""}</div><div class="au-books">${x.bs.map(b=>`<button class="au-book" data-id="${b.id}">${cover(b,34)}<b>${esc(b.t)}</b>${b.r!=null?`<span class="r">${b.r}</span>`:""}</button>`).join("")}</div></div>`).join("")}</div>`;
+  const list=Object.entries(by).sort((x,y)=>(y[1].length-x[1].length)||x[0].localeCompare(y[0],"ru"));
+  $("#v-authors").innerHTML=`<div class="authors">${list.map(([a,bs])=>`<div class="au-card"><h3>${esc(a)}</h3><div class="au-books">${bs.map(b=>`<button class="au-book" data-id="${b.id}">${esc(b.t)}</button>`).join("")}</div></div>`).join("")}</div>`;
 }
 
 // ---------- sheets ----------
@@ -693,9 +693,6 @@ function score(b,q){
   let m=0;Object.entries(q.tags).forEach(([t,w])=>{if(b.tags.includes(t))m+=2*w});
   if(Object.keys(q.tags).length&&m===0&&!q.g&&!q.c)return null;
   let s=m+b.q*1.6+(b.acclaim.length?0.6:0);
-  b.tags.forEach(t=>s+=(tagAff[t]||0)*0.5);
-  s+=(genAff[b.g]||0)*0.8+(authAff[b.a]>0?0.8:0);
-  if(b.heavy===2&&!q.tags["грустное"]&&!q.tags["мрачное"])s-=1;
   return s;
 }
 function pickFor(q,n=3,shuffle=0){
@@ -709,10 +706,6 @@ function whyFor(b,q){
   const parts=[];
   const hit=q.says.slice(0,2);
   if(hit.length)parts.push(`Ты хотела ${hit.join(" и ")} — ${b.tags.slice(0,2).join(", ")} здесь в центре.`);
-  if((q.tags["драконы"]||q.tags["ромэнтези"])&&b.g==="fantasy")parts.push("После «Четвёртого крыла» — то, что ценят жюри и критики, а не только BookTok.");
-  const link=LOVED.find(l=>(TASTE_TAGS[l.id]||[]).some(t=>b.tags.includes(t)&&!["светлое","мрачное","атмосферное"].includes(t)));
-  if(link&&parts.length<2)parts.push(`Как и в «${link.t}», ${(TASTE_TAGS[link.id]||[]).find(t=>b.tags.includes(t))} — то, что ты любишь.`);
-  if(authAff[b.a]>0)parts.push(`Автор, которого ты уже любишь.`);
   return parts.join(" ");
 }
 const MOOD_POOL=[
@@ -768,20 +761,14 @@ $("#askInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("#askBtn").cl
 
 // ---------- Хочу прочитать ----------
 function renderWant(){
-  $("#wantCount").textContent=want.length?`${want.length} ${plural(want.length,"книга ждёт","книги ждут","книг ждут")} своего часа`:"";
-  $("#now").innerHTML=`${cover(NOW_READING,56)}<div class="tx"><div class="k">Сейчас читаю</div><b>${esc(NOW_READING.t)}</b><span>${esc(NOW_READING.a)}</span></div>`;
+  $("#now").innerHTML=`${cover(NOW_READING,64)}<div class="tx"><div class="k">Сейчас читаю</div><b>${esc(NOW_READING.t)}</b><span>${esc(NOW_READING.a)}</span></div><span class="chev" aria-hidden="true">›</span>`;
   $("#wants").innerHTML=want.length?want.map((s,i)=>`<button class="w-item" data-w="${i}">${cover(s,64)}<span class="tx"><b>${esc(s.t)}</b><span class="by">${esc(s.a)}</span><span class="when" style="display:block">${esc(s.when)}</span>${s.from?`<span class="from" style="display:block">Тевосгинк · ${esc(s.from)}</span>`:""}</span></button>`).join(""):`<div class="empty">Список пуст. Загляни к Тевосгинку — он подбросит что-нибудь.</div>`;
-  $("#pullBtn").disabled=!want.length;
 }
+$("#now").addEventListener("click",()=>{const s=NOW_READING;haptic();openSheet(`<div class="bk">${cover(s,112)}<div class="bk-meta"><h3>${esc(s.t)}</h3><div class="au">${esc(s.a)}</div><div class="chips"><span class="chip">${esc(s.c)}</span><span class="chip">${s.y}</span><span class="chip">${GEN[s.g]}</span><span class="chip">Читаю сейчас</span></div></div></div><div class="when">${esc(s.when)}</div><div class="ann" style="margin-top:10px">${esc(s.ann)}</div><div class="acc" style="margin-top:10px">${s.acclaim.map(a=>`<span>${esc(a)}</span>`).join("")}</div>`)});
 $("#wants").addEventListener("click",e=>{const b=e.target.closest("[data-w]");if(b)openWant(+b.dataset.w)});
-$("#pullBtn").onclick=()=>{
-  if(!want.length)return;haptic("medium");const s=want[Math.floor(Math.random()*want.length)];
-  $("#pulled").innerHTML=letter(s,true);
-  $("#pulled .env").onclick=e=>{haptic("medium");e.currentTarget.closest(".letter").classList.add("open")};
-};
 
 // ---------- nav ----------
-function go(v){
+var go=function(v){
   document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x.dataset.v===v));
   document.querySelectorAll(".view").forEach(el=>el.classList.toggle("on",el.id==="v-"+v));
   $("#top").style.display=(v==="shelves"||v==="time"||v==="authors")?"":"none";
@@ -790,10 +777,33 @@ function go(v){
 document.querySelectorAll("nav.tabs button").forEach(btn=>btn.addEventListener("click",()=>{haptic();go(btn.dataset.v)}));
 document.addEventListener("click",e=>{const t=e.target.closest(".spine,.tl-row,.au-book");if(t)openBook(t.dataset.id)});
 
+// ---------- свайп между вкладками ----------
+const ORDER=["shelves","time","authors","tev","want"];let curView="shelves";
+const _go=go;go=function(v){curView=v;_go(v)};
+(function(){
+  let x0=0,y0=0,t0=0,mode=null,dx=0,el=null;
+  const blocked=t=>t.closest(".shelf,input,.stories,.scrim.on,nav.tabs");
+  document.addEventListener("touchstart",e=>{if(e.touches.length!==1||blocked(e.target)||story||sheetOpen){mode="off";return}
+    const p=e.touches[0];x0=p.clientX;y0=p.clientY;t0=Date.now();mode=null;dx=0;el=document.getElementById("v-"+curView)},{passive:true});
+  document.addEventListener("touchmove",e=>{if(mode==="off"||mode==="v")return;const p=e.touches[0];dx=p.clientX-x0;const dy=p.clientY-y0;
+    if(!mode){if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.3)mode="h";else if(Math.abs(dy)>10){mode="v";return}else return}
+    e.preventDefault();const i=ORDER.indexOf(curView),edge=(dx>0&&i===0)||(dx<0&&i===ORDER.length-1);
+    el.style.transition="none";el.style.transform=`translateX(${edge?dx*.25:dx}px)`;el.style.opacity=String(1-Math.min(.35,Math.abs(dx)/900))},{passive:false});
+  document.addEventListener("touchend",()=>{if(mode!=="h"){mode=null;return}
+    const i=ORDER.indexOf(curView),fast=Math.abs(dx)/(Date.now()-t0)>.45,dir=dx<0?1:-1,ni=i+dir;
+    if((Math.abs(dx)>window.innerWidth*.22||(fast&&Math.abs(dx)>40))&&ni>=0&&ni<ORDER.length){
+      el.style.transition="transform .18s ease-out,opacity .18s";el.style.transform=`translateX(${-dir*window.innerWidth}px)`;el.style.opacity="0";
+      const old=el;setTimeout(()=>{old.style.transition="";old.style.transform="";old.style.opacity="";haptic();go(ORDER[ni]);
+        const nv=document.getElementById("v-"+ORDER[ni]);nv.style.transition="none";nv.style.transform=`translateX(${dir*60}px)`;nv.style.opacity=".4";
+        requestAnimationFrame(()=>requestAnimationFrame(()=>{nv.style.transition="transform .22s ease-out,opacity .22s";nv.style.transform="";nv.style.opacity=""}))},170);
+    }else{el.style.transition="transform .2s ease-out,opacity .2s";el.style.transform="";el.style.opacity=""}
+    mode=null});
+})();
+
 // ---------- Telegram ----------
 function syncBack(){if(!TG||!TG.BackButton)return;(story||sheetOpen)?TG.BackButton.show():TG.BackButton.hide()}
 if(TG){
-  try{TG.ready();TG.expand();TG.setHeaderColor&&TG.setHeaderColor("#FAF9F6");TG.setBackgroundColor&&TG.setBackgroundColor("#FAF9F6");TG.BackButton.onClick(()=>{story?closeStories():closeSheet()})}catch(e){}
+  try{TG.ready();TG.expand();TG.disableVerticalSwipes&&TG.disableVerticalSwipes();TG.setHeaderColor&&TG.setHeaderColor("#FAF9F6");TG.setBackgroundColor&&TG.setBackgroundColor("#FAF9F6");TG.BackButton.onClick(()=>{story?closeStories():closeSheet()})}catch(e){}
   try{TG.CloudStorage.getItem("want",(err,val)=>{if(!err&&val){try{const ids=JSON.parse(val);if(Array.isArray(ids)&&ids.length){const extra=want.filter(w=>!LIB[w.id]);want=[...extra,...hydrate(ids)];renderWant()}}catch(e){}}})}catch(e){}
 }
 

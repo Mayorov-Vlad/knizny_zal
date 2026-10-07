@@ -27,13 +27,14 @@ h1,h2,h3{font-family:var(--serif);font-weight:600;text-wrap:balance;margin:0}
 .stats div{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 .stats b{display:block;font-family:var(--serif);font-size:22px;color:var(--ink);letter-spacing:0;text-transform:none;font-weight:600}
 
-.view{display:none;animation:fade .3s ease}
-.view.on{display:block;will-change:transform}
+.view{display:none;padding-top:12px;animation:fade .3s ease}
+.view.on{display:block;will-change:transform;padding-top:max(12px,env(safe-area-inset-top,0px))}
 html,body{overflow-x:hidden}
 @keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
 
 /* shelves */
 .country{margin-block:26px 8px}
+#v-shelves>.country:first-child{margin-top:20px}
 .sign{display:inline-flex;align-items:center;gap:10px;background:var(--green);color:#F4F1E8;padding:7px 16px 7px 14px;border-radius:6px;box-shadow:inset 0 0 0 2px #2F6150,0 2px 0 #163328}
 .sign h2{font-size:17px;font-weight:600;letter-spacing:.02em}
 .sign span{font-size:12px;opacity:.75;font-variant-numeric:tabular-nums}
@@ -130,8 +131,7 @@ html,body{overflow-x:hidden}
 .au-card .sub{font-size:13px;color:var(--muted);margin-top:-6px}
 .au-books{display:grid;gap:6px}
 .au-book{display:flex;gap:12px;align-items:center;text-align:left;background:none;border:none;padding:4px 0;width:100%}
-.au-book{font-family:var(--serif);font-size:16px;line-height:1.3;color:var(--ink);padding:6px 0;border-top:1px solid var(--line)}
-.au-book:first-child{border-top:none}
+.au-book b{font-family:var(--serif);font-weight:600;font-size:15px;line-height:1.25;flex:1;min-width:0}
 .au-book .r{color:var(--gold);font-weight:700;font-variant-numeric:tabular-nums;flex:none}
 
 /* Тевосгинк */
@@ -215,22 +215,19 @@ html,body{overflow-x:hidden}
 
 /* nav */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(255,255,255,.95);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
-nav.tabs .in{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%;max-width:520px;padding-inline:max(4px,env(safe-area-inset-left,0px)) max(4px,env(safe-area-inset-right,0px))}
-nav.tabs button{min-width:0;background:none;border:none;padding:5px 0;justify-content:flex-start;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;line-height:1.1;font-weight:600;color:var(--muted);text-align:center}
+nav.tabs .in{display:flex;justify-content:space-between;width:100%;max-width:460px;padding-inline:max(14px,env(safe-area-inset-left,0px)) max(14px,env(safe-area-inset-right,0px))}
+nav.tabs button{flex:none;white-space:nowrap;background:none;border:none;padding:5px 0;justify-content:flex-start;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;line-height:1.1;font-weight:600;color:var(--muted);text-align:center}
 nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
 nav.tabs button.on{color:var(--green)}
 nav.tabs button.tev.on{color:var(--gold-deep)}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;opacity:0;transition:all .25s;z-index:50;pointer-events:none}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:350px){nav.tabs button{font-size:9.5px}nav.tabs .in{padding-inline:10px}}
 @media (max-width:520px){.top h1{font-size:26px}.bk h3{font-size:20px}.notes{grid-template-columns:1fr 1fr}}
 </style>
 
 </head><body><div class="wrap" lang="ru">
-  <header class="top" id="top">
-    <div><h1>Книжный зал</h1></div>
-    <div class="stats" id="stats"></div>
-  </header>
 
   <section class="view on" id="v-shelves"></section>
   <section class="view" id="v-time"></section>
@@ -468,7 +465,7 @@ function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");c
   const countries=new Set(known.map(b=>b.c)).size;
   const cents=new Set(known.filter(b=>b.y).map(b=>centuryOf(b.y))).size;
   const authors=new Set(known.map(b=>b.a)).size;
-  $("#stats").innerHTML=`<div><b>${BOOKS.length}</b>книг</div><div><b>${countries}</b>стран</div><div><b>${cents}</b>века</div><div><b>${authors}</b>авторов</div>`;
+  if($("#stats"))$("#stats").innerHTML=`<div><b>${BOOKS.length}</b>книг</div><div><b>${countries}</b>стран</div><div><b>${cents}</b>века</div><div><b>${authors}</b>авторов</div>`;
 })();
 
 // ---------- shelves ----------
@@ -502,7 +499,7 @@ function renderTime(){
 function renderAuthors(){
   const by={};BOOKS.filter(b=>b.c!=="Неразобранное").forEach(b=>(by[b.a]=by[b.a]||[]).push(b));
   const list=Object.entries(by).sort((x,y)=>(y[1].length-x[1].length)||x[0].localeCompare(y[0],"ru"));
-  $("#v-authors").innerHTML=`<div class="authors">${list.map(([a,bs])=>`<div class="au-card"><h3>${esc(a)}</h3><div class="au-books">${bs.map(b=>`<button class="au-book" data-id="${b.id}">${esc(b.t)}</button>`).join("")}</div></div>`).join("")}</div>`;
+  $("#v-authors").innerHTML=`<div class="authors">${list.map(([a,bs])=>`<div class="au-card"><h3>${esc(a)}</h3><div class="sub">${esc(bs[0].c)} · ${bs.length} ${plural(bs.length,"книга","книги","книг")}</div><div class="au-books">${bs.map(b=>`<button class="au-book" data-id="${b.id}">${cover(b,34)}<b>${esc(b.t)}</b></button>`).join("")}</div></div>`).join("")}</div>`;
 }
 
 // ---------- sheets ----------
@@ -771,7 +768,7 @@ $("#wants").addEventListener("click",e=>{const b=e.target.closest("[data-w]");if
 var go=function(v){
   document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x.dataset.v===v));
   document.querySelectorAll(".view").forEach(el=>el.classList.toggle("on",el.id==="v-"+v));
-  $("#top").style.display=(v==="shelves"||v==="time"||v==="authors")?"":"none";
+  
   window.scrollTo({top:0});
 }
 document.querySelectorAll("nav.tabs button").forEach(btn=>btn.addEventListener("click",()=>{haptic();go(btn.dataset.v)}));

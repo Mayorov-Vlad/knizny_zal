@@ -475,7 +475,7 @@ function renderShelves(){
   const byC={};BOOKS.forEach(b=>(byC[b.c]=byC[b.c]||[]).push(b));
   $("#v-shelves").innerHTML=Object.keys(byC).sort((a,b)=>rank(a)-rank(b)).map(c=>{
     const byG={};byC[c].forEach(b=>(byG[b.g]=byG[b.g]||[]).push(b));
-    return `<div class="country"><div class="sign"><h2>${esc(c)}</h2><span>${byC[c].length}</span></div>`+
+    return `<div class="country"><div class="sign"><h2>${esc(c)}</h2></div>`+
      Object.keys(GEN).filter(g=>byG[g]).map(g=>`<div class="genre"><span class="genre-label">${GEN[g]}</span><div class="shelf">${
        byG[g].sort((a,b)=>(a.y||9999)-(b.y||9999)).map(b=>{
          const w=Math.min(44,Math.max(30,Math.round(24+b.pg/30)));const h=214+((b.pg*7)%30);
@@ -490,7 +490,7 @@ function renderTime(){
   const dated=BOOKS.filter(b=>b.y).sort((a,b)=>a.y-b.y);
   const byCt={};dated.forEach(b=>(byCt[centuryOf(b.y)]=byCt[centuryOf(b.y)]||[]).push(b));
   const undated=BOOKS.filter(b=>!b.y);
-  $("#v-time").innerHTML=Object.keys(byCt).map(ct=>`<div class="cent"><h2>${ROMAN[ct]||ct} век <small>${byCt[ct].length} ${plural(byCt[ct].length,"книга","книги","книг")}</small></h2><div class="tl">${
+  $("#v-time").innerHTML=Object.keys(byCt).map(ct=>`<div class="cent"><h2>${ROMAN[ct]||ct} век</h2><div class="tl">${
     byCt[ct].map(b=>`<button class="tl-row" data-id="${b.id}"><span class="yr">${b.y}</span>${cover(b,40)}<span class="tx"><b>${esc(b.t)}</b><span>${esc(b.a)} · ${esc(b.c)}${b.r!=null?` · ${b.r}/10`:""}</span></span></button>`).join("")
   }</div></div>`).join("");
 }
@@ -499,7 +499,7 @@ function renderTime(){
 function renderAuthors(){
   const by={};BOOKS.filter(b=>b.c!=="Неразобранное").forEach(b=>(by[b.a]=by[b.a]||[]).push(b));
   const list=Object.entries(by).sort((x,y)=>(y[1].length-x[1].length)||x[0].localeCompare(y[0],"ru"));
-  $("#v-authors").innerHTML=`<div class="authors">${list.map(([a,bs])=>`<div class="au-card"><h3>${esc(a)}</h3><div class="sub">${esc(bs[0].c)} · ${bs.length} ${plural(bs.length,"книга","книги","книг")}</div><div class="au-books">${bs.map(b=>`<button class="au-book" data-id="${b.id}">${cover(b,34)}<b>${esc(b.t)}</b></button>`).join("")}</div></div>`).join("")}</div>`;
+  $("#v-authors").innerHTML=`<div class="authors">${list.map(([a,bs])=>`<div class="au-card"><h3>${esc(a)}</h3><div class="sub">${esc(bs[0].c)}</div><div class="au-books">${bs.map(b=>`<button class="au-book" data-id="${b.id}">${cover(b,34)}<b>${esc(b.t)}</b></button>`).join("")}</div></div>`).join("")}</div>`;
 }
 
 // ---------- sheets ----------

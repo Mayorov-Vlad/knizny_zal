@@ -10,20 +10,20 @@
   Живёт только в папке v5/. Не понравится — удалить папку v5 целиком.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#FFFFFF;--ink2:rgba(255,255,255,.72);--ink3:rgba(255,255,255,.5);--glass:rgba(255,255,255,.12);--glass2:rgba(255,255,255,.2);--edge:rgba(255,255,255,.22);--acc:#FFFFFF;--f:'Golos Text',system-ui,sans-serif}
+:root{--ink:#FFFFFF;--ink2:rgba(255,255,255,.72);--ink3:rgba(255,255,255,.5);--glass:rgba(255,255,255,.12);--glass2:rgba(255,255,255,.2);--edge:rgba(255,255,255,.22);--acc:#FFFFFF;--f:'Inter Tight',-apple-system,system-ui,sans-serif}
 *{box-sizing:border-box}
 html,body{margin:0;height:100%;background:#05060A;color:var(--ink);overflow:hidden}
 body{font-family:var(--f);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
 button:focus-visible{outline:2px solid #fff;outline-offset:2px}
-.gl{position:relative;isolation:isolate;border:0;background:linear-gradient(180deg,rgba(255,255,255,.17),rgba(255,255,255,.05) 55%,rgba(255,255,255,.09));backdrop-filter:blur(24px) saturate(1.8) brightness(1.06);-webkit-backdrop-filter:blur(24px) saturate(1.8) brightness(1.06);
-  box-shadow:inset 0 1.5px 1px -.5px rgba(255,255,255,.6),inset 0 -1px 1px rgba(255,255,255,.14),inset 0 14px 20px -16px rgba(255,255,255,.38),inset 0 -16px 22px -18px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.22),0 20px 44px -20px rgba(0,0,0,.65)}
-/* светящийся ободок: ярче сверху-слева, тает к середине, отблеск снизу-справа — вместо ровной обводки */
-.gl::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;padding:1px;pointer-events:none;background:linear-gradient(155deg,rgba(255,255,255,.7),rgba(255,255,255,.1) 28%,rgba(255,255,255,0) 52%,rgba(255,255,255,.12) 78%,rgba(255,255,255,.42));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.gl{position:relative;isolation:isolate;border:0;background:rgba(255,255,255,.075);backdrop-filter:blur(30px) saturate(1.9);-webkit-backdrop-filter:blur(30px) saturate(1.9);
+  box-shadow:inset 0 .5px 0 rgba(255,255,255,.35),0 12px 32px -14px rgba(0,0,0,.55)}
+/* световой ободок: ярче на верхнем крае, растворяется по бокам — объём без глянца */
+.gl::before{content:"";position:absolute;inset:0;z-index:-1;border-radius:inherit;padding:1px;pointer-events:none;background:linear-gradient(170deg,rgba(255,255,255,.42),rgba(255,255,255,.06) 30%,rgba(255,255,255,0) 60%,rgba(255,255,255,.14));-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
 /* «линза» — выпуклая капля для кнопок внутри стекла */
-.lensy{background:linear-gradient(180deg,rgba(255,255,255,.3),rgba(255,255,255,.1) 60%,rgba(255,255,255,.16));box-shadow:inset 0 1px 1px rgba(255,255,255,.7),inset 0 -1px 1px rgba(255,255,255,.18),inset 0 8px 12px -8px rgba(255,255,255,.45),inset 0 -8px 12px -10px rgba(0,0,0,.35),0 6px 14px -6px rgba(0,0,0,.45)}
+.lensy{background:rgba(255,255,255,.14);box-shadow:inset 0 .5px 0 rgba(255,255,255,.4)}
 .press{transition:transform .45s cubic-bezier(.3,1.7,.5,1),background .3s,color .3s}
 .press:active{transform:scale(.94);transition-duration:.12s}
 
@@ -38,12 +38,12 @@ button:focus-visible{outline:2px solid #fff;outline-offset:2px}
 /* верх */
 .top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 0;pointer-events:none}
 .top > *{pointer-events:auto}
-.brand{font-weight:800;font-size:20px;letter-spacing:-.02em;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+.brand{font-weight:600;font-size:21px;letter-spacing:-.035em;text-shadow:0 2px 12px rgba(0,0,0,.4)}
 .brand small{font-weight:500;font-size:11px;opacity:.6;margin-left:6px}
 .seg{position:relative;display:grid;grid-template-columns:1fr 1fr;border-radius:999px;padding:3px}
 .seg button{position:relative;z-index:1;padding:7px 15px;font-size:13px;font-weight:600;color:var(--ink2);transition:color .3s}
 .seg button.on{color:#0B0B10}
-.seg i{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;background:linear-gradient(180deg,#fff,#E6E6EE);box-shadow:inset 0 -1.5px 2px rgba(0,0,0,.12),inset 0 1px 0 #fff,0 4px 12px -3px rgba(0,0,0,.45);transition:transform .55s cubic-bezier(.3,1.35,.5,1)}
+.seg i{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;background:#F5F5F7;box-shadow:0 2px 10px -2px rgba(0,0,0,.35);transition:transform .55s cubic-bezier(.3,1.35,.5,1)}
 body.films .seg i{transform:translateX(100%)}
 
 /* экраны */
@@ -54,26 +54,26 @@ body.films .seg i{transform:translateX(100%)}
 .feed{position:absolute;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain}
 .feed::-webkit-scrollbar{display:none}
 .slide{position:relative;height:100%;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(64px + env(safe-area-inset-top,0px)) 20px calc(118px + env(safe-area-inset-bottom,0px))}
-.tag{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:min(18px,2dvh)}
+.tag{display:inline-flex;align-items:center;gap:7px;padding:7px 13px;border-radius:999px;font-size:12.5px;font-weight:500;letter-spacing:-.005em;margin-bottom:min(18px,2dvh)}
 .tag i{width:7px;height:7px;border-radius:50%;background:#7CFFB2;box-shadow:0 0 10px #7CFFB2}
 .tag.find i{background:#FFD36B;box-shadow:0 0 10px #FFD36B}
 .obj{perspective:1000px;width:min(58vw,240px,calc((100dvh - 440px) * .66))}
 .obj .cv{transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .25s ease-out;border-radius:10px;box-shadow:0 40px 70px -24px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.12)}
 .obj .cv::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.28) 0%,transparent 35%,transparent 65%,rgba(255,255,255,.08));pointer-events:none;mix-blend-mode:overlay}
 .card{width:min(100%,420px);margin-top:min(26px,2.5dvh);border-radius:26px;padding:16px 18px 14px}
-.card h2{margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.card h2{margin:0;font-size:26px;font-weight:600;letter-spacing:-.035em;line-height:1.08}
 .card .meta{color:var(--ink2);font-size:14px;margin-top:4px}
 .card p{margin:10px 0 0;font-size:14.5px;line-height:1.45;color:var(--ink2)}
 .acts{display:flex;gap:8px;margin-top:14px}
-.btn{flex:1;height:48px;border-radius:999px;font-weight:600;font-size:14.5px;background:linear-gradient(180deg,rgba(255,255,255,.24),rgba(255,255,255,.08) 60%,rgba(255,255,255,.13));box-shadow:inset 0 1px 1px rgba(255,255,255,.6),inset 0 -1px 1px rgba(255,255,255,.15),inset 0 10px 14px -10px rgba(255,255,255,.4),inset 0 -10px 14px -12px rgba(0,0,0,.4),0 8px 18px -10px rgba(0,0,0,.5);transition:transform .45s cubic-bezier(.3,1.7,.5,1),opacity .3s}
+.btn{flex:1;height:48px;border-radius:999px;font-weight:600;font-size:15px;letter-spacing:-.01em;background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.16),inset 0 .5px 0 rgba(255,255,255,.3);transition:transform .45s cubic-bezier(.3,1.7,.5,1),opacity .3s,background .2s}
 .btn:active{transform:scale(.95);transition-duration:.12s}
 .btn:disabled{opacity:.7}
-.btn.w{background:linear-gradient(180deg,#fff,#E4E4EC);color:#0B0B10;box-shadow:inset 0 -2px 3px rgba(0,0,0,.14),inset 0 1px 0 #fff,0 10px 26px -10px rgba(255,255,255,.35),0 4px 10px -4px rgba(0,0,0,.4)}
+.btn.w{background:#F5F5F7;color:#0B0B10;box-shadow:0 6px 20px -8px rgba(0,0,0,.5)}
 .btn.sm{flex:none;height:36px;padding:0 14px;font-size:13px}
 .stars{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin-top:12px}
 .stars::-webkit-scrollbar{display:none}
-.stars button{aspect-ratio:1;width:100%;max-width:34px;justify-self:center;border-radius:50%;font-size:12.5px;font-weight:700;background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));box-shadow:inset 0 1px 1px rgba(255,255,255,.35),inset 0 -1px 1px rgba(255,255,255,.08);color:var(--ink2);transition:transform .4s cubic-bezier(.3,1.7,.5,1),background .2s}
-.stars button.on{background:linear-gradient(180deg,#fff,#E4E4EC);box-shadow:inset 0 -1.5px 2px rgba(0,0,0,.14),0 4px 12px -2px rgba(255,255,255,.35);color:#0B0B10;transform:scale(1.15)}
+.stars button{aspect-ratio:1;width:100%;max-width:34px;justify-self:center;border-radius:50%;font-size:13px;font-weight:500;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12);color:var(--ink2);transition:transform .4s cubic-bezier(.3,1.7,.5,1),background .2s}
+.stars button.on{background:#F5F5F7;box-shadow:none;color:#0B0B10;font-weight:600;transform:scale(1.12)}
 .dots{position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:6;display:flex;flex-direction:column;gap:6px}
 .dots i{width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.35);transition:height .3s,background .3s}
 .dots i.on{height:16px;background:#fff}
@@ -83,18 +83,19 @@ body.films .seg i{transform:translateX(100%)}
 /* коллекция — coverflow + сетка */
 .scroll{position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:calc(64px + env(safe-area-inset-top,0px)) 0 calc(120px + env(safe-area-inset-bottom,0px))}
 .scroll::-webkit-scrollbar{display:none}
-.h1{font-size:40px;font-weight:800;letter-spacing:-.03em;margin:8px 20px 0}
+.h1{font-size:44px;font-weight:600;letter-spacing:-.045em;margin:8px 20px 0}
 .flow{position:relative;height:330px;margin-top:6px;perspective:900px;overflow:hidden;touch-action:pan-y}
 .flow .cv{position:absolute;left:50%;top:30px;width:170px;margin-left:-85px;border-radius:8px;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s,filter .5s;box-shadow:0 30px 50px -20px rgba(0,0,0,.8)}
 .flow-cap{text-align:center;margin-top:-6px;padding:0 20px}
-.flow-cap b{display:block;font-size:19px;font-weight:700;letter-spacing:-.01em}
+.flow-cap b{display:block;font-size:20px;font-weight:600;letter-spacing:-.03em}
 .flow-cap span{color:var(--ink2);font-size:13.5px}
 .flow-cap em{display:block;font-style:normal;font-size:11.5px;color:var(--ink3);margin-top:4px}
 .pills{display:flex;gap:6px;margin:22px 20px 0;overflow-x:auto;scrollbar-width:none}
 .pills::-webkit-scrollbar{display:none}
 .pills button{flex:none;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600}
 .pills button{transition:transform .45s cubic-bezier(.3,1.7,.5,1),color .3s}.pills button:active{transform:scale(.94)}
-.pills button.on{background:linear-gradient(180deg,#fff,#E4E4EC);color:#0B0B10;box-shadow:inset 0 -1.5px 2px rgba(0,0,0,.14),inset 0 1px 0 #fff,0 6px 16px -6px rgba(0,0,0,.5)}
+.pills button.on{background:#F5F5F7;color:#0B0B10;box-shadow:none}
+.pills button.on::before{display:none}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 10px;padding:16px 20px 0}
 .grid button{text-align:left}
 .grid .cv{border-radius:8px;box-shadow:0 14px 24px -14px rgba(0,0,0,.8)}
@@ -105,7 +106,7 @@ body.films .seg i{transform:translateX(100%)}
 .bx{border-radius:24px;padding:16px;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
 .bx.tall{grid-row:span 2}
 .bx.wide{grid-column:span 2}
-.bx .n{font-size:58px;font-weight:800;letter-spacing:-.05em;line-height:.9}
+.bx .n{font-size:58px;font-weight:500;letter-spacing:-.06em;line-height:.9;font-variant-numeric:tabular-nums}
 .bx.tall .n{font-size:96px}
 .bx .l{font-size:13px;color:var(--ink2);font-weight:500}
 .ring{width:110px;height:110px;align-self:center}
@@ -113,23 +114,23 @@ body.films .seg i{transform:translateX(100%)}
 .mini .cv{width:40px;margin-right:-12px;border-radius:5px;box-shadow:0 6px 12px rgba(0,0,0,.5)}
 .mini .gen{font-size:0}.mini .gen small{display:none}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
-.chips span{padding:5px 11px;border-radius:999px;font-size:12.5px;background:linear-gradient(180deg,rgba(255,255,255,.16),rgba(255,255,255,.05));box-shadow:inset 0 1px 1px rgba(255,255,255,.35),inset 0 -1px 1px rgba(255,255,255,.08)}
+.chips span{padding:5px 11px;border-radius:999px;font-size:13px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14)}
 
 /* док */
 .bottom{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;justify-content:center;align-items:center;gap:10px;pointer-events:none}
 .bottom > *{pointer-events:auto}
 .dock{display:flex;gap:4px;padding:6px;border-radius:32px}
-.dock button{position:relative;z-index:1;width:60px;height:50px;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:600;color:var(--ink2);transition:color .35s}
-.dock svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dock button{position:relative;z-index:1;width:62px;height:48px;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;font-weight:500;letter-spacing:-.01em;color:var(--ink2);transition:color .35s}
+.dock svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .dock button.on{color:#fff}
-.lens{position:absolute;top:6px;left:0;height:50px;border-radius:25px;z-index:0;transition:transform .6s cubic-bezier(.3,1.3,.5,1),width .4s,scale .35s cubic-bezier(.3,1.6,.5,1)}
+.lens{position:absolute;top:6px;left:0;height:48px;border-radius:25px;z-index:0;transition:transform .6s cubic-bezier(.3,1.3,.5,1),width .4s,scale .35s cubic-bezier(.3,1.6,.5,1)}
 .lens.go{scale:1.16 .84}
-.srch{width:62px;height:62px;border-radius:50%;display:grid;place-items:center}
-.srch svg{width:23px;height:23px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
+.srch{width:60px;height:60px;border-radius:50%;display:grid;place-items:center}
+.srch svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round}
 
 /* обложки */
 .cv{position:relative;aspect-ratio:2/3;overflow:hidden;background:#222}
-.cv .gen{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:10%;font-weight:700;font-size:13px;line-height:1.1;color:#fff}
+.cv .gen{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:10%;font-weight:600;letter-spacing:-.02em;font-size:13px;line-height:1.1;color:#fff}
 .cv .gen small{font-weight:500;opacity:.75;font-size:10px;margin-top:3px}
 .cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}
 .cv img.ok{opacity:1}
@@ -150,7 +151,7 @@ body.films .seg i{transform:translateX(100%)}
 .grab{width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.3);margin:4px auto 12px}
 .dt{text-align:center}
 .dt .cv{width:150px;margin:6px auto 0;border-radius:10px;box-shadow:0 30px 50px -20px rgba(0,0,0,.8)}
-.dt h2{margin:16px 0 0;font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.dt h2{margin:16px 0 0;font-size:26px;font-weight:600;letter-spacing:-.035em;line-height:1.1}
 .dt .meta{color:var(--ink2);font-size:14px;margin-top:4px}
 .dt .stars{margin-top:16px}
 .sbar{display:flex;align-items:center;gap:10px;height:50px;border-radius:25px;padding:0 16px}
@@ -187,9 +188,9 @@ body.films .seg i{transform:translateX(100%)}
 <section class="screen" id="s-sum"><div class="scroll"><div class="h1">Итоги</div><div class="bento" id="bento"></div></div></section>
 
 <div class="bottom"><nav class="dock gl" aria-label="Разделы"><i class="lens lensy" id="lens"></i>
-  <button data-s="feed" class="on"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 21v-3M15 21v-3"/></svg>Лента</button>
-  <button data-s="col"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="16" rx="1"/><path d="M17 5l3.5 1-3.5 14"/></svg>Полка</button>
-  <button data-s="sum"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v8l6 4"/></svg>Итоги</button>
+  <button data-s="feed" class="on"><svg viewBox="0 0 24 24"><path d="M8 3.5h8M6 6.5h12"/><rect x="4" y="9.5" width="16" height="11" rx="3"/></svg>Лента</button>
+  <button data-s="col"><svg viewBox="0 0 24 24"><path d="M4.5 4v16M9 7v13M13.5 5v15M16.5 6.5l4 13"/></svg>Полка</button>
+  <button data-s="sum"><svg viewBox="0 0 24 24"><path d="M5.5 20v-7M12 20V4.5M18.5 20v-10"/></svg>Итоги</button>
 </nav>
   <button class="srch gl press" id="srchB" aria-label="Найти и добавить"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg></button></div>
 <div class="sheet" id="sheet"><div class="sh-bg" data-close></div><div class="sh gl" id="sh"><div class="grab"></div><div id="shBody"></div></div></div>
@@ -295,7 +296,7 @@ $("#grid").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(
 function drawSum(){const r=R().read,u=T[realm].u,cs=[...new Set(r.map(x=>x.c).filter(c=>c&&c!=="—"))],rated=r.filter(x=>x.r!=null),avg=rated.reduce((s,x)=>s+x.r,0)/Math.max(1,rated.length),best=r.filter(x=>x.r===10);
   const C=2*Math.PI*44,frac=avg/10;
   $("#bento").innerHTML=`<div class="bx tall gl"><div class="l">${new Date().getFullYear()}</div><div><div class="n">${r.length}</div><div class="l">${plural(r.length,...u)} — ${T[realm].read.toLowerCase()}</div></div></div>
-   <div class="bx gl"><div class="l">Средняя оценка</div><svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="rgba(255,255,255,.15)" stroke-width="8" fill="none"/><circle cx="50" cy="50" r="44" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${C*frac} ${C}" transform="rotate(-90 50 50)"/><text x="50" y="58" text-anchor="middle" fill="#fff" font-size="26" font-weight="800" font-family="Golos Text,system-ui,sans-serif">${avg.toFixed(1).replace(".",",")}</text></svg></div>
+   <div class="bx gl"><div class="l">Средняя оценка</div><svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="rgba(255,255,255,.15)" stroke-width="8" fill="none"/><circle cx="50" cy="50" r="44" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${C*frac} ${C}" transform="rotate(-90 50 50)"/><text x="50" y="58" text-anchor="middle" fill="#fff" font-size="27" font-weight="500" letter-spacing="-1" font-family="Inter Tight,system-ui,sans-serif">${avg.toFixed(1).replace(".",",")}</text></svg></div>
    <div class="bx gl"><div class="l">${T[realm].want}</div><div class="n">${R().want.length}</div></div>
    <div class="bx wide gl"><div class="l">${cs.length} ${plural(cs.length,"страна","страны","стран")}</div><div class="chips">${cs.map(c=>`<span>${esc(c)}</span>`).join("")}</div></div>
    <div class="bx wide gl"><div class="l">Десять из десяти</div><div class="mini">${best.map(cover).join("")||'<span class="l">Пока нет</span>'}</div></div>`}

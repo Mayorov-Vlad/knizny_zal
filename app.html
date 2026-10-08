@@ -1181,8 +1181,8 @@ function matchBooks(text){
 }
 function openAddBook(){
   openSheet(`<div class="qform">
-   <input type="file" id="bPhoto" accept="image/*" hidden>
-   <button type="button" class="photo-btn" id="bPhotoBtn"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span><b>Сфотографировать полку или стопку</b><small>Можно сразу много книг на одном снимке — я найду все названия</small></span></button>
+   <input type="file" id="bPhoto" accept="image/*" multiple hidden>
+   <button type="button" class="photo-btn" id="bPhotoBtn"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span><b>Сфотографируй книгу или сразу книжный шкаф</b></span></button>
    <div class="ocr" id="bOcr" hidden></div>
    <div class="found" id="bFound"></div><div id="bUnk"></div>
    <label for="bT">Или впиши название</label><input id="bT" autocomplete="off" placeholder="Например, Мастер и Маргарита"><div class="sugg" id="bSugg"></div>
@@ -1198,18 +1198,20 @@ function openAddBook(){
   const drawFound=()=>{$("#bFound").innerHTML=found.length?`<div class="found-k">Нашёл на фото — лишнее убери</div>${found.map((b,i)=>`<div class="fchip">${cover(b,30)}<span><b>${esc(b.t)}</b><small>${esc(b.a)}</small></span><button type="button" data-fx="${i}" aria-label="Убрать">×</button></div>`).join("")}`:"";
     $("#bFound").querySelectorAll("[data-fx]").forEach(x=>x.onclick=()=>{found.splice(+x.dataset.fx,1);drawFound();upd()});upd()};
   $("#bPhotoBtn").onclick=()=>$("#bPhoto").click();
-  $("#bPhoto").onchange=async e=>{const file=e.target.files[0];if(!file)return;const box=$("#bOcr");box.hidden=false;
+  $("#bPhoto").onchange=async e=>{const files=[...e.target.files];if(!files.length)return;const box=$("#bOcr");box.hidden=false;
     const say=(t,pct)=>{box.innerHTML=`<div class="ocr-t">${t}</div><div class="ocr-bar"><i style="width:${pct||0}%"></i></div>`};
-    say("Готовлю лупу…",3);
-    try{const cans=await imgToCanvases(file);let stage=0;
-      const w=await getOcr(m=>{if(m.status==="loading language traineddata")say("Учусь читать по-русски… (только в первый раз)",Math.round((m.progress||0)*30));else if(m.status==="recognizing text")say(`Читаю корешки… ${stage+1} из 3`,30+Math.round(((stage+(m.progress||0))/3)*70))});
-      let text="",lines=[];for(stage=0;stage<cans.length;stage++){const r=await w.recognize(cans[stage]);text+="\n"+r.data.text;(r.data.lines||[]).forEach(l=>{if(l.confidence>=70)lines.push(l.text)})}
-      const res=matchBooks(text).filter(b=>!READ.has(norm(b.t))&&!found.some(f=>norm(f.t)===norm(b.t)));
-      found.push(...res);drawFound();haptic(res.length?"ok":"light");
+    say("Готовлю лупу…",3);let total=0;
+    try{let fi=0,stage=0;const N=files.length;
+      const w=await getOcr(m=>{if(m.status==="loading language traineddata")say("Учусь читать по-русски… (только в первый раз)",Math.round((m.progress||0)*20));else if(m.status==="recognizing text")say(N>1?`Читаю фото ${fi+1} из ${N}…`:"Читаю названия…",20+Math.round(((fi+(stage+(m.progress||0))/3)/N)*80))});
+      let lines=[];
+      for(fi=0;fi<N;fi++){const cans=await imgToCanvases(files[fi]);let text="";
+        for(stage=0;stage<cans.length;stage++){const r=await w.recognize(cans[stage]);text+="\n"+r.data.text;(r.data.lines||[]).forEach(l=>{if(l.confidence>=70)lines.push(l.text)})}
+        const res=matchBooks(text).filter(b=>!READ.has(norm(b.t))&&!found.some(f=>norm(f.t)===norm(b.t)));found.push(...res);total+=res.length;drawFound()}
+      haptic(total?"ok":"light");
       const known=new Set([...found,...BOOKS].flatMap(b=>[norm(b.t),...toks(b.a||"").map(norm)]));
       const cand=[...new Set(lines.map(l=>l.replace(/[^А-Яа-яЁёA-Za-z0-9 .,:!?«»"'—-]/g," ").replace(/\s+/g," ").trim()))].filter(l=>{const letters=(l.match(/[А-Яа-яЁёA-Za-z]/g)||[]).length;const ws=l.split(" ").filter(w=>w.length>=3);return l.length>=4&&l.length<=48&&letters/l.length>.75&&ws.length>=1&&!known.has(norm(l))&&![...known].some(k=>k.length>4&&norm(l).includes(k))}).slice(0,10);
-      unk=cand;drawUnk();
-      box.innerHTML=res.length?`<div class="ocr-t ok">Узнал ${res.length} ${plural(res.length,"книгу","книги","книг")}. Можно добавить ещё фото — новые книги допишутся в список.</div>`:`<div class="ocr-t">Не разобрал названия. Попробуй ближе и при хорошем свете — или впиши вручную.</div>`;
+      unk=[...new Set([...unk,...cand])].slice(0,12);drawUnk();
+      box.innerHTML=total?`<div class="ocr-t ok">Узнал ${total} ${plural(total,"книгу","книги","книг")}</div>`:`<div class="ocr-t">Не разобрал названия. Попробуй ближе и при хорошем свете — или впиши вручную.</div>`;
     }catch(err){box.innerHTML=`<div class="ocr-t">Распознавание не запустилось${location.protocol==="file:"?"":" — открой зал в Telegram"}. Впиши книгу вручную.</div>`}
     e.target.value=""};
   T.addEventListener("input",()=>{picked=null;upd();const v=norm(T.value);if(v.length<3){$("#bSugg").innerHTML="";return}

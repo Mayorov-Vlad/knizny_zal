@@ -419,8 +419,8 @@ body.films nav.tabs button{width:auto;min-width:78px}
 body.films nav.tabs button.on{color:var(--cine)}
 :root[data-theme="dark"] body.films nav.tabs button.on{color:#E8798A}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) body.films nav.tabs button.on{color:#E8798A}}
-.poster{position:relative;flex:none;border-radius:4px;background:radial-gradient(120% 80% at 50% 0%,color-mix(in srgb,var(--pbg) 70%,#fff 12%) 0%,var(--pbg) 60%);color:var(--pfg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6%;padding:10% 8% 14%;overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 6px 14px -8px rgba(0,0,0,.6);text-align:center}
-.poster::after{content:"";position:absolute;inset:4%;border:1px solid color-mix(in srgb,var(--pfg) 35%,transparent);border-radius:2px;pointer-events:none}
+.poster{position:relative;flex:none;border-radius:4px;background:radial-gradient(120% 80% at 50% 0%,color-mix(in srgb,var(--pbg) 70%,#fff 12%) 0%,var(--pbg) 60%);color:var(--pfg);display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;box-shadow:0 1px 0 rgba(255,255,255,.06) inset,0 6px 14px -8px rgba(0,0,0,.6);text-align:center}
+.poster::after{content:"";position:absolute;inset:4px;border:1px solid color-mix(in srgb,var(--pfg) 35%,transparent);border-radius:2px;pointer-events:none}
 .poster .p-ic{fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;opacity:.85;flex:none}
 .poster .p-t{font-family:"Oswald",var(--sans);font-weight:600;text-transform:uppercase;line-height:1.08;letter-spacing:.02em;display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:normal;word-break:keep-all;hyphens:none;width:100%;max-height:58%}
 .poster .p-y{position:absolute;bottom:6%;left:0;right:0;font-family:"Oswald",var(--sans);letter-spacing:.2em;opacity:.7}
@@ -2413,7 +2413,7 @@ function toggleWant(f){if(isWant(f.id))FWANT=FWANT.filter(x=>x.id!==f.id);else{F
 function poster(f,w){const h=Math.round(w*1.5),[bg,fg]=FPAL[hsh(String(f.id))%FPAL.length],t=fTitle(f);
   const words=t.split(/\s+/),mw=Math.max(...words.map(x=>x.length),1);
   const fs=Math.max(w*.1,Math.min(w*.22,w*11/Math.max(t.length,1)));
-  return `<div class="poster" style="width:${w}px;height:${h}px;--pbg:${bg};--pfg:${fg}"><svg class="p-ic" viewBox="0 0 24 24" style="width:${Math.round(w*(w<60?.5:.3))}px;height:${Math.round(w*(w<60?.5:.3))}px">${FG_ICON[mainGenre(f.g||0)]}</svg>${w>=60?`<b class="p-t" style="font-size:${fs.toFixed(1)}px">${esc(t)}</b>`:""}${w>=70&&f.y?`<span class="p-y" style="font-size:${Math.max(8,w*.1).toFixed(1)}px">${f.y}</span>`:""}</div>`}
+  return `<div class="poster" style="width:${w}px;height:${h}px;padding:${(w*.1).toFixed(1)}px ${(w*.08).toFixed(1)}px ${(w*.15).toFixed(1)}px;gap:${(w*.05).toFixed(1)}px;--pbg:${bg};--pfg:${fg}"><svg class="p-ic" viewBox="0 0 24 24" style="width:${Math.round(w*(w<60?.5:.3))}px;height:${Math.round(w*(w<60?.5:.3))}px">${FG_ICON[mainGenre(f.g||0)]}</svg>${w>=60?`<b class="p-t" style="font-size:${fs.toFixed(1)}px">${esc(t)}</b>`:""}${w>=70&&f.y?`<span class="p-y" style="font-size:${Math.max(8,w*.1).toFixed(1)}px">${f.y}</span>`:""}</div>`}
 function fMeta(f){return [f.o&&f.o!==fTitle(f)?esc(f.o):"",f.y||"",(f.c||[]).slice(0,2).map(cName).join(", ")].filter(Boolean).join(" · ")}
 function fRow(f,i){const st=isSeen(f.id)?"seen":isWant(f.id)?"want":"";
   return `<div class="lib-row f-row" data-fi="${i}">${poster(f,36)}<span class="tx" data-fo="${i}"><b>${esc(fTitle(f))}</b><span>${fMeta(f)}</span>${f.r?`<span class="f-imdb">IMDb ${fmtR(f.r)}${f.v?` · ${fmtVotes(f.v)}`:""}${f.hr===0?` · <i>не выходил в РФ</i>`:""}</span>`:""}</span>`+
@@ -2501,7 +2501,7 @@ function tevoFilters(){const T=TF;
    <div class="ff"><div class="lbl">Известность</div><div class="f-chips">${[["any","любая"],["hit","хиты"],["known","известные"],["rare","малоизвестные"]].map(([v,l])=>chip("data-tf",v,T.fame===v,l)).join("")}</div></div>
    <div class="ff"><div class="lbl">Длительность</div><div class="f-chips">${[["any","любая"],["short","до 90 мин"],["mid","90–150"],["long","от 150"]].map(([v,l])=>chip("data-tl",v,T.len===v,l)).join("")}</div></div>
    <div class="ff"><div class="lbl">Язык оригинала</div><div class="f-chips">${[["","любой"],...TOPL.map(l=>[l,lName(l)])].map(([v,l])=>chip("data-tlg",v,T.lang===v,l)).join("")}</div></div>
-   <div class="ff"><div class="lbl">Русская версия</div><div class="f-chips">${[["any","неважно"],["yes","выходили в России"],["no","не выходили в России"]].map(([v,l])=>chip("data-tru",v,T.ru===v,l)).join("")}</div></div>
+   <div class="ff"><div class="lbl">Прокат в России</div><div class="f-chips">${[["any","неважно"],["yes","выходили в России"],["no","не выходили в России"]].map(([v,l])=>chip("data-tru",v,T.ru===v,l)).join("")}</div></div>
    <label class="f-check"><input type="checkbox" id="tHide"${T.hideWant?" checked":""}> Скрывать то, что уже в «Хочу посмотреть»</label>
   </div>`}
 function tevoSummary(){const T=TF,p=[];if(T.genres.length)p.push(T.genres.map(i=>FG_RU[i]).join(", "));if(T.countries.length)p.push(T.countries.map(cName).join(", "));
@@ -2516,7 +2516,7 @@ function tevoFilter(){const T=TF,seen=new Set(FSEEN.map(x=>x.id)),wantS=new Set(
     if(f.v<minV||f.v>=maxV)return false;if(T.len==="short"&&!(f.m&&f.m<90))return false;if(T.len==="mid"&&!(f.m>=90&&f.m<=150))return false;if(T.len==="long"&&!(f.m>150))return false;
     if(T.lang&&!(f.l||[]).includes(T.lang))return false;if(T.ru==="yes"&&!f.hr)return false;if(T.ru==="no"&&f.hr)return false;return true});
   const s=T.sort;
-  if(s==="pop")res.sort((a,b)=>b.v-a.v);else if(s==="rating")res.sort((a,b)=>(b.r+Math.min(b.v,1e5)/1e5*3)-(a.r+Math.min(a.v,1e5)/1e5*3));
+  if(s==="pop")res.sort((a,b)=>b.v-a.v);else if(s==="rating"){const m=8000,C=64,wr=f=>(f.v*f.r+m*C)/(f.v+m);res.forEach(f=>f._wr=wr(f));res.sort((a,b)=>b._wr-a._wr)}
   else if(s==="new")res.sort((a,b)=>b.y-a.y||b.v-a.v);else if(s==="old")res.sort((a,b)=>a.y-b.y||b.v-a.v);
   else{for(let i=res.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[res[i],res[j]]=[res[j],res[i]]}}
   return res}

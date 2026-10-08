@@ -417,6 +417,8 @@ body.kb .wrap{padding-bottom:70vh}
 .lib-act button[data-lw]{border-color:var(--gold);color:var(--gold-deep)}
 .lib-have{flex:none;font-size:12px;color:var(--muted);font-style:italic}
 .lib-more{display:block;margin:10px auto 0}
+.lib-others{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:14px;font-size:12.5px;color:var(--muted)}
+.lib-others button{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:4px 10px;font-size:12.5px;color:var(--ink)}
 .lib-author{display:block;width:100%;text-align:left;border:1px dashed var(--gold);background:none;border-radius:10px;padding:9px 12px;font-weight:700;color:var(--gold-deep);margin-top:6px;font-size:14px}
 .lib-author small{display:block;font-weight:500;color:var(--muted);font-size:12px}
 #askSugg{margin-top:6px}
@@ -1342,8 +1344,12 @@ async function libByAuthorName(q){const pages=await Promise.all([1,2,3].map(p=>l
   let full=null;if(list[0]._fa)full=await libAuthorBooks(list[0]._fa).catch(()=>null);
   return {name:list[0].a,list:full&&full.length?full:list}}
 // главный вход: книги автора по запросу (или null)
-async function libAuthorSearch(q){if(wordsOfQ(q).length>3)return null;const au=await libAuthors(q).catch(()=>[]);
-  if(au[0]){const list=await libAuthorBooks(au[0].id).catch(()=>null);if(list&&list.length)return {name:list[0].a||au[0].name,list:list.map(b=>({...b,c:b.c||au[0].c}))}}
+async function libAuthorSearch(q,pickId){if(wordsOfQ(q).length>3&&!pickId)return null;let au=await libAuthors(q).catch(()=>[]);
+  // однофамильцы: впереди тот, кого больше в нашем каталоге и на полках
+  const loc={};[...CAT,...BOOKS].forEach(b=>{const k=norm(b.a||"");loc[k]=(loc[k]||0)+1});
+  au=au.map((a,i)=>({...a,_s:(loc[norm(a.name)]||0)*1000+a.marks/1e6-i})).sort((x,y)=>y._s-x._s);
+  if(pickId)au.sort((x,y)=>(y.id===pickId)-(x.id===pickId));
+  if(au[0]){const list=await libAuthorBooks(au[0].id).catch(()=>null);if(list&&list.length)return {name:list[0].a||au[0].name,list:list.map(b=>({...b,c:b.c||au[0].c})),others:au.slice(1,5),q}}
   return libByAuthorName(q)}
 function flLabels(c,out=[]){if(!c)return out;if(Array.isArray(c)){c.forEach(x=>flLabels(x,out));return out}if(typeof c==="object"){if(c.label&&(c.percent==null||c.percent>=.3))out.push(c.label);flLabels(c.genre,out);flLabels(c.genre_group,out)}return out}
 function flGenre(labels,kind,y){const L=labels.join(" ");
@@ -1375,7 +1381,7 @@ async function addFromLib(b,toWant){
   await flEnrich(b);const w=want.find(x=>x.id===src.id);if(w){w.g=b.g||w.g;if(b.c)w.c=b.c;if(b.ann)w.ann=b.ann;if(b.y)w.y=b.y;saveWant();renderWant()}}
 // общий блок «большая библиотека» для поиска
 let libSeq=0;
-function libSection(box,q,opts={}){const my=++libSeq;const v=String(q||"").trim();if(!box)return;
+function libSection(box,q,opts={}){let my=++libSeq;const v=String(q||"").trim();if(!box)return;
   if(norm(v).length<3){box.innerHTML="";return}
   box.innerHTML=`<div class="lib-k">Ищу в большой библиотеке…</div>`;box._items=[];
   const draw=(title,items,more)=>{if(my!==libSeq)return;box._items=items;const lim=box._lim||12;
@@ -1387,7 +1393,10 @@ function libSection(box,q,opts={}){const my=++libSeq;const v=String(q||"").trim(
     const loc=localAuthorBooks(v),la=Object.keys(loc).sort((x,y)=>loc[y].length-loc[x].length)[0];
     if(la)draw(`Книги автора · ${esc(la)}`,loc[la].slice().sort((x,y)=>(y.q||0)-(x.q||0)).map(b=>({t:b.t,a:b.a,c:b.c,y:b.y,g:b.g})));
     try{const A=await libAuthorSearch(v);if(my!==libSeq)return;
-      if(A&&A.list.length){draw(`Книги автора · ${esc(A.name)} <small>от самых популярных</small>`,A.list);return}
+      if(A&&A.list.length){const show=A=>{draw(`Книги автора · ${esc(A.name)} <small>от самых популярных</small>`,A.list);
+          if(A.others&&A.others.length){const ch=document.createElement("div");ch.className="lib-others";ch.innerHTML=`<span>Другие авторы:</span>`+A.others.map(o=>`<button type="button" data-ao="${o.id}">${esc(o.name)}</button>`).join("");box.prepend(ch);
+            ch.querySelectorAll("[data-ao]").forEach(x=>x.onclick=async()=>{haptic();x.disabled=true;const my2=++libSeq;const B=await libAuthorSearch(A.q,+x.dataset.ao).catch(()=>null);if(my2!==libSeq||!B)return;my=my2;box._lim=12;show(B)})}};
+        show(A);return}
       const ws=await libWorks(v);if(my!==libSeq)return;
       if(ws.length)draw("В большой библиотеке",ws);else if(!la)box.innerHTML=opts.empty||""}
     catch(e){if(my===libSeq&&!la)box.innerHTML=`<div class="lib-k">Большая библиотека сейчас не отвечает — попробуй позже.</div>`}

@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Нора — вторая версия</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!--
+  ВТОРАЯ ВЕРСИЯ «НОРЫ» — отдельный пробный вид.
+  Вся версия живёт в папке v2/ и ничего не берёт из основного приложения, кроме шрифтов.
+  Если не понравится — просто удалить папку v2 целиком.
+-->
+<style>
+@font-face{font-family:'Forum';font-display:swap;src:url(../fonts/forum-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
+@font-face{font-family:'Forum';font-display:swap;src:url(../fonts/forum-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Manrope';font-weight:400;font-display:swap;src:url(../fonts/manrope-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0400-045F}
+@font-face{font-family:'Manrope';font-weight:400;font-display:swap;src:url(../fonts/manrope-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Manrope';font-weight:600;font-display:swap;src:url(../fonts/manrope-cyrillic-600-normal.woff2) format('woff2');unicode-range:U+0400-045F}
+@font-face{font-family:'Manrope';font-weight:600;font-display:swap;src:url(../fonts/manrope-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:'Manrope';font-weight:700;font-display:swap;src:url(../fonts/manrope-cyrillic-700-normal.woff2) format('woff2');unicode-range:U+0400-045F}
+@font-face{font-family:'Manrope';font-weight:700;font-display:swap;src:url(../fonts/manrope-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F}
+
+:root{
+  --sky:#D7E6E3; --sky2:#EEF2E4; --grass:#5F8240; --grass2:#7FA155;
+  --top:#5A3D2C; --clay:#6E4A34; --loam:#3A281E; --deep:#22170F;
+  --lamp:#FFCB6B; --paper:#F4E9D3; --ink:#2A1D16; --ink2:#5C4636; --mute:#8C7461;
+  --moss:#7C9A55; --reel:#C2475A; --line:rgba(244,233,211,.18);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--deep);color:var(--paper)}
+body{font-family:'Manrope',system-ui,sans-serif;font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:2px solid var(--lamp);outline-offset:3px}
+h1,h2,h3{font-family:'Forum',Georgia,serif;font-weight:400;margin:0;letter-spacing:.01em}
+
+/* ---------- поверхность ---------- */
+.surface{position:relative;padding:calc(28px + env(safe-area-inset-top,0px)) 22px 0;background:linear-gradient(var(--sky2),var(--sky));color:var(--ink);overflow:hidden}
+.surface h1{font-size:64px;line-height:.9}
+.surface p{margin:8px 0 0;max-width:30ch;color:var(--ink2)}
+.hole{position:relative;height:96px;margin-top:10px}
+.hole svg{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:100%}
+
+/* ---------- грунт и тоннель ---------- */
+.soil{position:relative;padding:8px 0 120px;background:
+  radial-gradient(3px 3px at 12% 8%,rgba(255,255,255,.07) 50%,transparent 51%),
+  radial-gradient(2px 2px at 70% 22%,rgba(255,255,255,.06) 50%,transparent 51%),
+  radial-gradient(4px 3px at 34% 47%,rgba(0,0,0,.25) 50%,transparent 51%),
+  radial-gradient(2px 2px at 88% 63%,rgba(255,255,255,.05) 50%,transparent 51%),
+  linear-gradient(var(--top) 0,var(--clay) 18%,var(--loam) 55%,var(--deep) 100%);
+  background-size:160px 140px,190px 170px,230px 200px,150px 180px,100% 100%}
+.tunnel{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.tunnel path{fill:none;stroke:#1B120C;stroke-width:26;stroke-linecap:round;opacity:.55}
+.tunnel path.glow{stroke:var(--lamp);stroke-width:2;stroke-dasharray:2 10;opacity:.35}
+.depth{position:absolute;right:10px;font-size:11px;color:rgba(244,233,211,.35);font-variant-numeric:tabular-nums}
+
+.room{position:relative;display:block;width:min(84%,420px);margin:34px 0;border:none;padding:22px 22px 20px;text-align:left;color:var(--paper);
+  background:radial-gradient(120% 90% at 50% 15%,rgba(255,203,107,.22),transparent 60%),#2A1C14;
+  border-radius:58% 42% 50% 50% / 38% 46% 54% 62%;box-shadow:inset 0 10px 30px rgba(0,0,0,.55),0 0 0 3px #1B120C}
+.room:nth-of-type(odd){margin-left:5%}
+.room:nth-of-type(even){margin-left:auto;margin-right:5%;border-radius:44% 56% 48% 52% / 52% 40% 60% 48%}
+.room:active{transform:scale(.985)}
+.room h2{font-size:30px;line-height:1}
+.room .sub{font-size:13px;color:rgba(244,233,211,.7);margin-top:2px}
+.lamp{position:absolute;top:10px;right:22%;width:10px;height:14px;border-radius:50% 50% 45% 45%;background:var(--lamp);box-shadow:0 0 18px 6px rgba(255,203,107,.45)}
+.lamp::before{content:"";position:absolute;left:4px;top:-22px;width:2px;height:22px;background:#140D08}
+.room.films{background:radial-gradient(120% 90% at 50% 15%,rgba(194,71,90,.28),transparent 60%),#24161A}
+.room.films .lamp{background:#FF8E8E;box-shadow:0 0 18px 6px rgba(255,120,120,.4)}
+
+/* содержимое комнат в миниатюре */
+.pile{display:flex;align-items:flex-end;gap:2px;height:58px;margin-top:14px}
+.pile i{display:block;width:12px;border-radius:2px 2px 0 0;box-shadow:inset -2px 0 0 rgba(0,0,0,.2)}
+.pile i:nth-child(5n+2){transform:rotate(-6deg);transform-origin:bottom}
+.crates{display:flex;gap:6px;margin-top:14px}
+.crates i{display:block;width:30px;height:38px;border-radius:3px;border:2px dashed rgba(244,233,211,.35)}
+.screen{margin-top:14px;height:46px;border-radius:4px 4px 30% 30%/4px 4px 10px 10px;background:linear-gradient(#EFE6D2,#C8BCA2);box-shadow:0 0 22px rgba(255,236,190,.25);display:flex;align-items:center;justify-content:center;gap:5px}
+.screen i{display:block;width:20px;height:30px;border-radius:2px}
+.tickets{display:flex;gap:6px;margin-top:14px}
+.tickets i{display:block;width:44px;height:22px;background:var(--reel);opacity:.85;clip-path:polygon(0 0,100% 0,100% 35%,94% 50%,100% 65%,100% 100%,0 100%,0 65%,6% 50%,0 35%)}
+.strata{margin-top:14px;display:grid;gap:3px}
+.strata i{display:block;height:9px;border-radius:5px}
+
+/* ---------- логово / раскопки ---------- */
+.den{position:relative;margin:50px 5% 0;padding:24px 18px 22px;border-radius:30px 30px 18px 18px;background:#160E09;box-shadow:inset 0 0 0 3px #0E0805}
+.den h2{font-size:34px}
+.den p{margin:4px 0 0;color:rgba(244,233,211,.7);font-size:14px;max-width:34ch}
+.dig-mode{display:inline-flex;margin-top:14px;border-radius:20px;background:#2A1C14;padding:3px}
+.dig-mode button{border:none;background:none;padding:6px 14px;border-radius:17px;font-size:13px;font-weight:700;color:rgba(244,233,211,.65)}
+.dig-mode button.on{background:var(--paper);color:var(--ink)}
+.ground{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:16px}
+.clod{aspect-ratio:1;border:none;border-radius:30% 40% 35% 45%;background:radial-gradient(circle at 35% 30%,#7A5640,#4A3122 70%);box-shadow:inset -3px -4px 0 rgba(0,0,0,.25);transition:transform .2s,opacity .35s}
+.clod:active{transform:scale(.9)}
+.clod.gone{opacity:0;transform:scale(.4) rotate(25deg);pointer-events:none}
+.eyes{position:absolute;right:22px;top:24px;display:flex;gap:6px}
+.eyes span{width:14px;height:16px;border-radius:50%;background:var(--paper);position:relative;animation:blink 5s infinite}
+.eyes span::after{content:"";position:absolute;width:6px;height:7px;border-radius:50%;background:var(--ink);left:4px;top:5px}
+@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+.find{margin-top:16px;border-radius:14px;background:var(--paper);color:var(--ink);padding:16px;display:none}
+.find.on{display:block;animation:rise .45s cubic-bezier(.2,1.4,.4,1)}
+@keyframes rise{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
+.find .k{font-size:12px;color:var(--mute);font-weight:600}
+.find h3{font-size:26px;line-height:1.1;margin-top:4px}
+.find .who{color:var(--ink2);font-size:14px}
+.find .why{margin-top:8px;font-size:14px}
+.row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{border:none;border-radius:12px;padding:11px 14px;font-weight:700;font-size:14px;background:var(--ink);color:var(--paper);flex:1}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+
+/* ---------- открытая комната ---------- */
+.inside{position:fixed;inset:0;z-index:20;background:#1E140E;color:var(--paper);overflow-y:auto;clip-path:circle(0 at var(--cx,50%) var(--cy,50%));transition:clip-path .5s cubic-bezier(.6,0,.3,1);padding:calc(18px + env(safe-area-inset-top,0px)) 20px 60px}
+.inside.on{clip-path:circle(150% at var(--cx,50%) var(--cy,50%))}
+.inside.films{background:#1D1215}
+.back{border:none;background:none;color:var(--lamp);font-weight:700;padding:6px 0;font-size:14px}
+.inside h2{font-size:46px;line-height:1;margin-top:10px}
+.inside .sub{color:rgba(244,233,211,.65);margin-top:4px}
+.items{margin-top:20px;display:grid;gap:10px}
+.item{display:flex;gap:14px;align-items:center;border:none;width:100%;text-align:left;background:rgba(244,233,211,.06);border-radius:12px;padding:10px;color:var(--paper)}
+.item .c{flex:none;width:40px;height:58px;border-radius:3px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px;font-family:'Forum',serif;font-size:10px;color:rgba(255,255,255,.85)}
+.item b{display:block;font-weight:600;line-height:1.25}
+.item small{color:rgba(244,233,211,.6)}
+.item .r{margin-left:auto;font-family:'Forum',serif;font-size:24px;color:var(--lamp);flex:none}
+.add{display:flex;gap:8px;margin-top:18px}
+.add input{flex:1;min-width:0;border:none;border-radius:12px;padding:12px 14px;font:inherit;background:rgba(244,233,211,.1);color:var(--paper)}
+.add input::placeholder{color:rgba(244,233,211,.45)}
+.add button{border:none;border-radius:12px;padding:0 16px;background:var(--lamp);color:var(--ink);font-weight:700}
+.years{margin-top:22px;display:grid;gap:8px}
+.year{border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.year b{font-family:'Forum',serif;font-size:28px;font-weight:400}
+.year span{font-size:13px;opacity:.85;text-align:right}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,40px);opacity:0;background:var(--paper);color:var(--ink);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;transition:.3s;z-index:40;max-width:86vw;text-align:center}
+.toast.on{transform:translate(-50%,0);opacity:1}
+.v2tag{position:fixed;right:10px;top:calc(10px + env(safe-area-inset-top,0px));z-index:5;font-size:11px;font-weight:700;color:var(--ink2);background:rgba(255,255,255,.55);padding:3px 8px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<span class="v2tag">версия 2</span>
+
+<header class="surface">
+  <h1>Нора</h1>
+  <p>Книги и фильмы, которые ты унесла к себе под землю.</p>
+  <div class="hole"><svg viewBox="0 0 400 96" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 40 Q40 30 80 42 T160 38 Q190 36 200 46 Q215 70 240 46 Q260 34 300 40 T400 36 V96 H0Z" fill="var(--grass)"/>
+    <path d="M0 56 Q60 48 120 58 T240 60 T400 52 V96 H0Z" fill="var(--top)"/>
+    <ellipse cx="220" cy="62" rx="26" ry="16" fill="#1B120C"/>
+  </svg></div>
+</header>
+
+<main class="soil" id="soil">
+  <svg class="tunnel" id="tunnel" aria-hidden="true"></svg>
+  <button class="room" data-room="read"><span class="lamp"></span><h2>Читальня</h2><div class="sub" id="readSub"></div><div class="pile" id="readPile"></div></button>
+  <button class="room" data-room="wantB"><span class="lamp"></span><h2>Книжная кладовка</h2><div class="sub" id="wantBSub"></div><div class="crates" id="wantBMini"></div></button>
+  <button class="room films" data-room="seen"><span class="lamp"></span><h2>Кинозал</h2><div class="sub" id="seenSub"></div><div class="screen" id="seenMini"></div></button>
+  <button class="room films" data-room="wantF"><span class="lamp"></span><h2>Касса</h2><div class="sub" id="wantFSub"></div><div class="tickets" id="wantFMini"></div></button>
+  <button class="room" data-room="strata"><span class="lamp"></span><h2>Пласты</h2><div class="sub">Год за годом — что читала и смотрела</div><div class="strata" id="strataMini"></div></button>
+
+  <section class="den" aria-label="Логово Тевосгинка">
+    <div class="eyes" aria-hidden="true"><span></span><span></span></div>
+    <h2>Логово</h2>
+    <p>Тевосгинк зарыл здесь находки. Разгреби землю — под третьим комком что-то есть.</p>
+    <div class="dig-mode" role="tablist"><button data-dig="book" class="on">Книги</button><button data-dig="film">Кино</button></div>
+    <div class="ground" id="ground"></div>
+    <div class="find" id="find"></div>
+  </section>
+</main>
+
+<div class="inside" id="inside" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TG=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?Telegram.WebApp:null;
+if(TG){try{TG.ready();TG.expand();TG.setHeaderColor&&TG.setHeaderColor("#EEF2E4");TG.setBackgroundColor&&TG.setBackgroundColor("#22170F")}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const haptic=t=>{try{TG&&TG.HapticFeedback.impactOccurred(t||"light")}catch(e){}};
+const toast=t=>{const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("on"),2000)};
+const COLORS=["#3F5D3A","#7A2E35","#2E4A63","#8A6A2C","#4C3A5E","#2F5B57","#9A5A3A","#5C2C3F","#3E4B2A"];
+const col=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return COLORS[h%COLORS.length]};
+
+// ---------- пример данных (отдельно от основного приложения) ----------
+const SAMPLE={
+  read:[{t:"Анна Каренина",a:"Лев Толстой",y:2024,r:10},{t:"Грозовой перевал",a:"Эмили Бронте",y:2024,r:9},{t:"Тонкая работа",a:"Сара Уотерс",y:2025,r:9},
+        {t:"Норвежский лес",a:"Харуки Мураками",y:2025,r:7},{t:"Убийство в «Восточном экспрессе»",a:"Агата Кристи",y:2025,r:8},{t:"Правда о деле Гарри Квеберта",a:"Жоэль Диккер",y:2026,r:8},
+        {t:"Преступление и наказание",a:"Фёдор Достоевский",y:2026,r:10},{t:"Ребекка",a:"Дафна дю Морье",y:2026,r:8}],
+  wantB:[{t:"Тайная история",a:"Донна Тартт"},{t:"Сто лет одиночества",a:"Габриэль Гарсиа Маркес"},{t:"Маленькая жизнь",a:"Ханья Янагихара"}],
+  seen:[{t:"Унесённые призраками",a:"Хаяо Миядзаки",y:2024,r:10},{t:"Паразиты",a:"Пон Чжун Хо",y:2025,r:9},{t:"Сталкер",a:"Андрей Тарковский",y:2025,r:9},
+        {t:"Идеальные дни",a:"Вим Вендерс",y:2026,r:8},{t:"Анатомия падения",a:"Жюстин Трие",y:2026,r:8}],
+  wantF:[{t:"Солнце моё",a:"Шарлотта Уэллс"},{t:"Прошлые жизни",a:"Селин Сон"}]
+};
+const POOL={
+  book:[{t:"Дом, в котором…",a:"Мариам Петросян",w:"Если хочется пропасть в другом мире на месяц."},{t:"Ночь нежна",a:"Фрэнсис Скотт Фицджеральд",w:"Красиво и грустно, как вечер на Ривьере."},
+        {t:"Лавр",a:"Евгений Водолазкин",w:"Тихая большая книга о любви и вине."},{t:"Джейн Эйр",a:"Шарлотта Бронте",w:"Раз «Грозовой перевал» на десятку — сестра не подведёт."},
+        {t:"Бархатные коготки",a:"Сара Уотерс",w:"Ещё Уотерс: викторианский Лондон и смелая героиня."},{t:"Кафка на пляже",a:"Харуки Мураками",w:"Мураками постраннее «Норвежского леса»."},
+        {t:"Исчезновение Стефани Мейлер",a:"Жоэль Диккер",w:"Новая загадка от автора «Гарри Квеберта»."},{t:"Мастер и Маргарита",a:"Михаил Булгаков",w:"Чтобы перечитывать каждые пять лет."}],
+  film:[{t:"Ходячий замок",a:"Хаяо Миядзаки",w:"Ещё один вечер у Миядзаки."},{t:"Воспоминания о убийстве",a:"Пон Чжун Хо",w:"Ранний Пон Чжун Хо — мрачный и смешной."},
+        {t:"Солярис",a:"Андрей Тарковский",w:"Раз «Сталкер» зашёл — следующий шаг."},{t:"Аритмия",a:"Борис Хлебников",w:"Честное русское кино без пафоса."},
+        {t:"Дрянь в рубашке",a:"Се Сунь",w:"В России не выходил — тайваньская комедия о взрослении."},{t:"Портрет девушки в огне",a:"Селин Сьямма",w:"Медленно, красиво, на долгую память."}]
+};
+let D;try{D=JSON.parse(localStorage.getItem("nora2"))}catch(e){}
+if(!D||!D.read)D=JSON.parse(JSON.stringify(SAMPLE));
+const save=()=>{try{localStorage.setItem("nora2",JSON.stringify(D))}catch(e){}};
+
+// ---------- миниатюры комнат ----------
+const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c};
+function draw(){
+  $("#readSub").textContent=D.read.length+" "+plural(D.read.length,"книга","книги","книг")+" прочитано";
+  $("#readPile").innerHTML=D.read.map(b=>`<i style="height:${34+((b.t.length*7)%24)}px;background:${col(b.t)}"></i>`).join("");
+  $("#wantBSub").textContent=D.wantB.length?D.wantB.length+" "+plural(D.wantB.length,"книга ждёт","книги ждут","книг ждут"):"Пусто — загляни в логово";
+  $("#wantBMini").innerHTML=D.wantB.slice(0,6).map(b=>`<i style="border-color:${col(b.t)}"></i>`).join("");
+  $("#seenSub").textContent=D.seen.length+" "+plural(D.seen.length,"фильм","фильма","фильмов")+" на экране";
+  $("#seenMini").innerHTML=D.seen.slice(0,6).map(f=>`<i style="background:${col(f.t)}"></i>`).join("");
+  $("#wantFSub").textContent=D.wantF.length?D.wantF.length+" "+plural(D.wantF.length,"билет","билета","билетов")+" на будущее":"Билетов пока нет";
+  $("#wantFMini").innerHTML=D.wantF.slice(0,5).map(()=>`<i></i>`).join("");
+  const ys=years();$("#strataMini").innerHTML=ys.map((y,i)=>`<i style="background:${["#8A6A4A","#6E5139","#57402E","#43311F"][i%4]};width:${30+Math.min(70,(y.b.length+y.f.length)*9)}%"></i>`).join("");
+  requestAnimationFrame(tunnel);
+}
+function years(){const m={};D.read.forEach(b=>{(m[b.y]=m[b.y]||{y:b.y,b:[],f:[]}).b.push(b)});D.seen.forEach(f=>{(m[f.y]=m[f.y]||{y:f.y,b:[],f:[]}).f.push(f)});return Object.values(m).sort((a,b)=>b.y-a.y)}
+
+// тоннель, соединяющий комнаты
+function tunnel(){const soil=$("#soil"),svg=$("#tunnel"),r0=soil.getBoundingClientRect();
+  const pts=[[r0.width*.55,0],...[...document.querySelectorAll(".room,.den")].map(el=>{const r=el.getBoundingClientRect();return [r.left-r0.left+r.width/2,r.top-r0.top+r.height/2]})];
+  let d=`M${pts[0][0]} ${pts[0][1]}`;for(let i=1;i<pts.length;i++){const [x0,y0]=pts[i-1],[x1,y1]=pts[i],my=(y0+y1)/2;d+=` C${x0} ${my},${x1} ${my},${x1} ${y1}`}
+  svg.setAttribute("viewBox",`0 0 ${r0.width} ${r0.height}`);svg.innerHTML=`<path d="${d}"/><path class="glow" d="${d}"/>`;
+  [...soil.querySelectorAll(".depth")].forEach(x=>x.remove());
+  document.querySelectorAll(".room,.den").forEach((el,i)=>{const s=document.createElement("span");s.className="depth";s.style.top=(el.offsetTop+8)+"px";s.textContent=`−${(i+1)*3} м`;soil.appendChild(s)})}
+addEventListener("resize",()=>requestAnimationFrame(tunnel));
+
+// ---------- комнаты изнутри ----------
+const ROOMS={
+  read:{h:"Читальня",sub:"Всё, что прочитано",films:false,list:"read",ph:"Название прочитанной книги"},
+  wantB:{h:"Книжная кладовка",sub:"Что прочитать дальше",films:false,list:"wantB",ph:"Какую книгу отложить"},
+  seen:{h:"Кинозал",sub:"Всё, что посмотрено",films:true,list:"seen",ph:"Название фильма"},
+  wantF:{h:"Касса",sub:"Билеты на фильмы, которые хочется посмотреть",films:true,list:"wantF",ph:"Какой фильм отложить"},
+  strata:{h:"Пласты",sub:"Чем глубже — тем раньше",films:false}
+};
+let openRoom=null;
+function itemHTML(x,i,key){return `<button class="item" data-i="${i}" data-l="${key}"><span class="c" style="background:${col(x.t)}">${esc(x.t.slice(0,1))}</span><span><b>${esc(x.t)}</b><small>${esc(x.a||"")}</small></span>${x.r!=null?`<span class="r">${x.r}</span>`:""}</button>`}
+function roomHTML(key){const R=ROOMS[key];
+  if(key==="strata")return `<button class="back" data-close>← Наверх</button><h2>${R.h}</h2><div class="sub">${R.sub}</div><div class="years">${years().map((y,i)=>`<div class="year" style="background:${["#6E5139","#57402E","#43311F","#33251A"][i%4]}"><b>${y.y}</b><span>${y.b.length} ${plural(y.b.length,"книга","книги","книг")}, ${y.f.length} ${plural(y.f.length,"фильм","фильма","фильмов")}</span></div>`).join("")}</div>`;
+  const L=D[R.list];
+  return `<button class="back" data-close>← Наверх</button><h2>${R.h}</h2><div class="sub">${R.sub}</div>
+    <form class="add" data-add="${key}"><input placeholder="${R.ph}" aria-label="${R.ph}"><button>Добавить</button></form>
+    <p class="sub" style="font-size:13px;margin-top:14px">${R.list==="read"||R.list==="seen"?"Нажми на строку, чтобы поменять оценку.":"Нажми на строку, когда прочитаешь или посмотришь — она переедет в соседнюю комнату."}</p><div class="items">${L.map((x,i)=>itemHTML(x,i,R.list)).join("")||`<p class="sub">Здесь пока пусто. Добавь первое или раскопай что-нибудь в логове.</p>`}</div>`}
+function openR(key,from){const el=$("#inside"),R=ROOMS[key];openRoom=key;
+  if(from){const r=from.getBoundingClientRect();el.style.setProperty("--cx",(r.left+r.width/2)+"px");el.style.setProperty("--cy",(r.top+r.height/2)+"px")}
+  el.classList.toggle("films",!!R.films);el.innerHTML=roomHTML(key);el.scrollTop=0;requestAnimationFrame(()=>el.classList.add("on"));document.body.style.overflow="hidden";haptic();
+  if(TG&&TG.BackButton){TG.BackButton.show()}}
+function closeR(){const el=$("#inside");el.classList.remove("on");openRoom=null;document.body.style.overflow="";if(TG&&TG.BackButton)TG.BackButton.hide()}
+if(TG&&TG.BackButton)TG.BackButton.onClick(closeR);
+document.addEventListener("click",e=>{const r=e.target.closest(".room");if(r){openR(r.dataset.room,r);return}
+  if(e.target.closest("[data-close]")){closeR();return}
+  const it=e.target.closest(".item");if(it){const L=D[it.dataset.l],x=L[+it.dataset.i];
+    if(it.dataset.l==="wantB"||it.dataset.l==="wantF"){const to=it.dataset.l==="wantB"?"read":"seen";const r=prompt?null:null;
+      L.splice(+it.dataset.i,1);D[to].unshift({...x,y:new Date().getFullYear(),r:null});save();draw();$("#inside").innerHTML=roomHTML(openRoom);toast(`«${x.t}» — ${to==="read"?"прочитано":"посмотрено"}`);haptic("medium")}
+    else{const n=x.r==null?8:(x.r+1)%11;x.r=n;save();draw();$("#inside").innerHTML=roomHTML(openRoom);haptic()}}});
+document.addEventListener("submit",e=>{const f=e.target.closest("[data-add]");if(!f)return;e.preventDefault();const v=f.querySelector("input").value.trim();if(!v)return;
+  const R=ROOMS[f.dataset.add];const x={t:v.charAt(0).toUpperCase()+v.slice(1),a:""};if(R.list==="read"||R.list==="seen"){x.y=new Date().getFullYear();x.r=null}
+  D[R.list].unshift(x);save();draw();$("#inside").innerHTML=roomHTML(openRoom);toast("Добавлено");haptic("medium")});
+
+// ---------- раскопки ----------
+let digKind="book",dug=0,target=0;
+function ground(){dug=0;target=2+Math.floor(Math.random()*3);$("#find").classList.remove("on");$("#ground").innerHTML=Array.from({length:15},(_,i)=>`<button class="clod" data-c="${i}" aria-label="Разгрести"></button>`).join("")}
+function pick(){const have=new Set([...D.read,...D.wantB,...D.seen,...D.wantF].map(x=>x.t));const p=POOL[digKind].filter(x=>!have.has(x.t));return p.length?p[Math.floor(Math.random()*p.length)]:null}
+document.addEventListener("click",e=>{const c=e.target.closest(".clod");if(!c)return;c.classList.add("gone");haptic("rigid");dug++;
+  if(dug===target){const x=pick(),f=$("#find");
+    f.innerHTML=x?`<div class="k">${digKind==="book"?"Книга":"Фильм"} из-под земли</div><h3>${esc(x.t)}</h3><div class="who">${esc(x.a)}</div><div class="why">${esc(x.w)}</div>
+      <div class="row"><button class="btn" data-keep>${digKind==="book"?"В кладовку":"Взять билет"}</button><button class="btn ghost" data-bury>Закопать обратно</button></div>`
+      :`<h3>Всё уже раскопано</h3><div class="why">Ты забрала все находки этого раздела.</div>`;
+    f.classList.add("on");f._x=x;haptic("heavy")}});
+document.addEventListener("click",e=>{const f=$("#find");
+  if(e.target.closest("[data-keep]")){const x=f._x;(digKind==="book"?D.wantB:D.wantF).unshift({t:x.t,a:x.a});save();draw();toast(`«${x.t}» ${digKind==="book"?"в кладовке":"— билет взят"}`);ground()}
+  if(e.target.closest("[data-bury]")){toast("Закопано. Копай дальше");ground()}
+  const m=e.target.closest("[data-dig]");if(m){digKind=m.dataset.dig;document.querySelectorAll("[data-dig]").forEach(b=>b.classList.toggle("on",b===m));ground()}});
+
+draw();ground();
+document.fonts&&document.fonts.ready.then(()=>requestAnimationFrame(tunnel));
+</script>
+</body>
+</html>

@@ -73,8 +73,13 @@ body.films .seg i{transform:translateX(100%)}
 .fly .bg{position:absolute;inset:0;z-index:-2;overflow:hidden;border-radius:inherit;background:#15151c}
 .fly .bg img{position:absolute;inset:-20%;width:140%;height:140%;object-fit:cover;filter:blur(38px) saturate(1.5) brightness(.6);transform:scale(1.1)}
 .fly .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,.1) 40%,rgba(0,0,0,.6) 100%)}
-.lean{position:absolute;top:22px;z-index:3;padding:6px 12px;border-radius:10px;border:2px solid;font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase;opacity:0;pointer-events:none}
-.lean.l{right:20px;color:#FF9C9C;transform:rotate(10deg)}.lean.r{left:20px;color:#9CF5C0;transform:rotate(-10deg)}
+.lean{position:absolute;left:50%;top:34%;z-index:4;display:flex;flex-direction:column;align-items:center;gap:10px;transform:translate(-50%,-50%) scale(.85);opacity:0;pointer-events:none;transition:opacity .15s}
+.lean i{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:rgba(20,20,26,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+.lean.r i{background:#F5F5F7}
+.lean svg{width:34px;height:34px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lean.r svg{stroke:#0B0B10}
+.lean b{font-family:var(--serif);font-size:26px;font-weight:600;text-shadow:0 2px 16px rgba(0,0,0,.6)}
+
 .fly{transition:transform .45s cubic-bezier(.2,.9,.3,1),opacity .45s}
 .slide.end .card{text-align:center;margin:auto}
 .slide.end .card p{font-family:var(--f);font-style:normal;font-size:15px;color:var(--ink2)}
@@ -210,20 +215,24 @@ body.sum #srchB{opacity:0;pointer-events:none}
 .cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}
 .cv img.ok{opacity:1}
 .toast{pointer-events:none;position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translate(-50%,-20px);opacity:0;z-index:40;padding:10px 16px;border-radius:999px;font-weight:600;font-size:13.5px;transition:.35s cubic-bezier(.2,1.3,.4,1);white-space:nowrap}
-.toast.gl{background:linear-gradient(180deg,rgba(44,44,56,.92),rgba(22,22,30,.94))}
+.toast.gl{background:rgba(24,24,30,.9)}
+.toast.gl::before{display:none}
 .toast.on{transform:translate(-50%,0);opacity:1}
 .obj{position:relative}
 .onb{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:#07070b}
 .onb.on{display:flex}
-.onb-top{padding:calc(22px + env(safe-area-inset-top,0px)) 22px 10px}
+.onb-top{padding:calc(20px + env(safe-area-inset-top,0px)) 22px 14px;border-bottom:1px solid rgba(255,255,255,.06)}
 .onb-top .stp{font-size:12.5px;color:var(--ink3);font-weight:500}
-.onb-top h1{margin:6px 0 0;font-family:var(--serif);font-size:44px;font-weight:600;line-height:.95}
-.onb-top p{margin:10px 0 0;font-size:14.5px;color:var(--ink2);line-height:1.4}
+.onb-top h1{margin:6px 0 0;font-family:var(--serif);font-size:32px;font-weight:600;line-height:1}
+.onb-top p{margin:8px 0 0;font-size:14.5px;color:var(--ink2);line-height:1.4}
 .onb-grid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:16px 10px;padding:12px 18px 140px;align-content:start;scrollbar-width:none}
 .op{position:relative;text-align:left}
 .op .cv{border-radius:8px;transition:transform .35s cubic-bezier(.3,1.6,.5,1),box-shadow .3s}
 .op small{display:block;margin-top:6px;font-size:12px;line-height:1.2;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .op.rated .cv{box-shadow:0 0 0 2.5px #fff}
+.op.nudge .cv{animation:tapme 1.6s ease-in-out infinite}
+@keyframes tapme{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,.55)}50%{box-shadow:0 0 0 7px rgba(255,255,255,0)}}
+.op .tip{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);padding:6px 11px;border-radius:999px;background:#F5F5F7;color:#0B0B10;font-size:12px;font-weight:600;white-space:nowrap;pointer-events:none;box-shadow:0 6px 18px rgba(0,0,0,.4)}
 .op .rate5{position:absolute;left:0;right:0;top:0;aspect-ratio:2/3;border-radius:8px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:8px;background:rgba(0,0,0,.62);backdrop-filter:blur(2px)}
 .op.open .rate5{display:flex}
 .rate5 span{font-size:11.5px;color:rgba(255,255,255,.8)}
@@ -237,6 +246,28 @@ body.sum #srchB{opacity:0;pointer-events:none}
 .onb-bar .btn{width:100%;max-width:420px;flex:none}
 .onb-bar .btn:disabled{opacity:.45}
 .onb-skip{font-size:13px;color:var(--ink3)}
+.rm{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;background:rgba(3,3,6,.95);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .25s}
+.rm.on{opacity:1;pointer-events:auto}
+.rm-in{display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 24px;transform:scale(.96);transition:transform .35s cubic-bezier(.2,1.2,.3,1)}
+.rm.on .rm-in{transform:none}
+.rm-in .cv{width:120px;border-radius:8px;box-shadow:0 24px 50px -16px rgba(0,0,0,.9)}
+.rm-in b{margin-top:16px;font-family:var(--serif);font-size:28px;font-weight:600;line-height:1.05}
+.rm-in span{margin-top:4px;font-size:14px;color:var(--ink2)}
+.rm-in p{margin:26px 0 10px;font-size:15px;color:rgba(255,255,255,.75)}
+.rm-st{display:flex;gap:6px}
+.rm-st button{width:52px;height:52px;display:grid;place-items:center;transition:transform .3s cubic-bezier(.3,1.8,.5,1)}
+.rm-st svg{width:44px;height:44px;fill:rgba(255,255,255,.16);transition:fill .15s}
+.rm-st button.on svg{fill:#FFD66B}
+.rm-st button.pop{transform:scale(1.25)}
+.rm-x{margin-top:26px;font-size:14px;color:var(--ink3);padding:8px 14px}
+.intro{position:fixed;inset:0;z-index:85;display:none;flex-direction:column;justify-content:flex-end;padding:0 24px calc(28px + env(safe-area-inset-bottom,0px));background:#07070b;overflow:hidden}
+.intro.on{display:flex}
+.intro .fan{position:absolute;left:50%;top:22%;width:0;height:0}
+.intro .fan .cv{position:absolute;width:120px;margin-left:-60px;border-radius:8px;transform-origin:50% 140%;box-shadow:0 30px 50px -20px rgba(0,0,0,.9);animation:fanIn 1s cubic-bezier(.2,.9,.3,1) both}
+@keyframes fanIn{from{opacity:0;transform:translateY(40px) rotate(0deg)}}
+.intro h1{position:relative;margin:0;font-family:var(--serif);font-size:44px;font-weight:600;line-height:.95}
+.intro p{position:relative;margin:14px 0 0;font-size:15.5px;line-height:1.5;color:rgba(255,255,255,.8)}
+.intro .btn{position:relative;margin-top:24px;flex:none;width:100%}
 .coach{position:fixed;inset:0;z-index:60;display:grid;grid-template-columns:1fr 1fr;background:rgba(4,4,8,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .45s}
 .coach.on{opacity:1;pointer-events:auto}
 .coach::after{content:"";position:absolute;left:50%;top:18%;bottom:24%;width:1px;background:linear-gradient(transparent,rgba(255,255,255,.35),transparent)}
@@ -286,7 +317,6 @@ body.sum #srchB{opacity:0;pointer-events:none}
 .hint{color:var(--ink3);font-size:13.5px;text-align:center;margin:22px 0 4px}
 @supports (animation-timeline:view()){
   .slide{view-timeline:--sl block}
-  .slide .wrap{animation:pWrap linear both;animation-timeline:--sl;animation-range:cover}
 }
 @keyframes pWrap{0%{opacity:.2;transform:translateY(70px) scale(.9)}40%,60%{opacity:1;transform:none}100%{opacity:.2;transform:translateY(-70px) scale(.9)}}
 @keyframes pObj{0%{opacity:0;transform:translateY(120px) scale(.82)}38%,62%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-120px) scale(.82)}}
@@ -315,8 +345,13 @@ body.sum #srchB{opacity:0;pointer-events:none}
 </nav></div>
 <div class="sheet" id="sheet"><div class="sh-bg" data-close></div><div class="sh gl" id="sh"><div class="grab"></div><div id="shBody"></div></div></div>
 <div class="toast gl" id="toast"></div>
-<div class="onb" id="onb"><div class="onb-top"><div class="stp" id="onbStep">1 из 2</div><h1 id="onbH">Что ты уже читала?</h1><p id="onbP">Нажми на обложку и поставь звёзды — хватит двух-трёх. По ним я и буду подбирать.</p></div>
-  <div class="onb-grid" id="onbGrid"></div><div class="onb-bar"><button class="btn w" id="onbNext" disabled>Отметь хотя бы две</button><button class="onb-skip" id="onbSkip" hidden>пропустить</button></div></div>
+<div class="intro" id="intro"><div class="fan" id="introFan"></div>
+  <h1>Добро пожаловать в&nbsp;Нору</h1>
+  <p>Прежде чем войти, отметь несколько книг и фильмов, которые ты уже знаешь. По ним я подберу первые рекомендации, а твои полки сразу будут заполнены.</p>
+  <button class="btn w" id="introGo">Начать</button></div>
+<div class="onb" id="onb"><div class="onb-top"><div class="stp" id="onbStep">1 из 2</div><h1 id="onbH">Выбери хотя бы две прочитанные книги</h1><p id="onbP">Нажми на обложку и поставь оценку.</p></div>
+  <div class="onb-grid" id="onbGrid"></div><div class="onb-bar"><button class="btn w" id="onbNext" disabled>Выбери хотя бы две</button><button class="onb-skip" id="onbSkip" hidden>пропустить</button></div></div>
+<div class="rm" id="rm"><div class="rm-in"><div id="rmCv"></div><b id="rmT"></b><span id="rmA"></span><p>Как тебе?</p><div class="rm-st" id="rmSt"></div><button class="rm-x" id="rmX">Не читала</button></div></div>
 <div class="coach" id="coach" role="dialog" aria-label="Подсказка">
   <div class="cz l"><div class="trail"><i></i></div><div class="ic gl"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></div><b>Не предлагать</b><small>смахни влево</small></div>
   <div class="cz r"><div class="trail"><i></i></div><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><b>Хочу</b><small>смахни вправо</small></div>
@@ -387,6 +422,9 @@ const DESC={
  "Опавшие листья":"Двое одиноких хельсинкцев снова и снова теряют друг друга — то номер телефона, то случай мешает.",
  "Ходячий замок":"Шляпницу Софи заколдовывают в старуху, и она находит приют в шагающем замке капризного волшебника Хаула."};
 Object.assign(DESC,{
+ "Медведь":"Молодой шеф из лучшего ресторана мира возвращается в Чикаго спасать забегаловку погибшего брата.",
+ "Сёгун":"Английский моряк оказывается в Японии 1600 года в самом центре борьбы за власть.",
+ "Белый лотос":"Неделя на гавайском курорте, где у гостей и персонала свои тайны — и всё закончится смертью.",
  "Мастер и Маргарита":"Воланд со свитой наводит порядок в Москве тридцатых, а Маргарита готова на всё ради Мастера.",
  "Маленькая жизнь":"Четверо друзей в Нью-Йорке, и один из них всю жизнь несёт тайну детства, с которой не может жить.",
  "Щегол":"Мальчик выживает после взрыва в музее и уносит с собой маленькую картину, которая определит всю его жизнь.",
@@ -408,15 +446,15 @@ const POP={books:[
  ["Властелин колец","Джон Р. Р. Толкин",1954,"Англия","fantasy",1120],["Убийство в «Восточном экспрессе»","Агата Кристи",1933,"Англия","detective",256],["Отцы и дети","Иван Тургенев",1862,"Россия","classic",288],
  ["Игра престолов","Джордж Мартин",1996,"США","fantasy",768],["Унесённые ветром","Маргарет Митчелл",1936,"США","classic",1024],["Сто лет одиночества","Габриэль Гарсиа Маркес",1967,"Колумбия","classic",480]],
  films:[
- ["Интерстеллар","Кристофер Нолан",2014,"США","scifi",169],["Форрест Гамп","Роберт Земекис",1994,"США","drama",142],["Побег из Шоушенка","Фрэнк Дарабонт",1994,"США","drama",142],
+ ["Интерстеллар","Кристофер Нолан",2014,"США","scifi",169],["Во все тяжкие","Винс Гиллиган",2008,"США","drama",null,1],["Друзья","Дэвид Крейн и Марта Кауффман",1994,"США","comedy",null,1],["Шерлок","Стивен Моффат и Марк Гэтисс",2010,"Англия","detective",null,1],["Форрест Гамп","Роберт Земекис",1994,"США","drama",142],["Побег из Шоушенка","Фрэнк Дарабонт",1994,"США","drama",142],
  ["Зелёная миля","Фрэнк Дарабонт",1999,"США","drama",189],["Начало","Кристофер Нолан",2010,"США","scifi",148],["Титаник","Джеймс Кэмерон",1997,"США","drama",194],
- ["Бойцовский клуб","Дэвид Финчер",1999,"США","thriller",139],["Криминальное чтиво","Квентин Тарантино",1994,"США","thriller",154],["Матрица","Лана и Лилли Вачовски",1999,"США","scifi",136],
+ ["Бойцовский клуб","Дэвид Финчер",1999,"США","thriller",139],["Криминальное чтиво","Квентин Тарантино",1994,"США","thriller",154],["Матрица","Лана и Лилли Вачовски",1999,"США","scifi",136],["Игра престолов","Дэвид Бениофф и Д. Б. Уайсс",2011,"США","fantasy",null,1],["Чернобыль","Крейг Мейзин",2019,"США","drama",null,1],["Очень странные дела","Братья Даффер",2016,"США","scifi",null,1],
  ["1+1","Оливье Накаш и Эрик Толедано",2011,"Франция","comedy",112],["Амели","Жан-Пьер Жёне",2001,"Франция","comedy",122],["Унесённые призраками","Хаяо Миядзаки",2001,"Япония","anim",125],
  ["Паразиты","Пон Чжун Хо",2019,"Южная Корея","thriller",132],["Ла-Ла Ленд","Дэмьен Шазелл",2016,"США","drama",128],["Остров проклятых","Мартин Скорсезе",2010,"США","thriller",138],
  ["Брат","Алексей Балабанов",1997,"Россия","drama",99],["Москва слезам не верит","Владимир Меньшов",1979,"СССР","drama",150],["Король Лев","Роджер Аллерс",1994,"США","anim",88],
  ["Властелин колец: Братство Кольца","Питер Джексон",2001,"Новая Зеландия","fantasy",178],["Отступники","Мартин Скорсезе",2006,"США","thriller",151],["Джентльмены","Гай Ричи",2019,"Англия","comedy",113],
- ["Иван Васильевич меняет профессию","Леонид Гайдай",1973,"СССР","comedy",88],["Достучаться до небес","Томас Ян",1997,"Германия","comedy",87],["Амадей","Милош Форман",1984,"США","drama",160]]};
-const popItem=(k,a)=>k==="books"?{t:a[0],a:a[1],y:a[2],c:a[3],g:a[4],pg:a[5]}:{t:a[0],a:a[1],y:a[2],c:a[3],g:a[4],min:a[5]};
+ ["Иван Васильевич меняет профессию","Леонид Гайдай",1973,"СССР","comedy",88],["Достучаться до небес","Томас Ян",1997,"Германия","comedy",87],["Амадей","Милош Форман",1984,"США","drama",160],["Тьма","Баран бо Одар",2017,"Германия","scifi",null,1],["Аркейн","Кристиан Линке",2021,"США","anim",null,1],["Наша планета","Алистер Фотергилл",2019,"Англия","doc",null,1],["Сияние","Стэнли Кубрик",1980,"США","horror",146]]};
+const popItem=(k,a)=>k==="books"?{t:a[0],a:a[1],y:a[2],c:a[3],g:a[4],pg:a[5]}:{t:a[0],a:a[1],y:a[2],c:a[3],g:a[4],min:a[5],...(a[6]?{s:1}:{})};
 const descOf=x=>x.d||DESC[x.t]||x.w||"";
 // дополнительные поля для статистики примеров: жанр, страницы/минуты, когда прочитано
 const META={"Преступление и наказание":{g:"classic",pg:672,rd:"2025-03"},"Правда о деле Гарри Квеберта":{g:"detective",pg:704,rd:"2025-07"},"Ребекка":{g:"classic",pg:448,rd:"2025-11"},
@@ -430,9 +468,13 @@ const EXTRA={books:{want:[{t:"Мастер и Маргарита",a:"Михаи�
    {t:"Олдбой",a:"Пак Чхан Ук",y:2003,w:"Корейский триллер, от которого невозможно оторваться."},
    {t:"Мой сосед Тоторо",a:"Хаяо Миядзаки",y:1988,w:"Самый тёплый фильм Миядзаки."},
    {t:"Вечное сияние чистого разума",a:"Мишель Гондри",y:2004,w:"Про любовь, которую пытаются стереть из памяти."},
+   {t:"Медведь",a:"Кристофер Сторер",y:2022,s:1,w:"Полчаса кухонного хаоса — и не оторваться."},
+   {t:"Сёгун",a:"Рэйчел Кондо и Джастин Маркс",y:2024,s:1,w:"Япония XVII века, интриги и самураи — один из лучших сериалов последних лет."},
+   {t:"Белый лотос",a:"Майк Уайт",y:2021,s:1,w:"Роскошный курорт, богатые гости и труп в первой же серии."},
    {t:"Всё везде и сразу",a:"Дэниел Кван и Дэниел Шайнерт",y:2022,w:"Безумная мультивселенная, внутри которой — история про маму и дочь."}]}};
 let D;try{D=JSON.parse(localStorage.getItem("nora5b"))}catch(e){}
 if(!D||!D.books)D={books:{now:null,read:[],want:[],skip:[],pool:JSON.parse(JSON.stringify(SAMPLE.books.pool))},films:{now:null,read:[],want:[],skip:[],pool:JSON.parse(JSON.stringify(SAMPLE.films.pool))}};
+if(!D.films.pool.some(x=>x.s))D.films.pool.push(...EXTRA.films.pool.filter(x=>x.s));
 ["books","films"].forEach(k=>{const r=D[k],has=t=>[...r.read,...r.want,...r.pool].some(y=>norm(y.t)===norm(t));
 EXTRA[k].pool.forEach(x=>{if(!has(x.t))r.pool.push({...x})});
   [...r.read,...r.want].forEach(x=>{const m=META[x.t];if(m)for(const f in m)if(x[f]==null)x[f]=m[f];if(x.r>5)x.r=Math.round(x.r/2)})});
@@ -451,39 +493,46 @@ function ambient(src){if(!src||src===ambSrc)return;ambSrc=src;const a=$("#ambA")
 let slides=[],cur=-1,acts=[],refilling=false;
 const fresh=x=>{const r=R(),k=norm(x.t);return ![...r.read,...r.want].some(y=>norm(y.t)===k)&&!(r.skip||[]).some(t=>norm(t)===k)};
 const IC={x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',u:'<svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/></svg>',v:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'};
-function slideHTML(x,j){return `<article class="slide" data-j="${j}"><div class="wrap"><div class="fly gl"><div class="bg">${x.img?`<img src="${esc(x.img)}" alt="" referrerpolicy="no-referrer">`:""}</div><span class="lean r">Хочу</span><span class="lean l">Не предлагать</span><div class="obj">${cover(x)}</div><div class="info"><h2>${esc(x.t)}</h2><div class="meta">${esc([x.a,x.y].filter(Boolean).join(", "))}</div>${x.w||descOf(x)?`<p>${esc(x.w||descOf(x))}</p>`:""}
+function slideHTML(x,j){return `<article class="slide" data-j="${j}"><div class="wrap"><div class="fly gl"><div class="bg">${x.img?`<img src="${esc(x.img)}" alt="" referrerpolicy="no-referrer">`:""}</div><div class="lean r"><i>${IC.v}</i><b>Хочу</b></div><div class="lean l"><i>${IC.x}</i><b>Не предлагать</b></div><div class="obj">${cover(x)}</div><div class="info"><h2>${esc(x.t)}</h2><div class="meta">${esc([x.a,x.y,x.s?"сериал":""].filter(Boolean).join(", "))}</div>${x.w||descOf(x)?`<p>${esc(x.w||descOf(x))}</p>`:""}
   <div class="acts3"><button class="rb gl press" data-skip="${j}" aria-label="Не показывать">${IC.x}</button><button class="rb sm gl press" data-undo aria-label="Отменить">${IC.u}</button><button class="rb w press" data-want="${j}" aria-label="${T[realm].want}">${IC.v}</button></div><div class="st"></div></div></div></div></article>`}
 function endInner(){return refilling?`<h2>Ищу ещё…</h2><p>${T[realm].tev} листает каталог по твоим любимым авторам.</p>`:`<h2>Пока всё</h2><p>${T[realm].tev} подберёт новое чуть позже. А пока можно найти самой.</p><div class="acts"><button class="btn w" data-find>Найти через поиск</button></div>`}
 function updEnd(){const e=$("#feed [data-end] .card");if(e)e.innerHTML=endInner()}
-function drawDots(){$("#dots").innerHTML=[...slides,0].map((_,j)=>`<i class="${j===Math.max(0,cur)?"on":""}"></i>`).join("")}
-function buildFeed(){slides=R().pool.filter(fresh);
+function drawDots(){const n=$("#feed").children.length;$("#dots").innerHTML=Array.from({length:n},(_,k)=>`<i class="${k===Math.max(0,cur)?"on":""}"></i>`).join("")}
+function buildFeed(){acts=[];slides=R().pool.filter(fresh);
   $("#feed").innerHTML=slides.map(slideHTML).join("")+`<article class="slide end" data-end><div class="card gl">${endInner()}</div></article>`;
   $("#feed").scrollTop=0;cur=-1;drawDots();onFeedScroll();updUndo();resolveImgs(slides,"feed");if(!isF()&&slides.length<4)refill()}
-function onFeedScroll(){const f=$("#feed");if(!f.clientHeight)return;const j=Math.round(f.scrollTop/f.clientHeight);if(j===cur)return;cur=j;const x=slides[j];if(x)ambient(x.img);
+function onFeedScroll(){const f=$("#feed");if(!f.clientHeight)return;const j=Math.round(f.scrollTop/f.clientHeight);if(j===cur)return;cur=j;const el=f.children[j],x=el&&el.dataset.j!=null?slides[+el.dataset.j]:null;if(x)ambient(x.img);
   document.querySelectorAll("#dots i").forEach((d,k)=>d.classList.toggle("on",k===j));haptic("soft")}
 $("#feed").addEventListener("scroll",onFeedScroll,{passive:true});
 function slideEl(j){return $(`#feed .slide[data-j="${j}"]`)}
 function decide(j,kind){const x=slides[j];if(!x||x._done)return;x._done=kind;const r=R();
-  if(kind==="want")r.want.unshift({t:x.t,a:x.a,y:x.y,img:x.img,w:x.w,d:x.d,c:x.c,g:x.g});else (r.skip=r.skip||[]).push(x.t);save();
-  acts.push({j,kind,t:x.t});if(acts.length>3)acts.shift();const sl=slideEl(j);sl.classList.add("done");sl.querySelector(".st").textContent=kind==="want"?`✓ В списке «${T[realm].want}»`:"Больше не предложу";
-  const fl=sl.querySelector(".fly");fl.style.transition="";fl.style.transform=`translateX(${kind==="want"?120:-120}%) rotate(${kind==="want"?12:-12}deg)`;fl.style.opacity=0;
-  toast(kind==="want"?`«${x.t}» — ${T[realm].want.toLowerCase()}`:`Больше не предложу`);haptic("medium");updUndo();
-  setTimeout(()=>{const f=$("#feed");f.scrollTo({top:(j+1)*f.clientHeight,behavior:"smooth"})},420);
+  if(kind==="want")r.want.unshift({t:x.t,a:x.a,y:x.y,img:x.img,w:x.w,d:x.d,c:x.c,g:x.g,s:x.s});else (r.skip=r.skip||[]).push(x.t);save();
+  acts.push({j,kind,t:x.t});if(acts.length>3)acts.shift();const sl=slideEl(j);
+  const fl=sl.querySelector(".fly");fl.style.transition="transform .38s cubic-bezier(.4,0,.7,1),opacity .38s";fl.style.transform=`translateX(${kind==="want"?125:-125}%) rotate(${kind==="want"?10:-10}deg)`;fl.style.opacity=0;
+  toast(kind==="want"?`Добавила в «${T[realm].want}»`:`Больше не предложу`);haptic("medium");
+  setTimeout(()=>{sl.remove();cur=-1;onFeedScroll();drawDots();updUndo()},390);
   if(!isF()&&slides.filter(s=>!s._done).length<3)refill()}
 function undo(){if(!acts.length)return;const {j,kind,t}=acts.pop(),x=slides[j],r=R();
   if(kind==="want")r.want=r.want.filter(y=>norm(y.t)!==norm(t));else r.skip=(r.skip||[]).filter(s=>s!==t);save();delete x._done;
-  const sl=slideEl(j);sl.classList.remove("done");sl.querySelector(".st").textContent="";const fl=sl.querySelector(".fly");fl.style.transform="";fl.style.opacity="";
-  updUndo();const f=$("#feed");f.scrollTo({top:j*f.clientHeight,behavior:"smooth"});toast("Отменено");haptic()}
+  const f=$("#feed"),next=[...f.children].find(el=>el.dataset.end!=null||+el.dataset.j>j);next.insertAdjacentHTML("beforebegin",slideHTML(x,j));
+  const sl=slideEl(j),fl=sl.querySelector(".fly"),pos=[...f.children].indexOf(sl);fl.style.transition="none";fl.style.opacity=0;fl.style.transform=`translateX(${kind==="want"?125:-125}%) rotate(${kind==="want"?10:-10}deg)`;
+  f.scrollTo({top:pos*f.clientHeight});void fl.offsetWidth;fl.style.transition="transform .45s cubic-bezier(.2,.9,.3,1),opacity .3s";fl.style.transform="";fl.style.opacity="";
+  cur=-1;onFeedScroll();drawDots();updUndo();toast("Вернула");haptic()}
 function updUndo(){document.querySelectorAll("#feed [data-undo]").forEach(b=>b.disabled=!acts.length)}
-// смахивание обложки влево/вправо
+// смахивание всей карточки влево/вправо (палец — touch, мышь — mouse)
+function leanTo(fl,dx){const r=fl.querySelector(".lean.r"),l=fl.querySelector(".lean.l"),k=v=>Math.max(0,Math.min(1,(v-24)/70));
+  r.style.opacity=k(dx);l.style.opacity=k(-dx);r.style.transform=`translate(-50%,-50%) scale(${.85+.15*k(dx)})`;l.style.transform=`translate(-50%,-50%) scale(${.85+.15*k(-dx)})`}
 (function(){const f=$("#feed");let g=null;
-  f.addEventListener("pointerdown",e=>{const sl=e.target.closest(".slide:not(.end)");if(!sl||e.target.closest("button")||slides[+sl.dataset.j]._done)return;g={x:e.clientX,y:e.clientY,sl,mode:null,dx:0}});
-  f.addEventListener("pointermove",e=>{if(!g)return;const dx=e.clientX-g.x,dy=e.clientY-g.y;
-    if(!g.mode){if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.3)g.mode="h";else if(Math.abs(dy)>12){g=null;return}}
-    if(g.mode==="h"){g.dx=dx;const fl=g.sl.querySelector(".fly");fl.style.transition="none";fl.style.transform=`translateX(${dx}px) rotate(${dx/22}deg)`;fl.querySelector(".lean.r").style.opacity=Math.max(0,Math.min(1,(dx-20)/80));fl.querySelector(".lean.l").style.opacity=Math.max(0,Math.min(1,(-dx-20)/80))}});
-  const end=()=>{if(!g)return;const {sl,mode,dx}=g;g=null;if(mode!=="h")return;const fl=sl.querySelector(".fly");fl.querySelectorAll(".lean").forEach(e=>e.style.opacity="");
-    if(Math.abs(dx)>90)decide(+sl.dataset.j,dx>0?"want":"skip");else{fl.style.transition="";fl.style.transform=""}};
-  f.addEventListener("pointerup",end);f.addEventListener("pointercancel",end)})();
+  const start=(x,y,t)=>{const sl=t.closest(".slide:not(.end)");if(!sl||t.closest("button")||slides[+sl.dataset.j]._done)return;g={x,y,sl,mode:null,dx:0}};
+  const move=(x,y,e)=>{if(!g)return;const dx=x-g.x,dy=y-g.y;
+    if(!g.mode){if(Math.abs(dx)<8&&Math.abs(dy)<8)return;if(Math.abs(dy)>Math.abs(dx)){g=null;return}g.mode="h";f.style.overflowY="hidden"}
+    if(e&&e.cancelable)e.preventDefault();g.dx=dx;const fl=g.sl.querySelector(".fly");fl.style.transition="none";fl.style.transform=`translateX(${dx}px) rotate(${dx/26}deg)`;leanTo(fl,dx)};
+  const end=()=>{if(!g)return;const {sl,mode,dx}=g;g=null;f.style.overflowY="";if(mode!=="h")return;const fl=sl.querySelector(".fly");leanTo(fl,0);
+    if(Math.abs(dx)>80)decide(+sl.dataset.j,dx>0?"want":"skip");else{fl.style.transition="transform .4s cubic-bezier(.2,1.3,.4,1)";fl.style.transform=""}};
+  f.addEventListener("touchstart",e=>{const t=e.touches[0];start(t.clientX,t.clientY,e.target)},{passive:true});
+  f.addEventListener("touchmove",e=>{const t=e.touches[0];move(t.clientX,t.clientY,e)},{passive:false});
+  f.addEventListener("touchend",end);f.addEventListener("touchcancel",end);
+  f.addEventListener("mousedown",e=>start(e.clientX,e.clientY,e.target));addEventListener("mousemove",e=>{if(g)move(e.clientX,e.clientY,null)});addEventListener("mouseup",end)})();
 // Тевосгинк подбирает ещё: другие книги любимых авторов (Фантлаб)
 async function flj(path){const r=await fetch("https://api.fantlab.ru"+path);if(!r.ok)throw new Error(r.status);return r.json()}
 const flClean=d=>{d=String(d||"").replace(/\[[^\]]*\]/g,"").replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim();return d.length>260?d.slice(0,d.lastIndexOf(" ",250))+"…":d};
@@ -507,7 +556,7 @@ async function findImg(x,film){try{
     const w=(Array.isArray(s)?s:[]).find(w=>(w.pic_edition_id||w.pic_edition_id_auto)&&(!sur||norm(w.autor_rusname||"").includes(sur)));if(!w)return "";
     if(!x.d&&!DESC[x.t]&&w.work_id){try{const wd=await flj("/work/"+w.work_id+"?extended=1");const d=flClean(wd.work_description);if(d)x.d=d}catch(e){}}
     return FL(w.pic_edition_id||w.pic_edition_id_auto)}
-  const j=await (await fetch("https://ru.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=5&gsrsearch="+encodeURIComponent(x.t+" "+(x.y||"")+" фильм")+"&prop=pageimages|extracts&exintro=1&explaintext=1&exsentences=2&exlimit=5&piprop=thumbnail&pithumbsize=500&pilicense=any")).json();
+  const j=await (await fetch("https://ru.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=5&gsrsearch="+encodeURIComponent(x.t+" "+(x.y||"")+(x.s?" сериал":" фильм"))+"&prop=pageimages|extracts&exintro=1&explaintext=1&exsentences=2&exlimit=5&piprop=thumbnail&pithumbsize=500&pilicense=any")).json();
   const p=Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index).find(p=>p.thumbnail);if(!p)return "";
   if(!x.d&&!DESC[x.t]&&p.extract){x.d=p.extract.replace(/\s*\([^)]*\)/g,"").replace(/\s+/g," ").trim().slice(0,260)}
   return p.thumbnail.source}catch(e){return ""}}
@@ -523,7 +572,7 @@ $("#feed").addEventListener("click",e=>{const t=e.target;
 $("#top").addEventListener("click",e=>{if(e.target.closest("button"))return;const sc=document.querySelector(".screen.on .feed,.screen.on .scroll");if(sc){sc.scrollTo({top:0,behavior:"smooth"});haptic()}});
 // подсказки при первом открытии ленты
 function coach(){let seen=false;try{seen=localStorage.getItem("nora5.coach")}catch(e){}if(seen||!slides.length)return;
-  setTimeout(()=>{const u=document.querySelector('#feed .slide[data-j="'+Math.max(0,cur)+'"] [data-undo]');if(u){const b=u.getBoundingClientRect();Object.assign($("#cUndo").style,{left:b.left+b.width/2+"px",top:b.top-16+"px"})}
+  setTimeout(()=>{const ce=$("#feed").children[Math.max(0,cur)],u=ce&&ce.querySelector("[data-undo]");if(u){const b=u.getBoundingClientRect();Object.assign($("#cUndo").style,{left:b.left+b.width/2+"px",top:b.top-16+"px"})}
     $("#coach").classList.add("on")},450)}
 $("#coach").addEventListener("click",()=>{$("#coach").classList.remove("on");try{localStorage.setItem("nora5.coach","1")}catch(e){}haptic()});
 // наклон обложки за пальцем / телефоном
@@ -534,7 +583,8 @@ addEventListener("deviceorientation",e=>{if(RM||e.gamma==null)return;tilt(Math.m
 
 // ---------- полка: coverflow ----------
 let fi=0,colF="want";const pickCol=()=>{colF=R().want.length?"want":"read"};
-function flowList(){return colF==="want"?R().want:R().read}
+function flowList(){return colF==="want"?R().want:R().pool.filter(fresh)}
+function gridList(){return colF==="want"?R().want:R().read}
 function drawFlow(){const L=flowList();fi=L.length?((fi%L.length)+L.length)%L.length:0;
   $("#flow").innerHTML=L.map((x,i)=>cover(x)).join("");resolveImgs(L,"flow");[...$("#flow").children].forEach((c,i)=>{c.dataset.i=i});layoutFlow(true)}
 // веер: центральная обложка прямо и крупнее, соседние разложены по дуге; список закольцован
@@ -545,7 +595,7 @@ function layoutFlow(first){const L=flowList(),n=L.length;
     else{c.style.transform=tf;c.style.opacity=op}
     c.style.zIndex=50-a;c.style.pointerEvents=a>2?"none":"";c.style.filter=o===0?"none":`brightness(${1-a*.15})`;c.classList.toggle("mid",o===0)});
   const x=L[fi],cap=$("#flowCap");
-  cap.innerHTML=x?`<b>${esc(x.t)}</b><span class="fm">${esc([x.a,x.y].filter(Boolean).join(", "))}${x.r!=null?` · ${x.r} из 5`:""}</span><p>${esc(descOf(x))}</p>`:`<span class="fm">Здесь пока пусто — найди что-нибудь через лупу внизу.</span>`;
+  cap.innerHTML=x?`${colF==="want"?"":`<span class="fm" style="margin:0 0 6px">Может заинтересовать</span>`}<b>${esc(x.t)}</b><span class="fm">${esc(x.a||"")}</span><p>${esc(descOf(x))}</p>`:`<span class="fm">Здесь пока пусто — найди что-нибудь через лупу вверху.</span>`;
   if(!first){cap.classList.remove("sw");void cap.offsetWidth;cap.classList.add("sw")}
   if(x)ambient(x.img)}
 function stepFlow(d){const n=flowList().length;if(n<2)return;fi=((fi+d)%n+n)%n;layoutFlow()}
@@ -553,16 +603,16 @@ let flowHold=0;
 (function(){const el=$("#flow");let x0=null,moved=0;el.addEventListener("pointerdown",e=>{x0=e.clientX;moved=0;flowHold=Date.now()});
   el.addEventListener("pointermove",e=>{if(x0==null)return;const d=e.clientX-x0;if(Math.abs(d)>40){stepFlow(d<0?1:-1);x0=e.clientX;moved++;flowHold=Date.now();haptic()}});
   addEventListener("pointerup",()=>{x0=null});
-  el.addEventListener("click",e=>{const c=e.target.closest(".cv");if(c&&!moved){flowHold=Date.now();const i=+c.dataset.i;if(i!==fi){fi=i;layoutFlow()}openItem(flowList()[i],colF==="want"?"want":"read")}})})();
+  el.addEventListener("click",e=>{const c=e.target.closest(".cv");if(c&&!moved){flowHold=Date.now();const i=+c.dataset.i;if(i!==fi){fi=i;layoutFlow()}openItem(flowList()[i],colF==="want"?"want":"rec")}})})();
 // сама листается слева направо каждые пару секунд; замирает, пока трогаешь или открыта карточка
-setInterval(()=>{if(document.hidden||!$("#s-col").classList.contains("on")||$("#sheet").classList.contains("on")||Date.now()-flowHold<6000)return;stepFlow(-1)},2800);
+(function tick(){if(!(document.hidden||!$("#s-col").classList.contains("on")||$("#sheet").classList.contains("on")||Date.now()-flowHold<6000))stepFlow(-1);setTimeout(tick,colF==="want"?5600:3600)})();
 function drawCol(){  $("#pills").innerHTML=[["want",T[realm].want],["read",T[realm].read]].map(([k,l])=>`<button class="gl ${colF===k?"on":""}" data-f="${k}">${l}</button>`).join("");
-  $("#grid").innerHTML=flowList().map((x,i)=>`<button data-g="${i}">${cover(x)}<small>${esc(x.t)}</small></button>`).join("");drawFlow()}
+  $("#grid").innerHTML=gridList().map((x,i)=>`<button data-g="${i}">${cover(x)}<small>${esc(x.t)}</small></button>`).join("");drawFlow()}
 $("#pills").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(b){colF=b.dataset.f;fi=0;drawCol();haptic()}});
-$("#grid").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(b){fi=+b.dataset.g;flowHold=Date.now();layoutFlow();openItem(flowList()[fi],colF==="want"?"want":"read")}});
+$("#grid").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(b){flowHold=Date.now();openItem(gridList()[+b.dataset.g],colF==="want"?"want":"read")}});
 
 // ---------- итоги: всё, что было в «Норе» ----------
-const GEN={classic:"Классика",detective:"Детектив",modern:"Современная проза",fantasy:"Фэнтези",scifi:"Фантастика",nonfic:"Нон-фикшн",kids:"Детская",drama:"Драма",thriller:"Триллер",anim:"Анимация",comedy:"Комедия"};
+const GEN={doc:"Документальное",horror:"Ужасы",classic:"Классика",detective:"Детектив",modern:"Современная проза",fantasy:"Фэнтези",scifi:"Фантастика",nonfic:"Нон-фикшн",kids:"Детская",drama:"Драма",thriller:"Триллер",anim:"Анимация",comedy:"Комедия"};
 const ROMAN={15:"XV",16:"XVI",17:"XVII",18:"XVIII",19:"XIX",20:"XX",21:"XXI"};
 const ASIA=new Set(["Япония","Южная Корея","Китай","Индия","Тайвань","Гонконг","Вьетнам","Таиланд","Иран","Турция"]);
 const cntBy=(arr,f)=>{const m={};arr.forEach(x=>{const k=f(x);if(k!=null&&k!=="")m[k]=(m[k]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
@@ -617,17 +667,28 @@ function drawSum(){const F=isF(),r=R().read,u=T[realm].u,known=r.filter(x=>x.c&&
 let onbK="books",onbPick={};
 const STAR='<svg viewBox="0 0 24 24"><path d="M12 3.2l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/></svg>';
 function onbDraw(){const F=onbK==="films",list=POP[onbK].map(a=>popItem(onbK,a));onbPick={};
-  $("#onbStep").textContent=F?"2 из 2":"1 из 2";$("#onbH").textContent=F?"А что смотрела?":"Что ты уже читала?";
-  $("#onbP").textContent=F?"Так же: нажми на постер и поставь звёзды.":"Нажми на обложку и поставь звёзды — хватит двух-трёх. По ним я буду подбирать новое.";
+  $("#onbStep").textContent=F?"2 из 2":"1 из 2";$("#onbH").textContent=F?"Выбери хотя бы два просмотренных фильма или сериала":"Выбери хотя бы две прочитанные книги";
+  $("#onbP").textContent=F?"Нажми на постер и поставь оценку.":"Нажми на обложку и поставь оценку.";$("#rmX").textContent=F?"Не смотрела":"Не читала";
   $("#onbSkip").hidden=!F;$("#onbGrid").scrollTop=0;
-  $("#onbGrid").innerHTML=list.map((x,i)=>`<div class="op" data-i="${i}">${cover(x)}<div class="rate5"><span>Как тебе?</span><div>${[1,2,3,4,5].map(n=>`<button data-st="${n}" aria-label="${n}">${STAR}</button>`).join("")}</div></div><span class="badge"></span><small>${esc(x.t)}</small></div>`).join("");
+  $("#onbGrid").innerHTML=list.map((x,i)=>`<div class="op${i===0?" nudge":""}" data-i="${i}">${cover(x)}${i===0?`<span class="tip">Нажми</span>`:""}<span class="badge"></span><small>${esc(x.t)}${x.s?" · сериал":""}</small></div>`).join("");
   $("#onbGrid")._l=list;onbBtn();
   list.forEach(async(x,i)=>{const u=await findImg(x,F);if(!u)return;x.img=u;const el=$(`#onbGrid .op[data-i="${i}"] .cv`);if(el)el.outerHTML=cover(x)})}
-function onbBtn(){const n=Object.keys(onbPick).length,b=$("#onbNext");b.disabled=n<2;b.textContent=n<2?(n?"Ещё одну":"Отметь хотя бы две"):`Дальше · ${n}`}
-$("#onbGrid").addEventListener("click",e=>{const op=e.target.closest(".op");if(!op)return;const i=+op.dataset.i,st=e.target.closest("[data-st]");
-  if(st){const n=+st.dataset.st;if(onbPick[i]===n){delete onbPick[i];op.classList.remove("rated")}else{onbPick[i]=n;op.classList.add("rated");op.querySelector(".badge").textContent="★ "+n}
-    op.querySelectorAll("[data-st]").forEach(b=>b.classList.toggle("on",onbPick[i]!=null&&+b.dataset.st<=onbPick[i]));op.classList.remove("open");haptic();onbBtn();return}
-  document.querySelectorAll("#onbGrid .op.open").forEach(o=>o!==op&&o.classList.remove("open"));op.classList.toggle("open");haptic("soft")});
+function onbBtn(){const n=Object.keys(onbPick).length,b=$("#onbNext"),F=onbK==="films";b.disabled=n<2;b.textContent=n>=2?`Дальше · ${n}`:n?(F?"Выбери ещё один":"Выбери ещё одну"):(F?"Выбери хотя бы два":"Выбери хотя бы две")}
+let rmI=-1;
+function rmOpen(i){rmI=i;const x=$("#onbGrid")._l[i];$("#rmCv").innerHTML=cover(x);$("#rmT").textContent=x.t;$("#rmA").textContent=[x.a,x.s?"сериал":""].filter(Boolean).join(" · ");
+  $("#rmSt").innerHTML=[1,2,3,4,5].map(n=>`<button data-st="${n}" class="${onbPick[i]>=n?"on":""}" aria-label="${n} из 5">${STAR}</button>`).join("");$("#rm").classList.add("on");haptic("soft")}
+function rmClose(){$("#rm").classList.remove("on");rmI=-1}
+$("#onbGrid").addEventListener("click",e=>{const op=e.target.closest(".op");if(!op)return;document.querySelectorAll("#onbGrid .nudge").forEach(o=>{o.classList.remove("nudge");const t=o.querySelector(".tip");t&&t.remove()});rmOpen(+op.dataset.i)});
+$("#rmSt").addEventListener("click",e=>{const b=e.target.closest("[data-st]");if(!b||rmI<0)return;const n=+b.dataset.st,i=rmI,op=$(`#onbGrid .op[data-i="${i}"]`);onbPick[i]=n;
+  $("#rmSt").querySelectorAll("button").forEach(x=>x.classList.toggle("on",+x.dataset.st<=n));b.classList.add("pop");haptic("medium");
+  op.classList.add("rated");op.querySelector(".badge").textContent="★ "+n;onbBtn();setTimeout(rmClose,380)});
+$("#rmX").onclick=()=>{if(rmI>=0){delete onbPick[rmI];const op=$(`#onbGrid .op[data-i="${rmI}"]`);op.classList.remove("rated");onbBtn()}rmClose()};
+$("#rm").addEventListener("click",e=>{if(e.target.id==="rm")rmClose()});
+function introShow(){const L=POP.books.slice(0,5).map(a=>popItem("books",a));$("#introFan").innerHTML=L.map(cover).join("");
+  [...$("#introFan").children].forEach((c,i)=>{const o=i-2;c.style.transform=`translateX(${o*58}px) translateY(${Math.abs(o)*12}px) rotate(${o*8}deg)`;c.style.zIndex=10-Math.abs(o);c.style.animationDelay=(.1+i*.08)+"s"});
+  L.forEach(async(x,i)=>{const u=await findImg(x,false);if(!u)return;x.img=u;const c=$("#introFan").children[i];if(c){const im=document.createElement("img");im.src=u;im.referrerPolicy="no-referrer";im.onload=()=>im.classList.add("ok");c.appendChild(im)}});
+  $("#intro").classList.add("on")}
+$("#introGo").onclick=()=>{$("#intro").classList.remove("on");$("#onb").classList.add("on");onbDraw();haptic("medium")};
 function onbSave(){const list=$("#onbGrid")._l,r=D[onbK];Object.entries(onbPick).forEach(([i,n])=>{const x=list[+i];if(!r.read.some(y=>norm(y.t)===norm(x.t)))r.read.push({...x,r:n})});save()}
 function onbFinish(){D.onb=1;save();$("#onb").classList.remove("on");realm="books";document.body.classList.remove("films");document.querySelectorAll("[data-realm]").forEach(x=>x.classList.toggle("on",x.dataset.realm==="books"));
   pickCol();fi=0;buildFeed();show("col");toast("Полки готовы");refill()}
@@ -653,14 +714,16 @@ TG&&TG.BackButton&&TG.BackButton.onClick(closeSheet);
   el.addEventListener("touchmove",e=>{if(y0==null)return;dy=Math.max(0,e.touches[0].clientY-y0);el.style.transition="none";el.style.transform=`translateY(${dy}px)`},{passive:true});
   el.addEventListener("touchend",()=>{if(y0==null)return;el.style.transition="";el.style.transform="";if(dy>90)closeSheet();y0=null})})();
 let cardX=null,cardL=null;
-function itemHTML(){const x=cardX,L=cardL;return `<div class="dt">${cover(x)}<h2>${esc(x.t)}</h2><div class="meta">${esc([x.a,x.y,x.c&&x.c!=="—"?x.c:""].filter(Boolean).join(", "))}</div>
+function itemHTML(){const x=cardX,L=cardL;return `<div class="dt">${cover(x)}<h2>${esc(x.t)}</h2><div class="meta">${esc([x.a,x.y,x.c&&x.c!=="—"?x.c:"",x.s?"сериал":""].filter(Boolean).join(", "))}</div>
   ${descOf(x)?`<p class="dd">${esc(descOf(x))}</p>`:""}${x.w&&x.d?`<p class="dd">${esc(x.w)}</p>`:""}
   ${L==="read"?`<div class="stars">${Array.from({length:6},(_,n)=>`<button data-cr="${n}" class="${x.r===n?"on":""}">${n}</button>`).join("")}</div>`:""}
-  <div class="acts">${L==="want"?`<button class="btn w" data-cmv>${T[realm].did}</button>`:""}<button class="btn" data-crm>Убрать с полки</button></div></div>`}
+  <div class="acts">${L==="rec"?`<button class="btn" data-cskip>Не предлагать</button><button class="btn w" data-cwant>Хочу</button>`:`${L==="want"?`<button class="btn w" data-cmv>${T[realm].did}</button>`:""}<button class="btn" data-crm>Убрать с полки</button>`}</div></div>`}
 function openItem(x,L){if(!x)return;cardX=x;cardL=L;ambient(x.img);openSheet(itemHTML())}
 $("#shBody").addEventListener("click",e=>{const t=e.target;
   const cr=t.closest("[data-cr]");if(cr){cardX.r=+cr.dataset.cr;save();cr.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===cr));layoutFlow();shDirty=true;haptic();return}
   if(t.closest("[data-cmv]")){R().want=R().want.filter(y=>y!==cardX);cardX.r=null;cardX.rd=new Date().toISOString().slice(0,7);R().read.unshift(cardX);save();cardL="read";$("#shBody").innerHTML=itemHTML();shDirty=true;toast("Поставь оценку");return}
+  if(t.closest("[data-cwant]")){const x=cardX;R().want.unshift({t:x.t,a:x.a,y:x.y,img:x.img,w:x.w,d:x.d,c:x.c,g:x.g,s:x.s});save();shDirty=true;toast(`Добавила в «${T[realm].want}»`);closeSheet();return}
+  if(t.closest("[data-cskip]")){(R().skip=R().skip||[]).push(cardX.t);save();shDirty=true;toast("Больше не предложу");closeSheet();return}
   if(t.closest("[data-crm]")){R()[cardL]=R()[cardL].filter(y=>y!==cardX);save();shDirty=true;toast(`«${cardX.t}» — убрано с полки`);closeSheet();return}
   const fa=t.closest("[data-fadd]");if(fa){const x=$("#fres")._l[+fa.dataset.i],L=fa.dataset.fadd,r=R();
     if([...r.read,...r.want].some(y=>norm(y.t)===norm(x.t))){toast("Уже на полке");return}
@@ -684,7 +747,7 @@ $("#feed").addEventListener("pointerup",e=>{const o=e.target.closest(".obj");if(
   const j=+o.closest(".slide").dataset.j;if(!slides[j]||slides[j]._done)return;const h=document.createElement("div");h.className="heart";h.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8 3.4 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.6 0 6 3.5 4.5 7.2C19.5 16.4 12 21 12 21z"/></svg>';o.appendChild(h);setTimeout(()=>h.remove(),950);
   setTimeout(()=>decide(j,"want"),260)});
 addEventListener("resize",moveLens);
-pickCol();buildFeed();show("col");moveLens();if(!D.onb){$("#onb").classList.add("on");onbDraw()}document.fonts&&document.fonts.ready.then(moveLens);
+pickCol();buildFeed();show("col");moveLens();if(!D.onb)introShow();document.fonts&&document.fonts.ready.then(moveLens);
 </script>
 </body>
 </html>

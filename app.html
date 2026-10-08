@@ -184,6 +184,8 @@ html,body{overflow-x:hidden}
 .sum-hero .k{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;opacity:.75}
 .sum-hero .big{font-family:var(--serif);font-size:56px;line-height:1;font-weight:600;margin-top:6px}
 .sum-hero .big small{font-size:18px;font-family:var(--sans);font-weight:600;opacity:.8;margin-left:6px}
+.sum-hero .pages{font-family:var(--serif);font-size:20px;margin-top:6px;opacity:.9}
+.diary-h{font-size:26px;margin:6px 0 10px}
 .sum-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
 .sum-nums div{font-size:12px;opacity:.8}
 .sum-nums b{display:block;font-family:var(--serif);font-size:26px;font-weight:600;opacity:1}
@@ -315,7 +317,9 @@ html,body{overflow-x:hidden}
 .again{text-align:center;margin-top:14px}
 .empty{color:var(--muted);text-align:center;padding:26px 10px;font-family:var(--serif);font-style:italic}
 
-.slip-card{grid-column:1/-1;perspective:900px}
+.tev-modal{position:fixed;inset:0;z-index:35;background:rgba(29,35,32,.45);display:flex;align-items:center;justify-content:center;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));opacity:0;pointer-events:none;transition:opacity .2s}
+.tev-modal.on{opacity:1;pointer-events:auto}
+.tev-box{width:100%;max-width:440px;max-height:100%;overflow-y:auto;border-radius:18px;perspective:900px}
 .tcard{position:relative;background:var(--card);border:1px solid #EAD8B6;border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 14px 26px -18px rgba(80,60,20,.55)}
 .tk{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep);padding-right:36px}
 .tback{position:absolute;top:8px;right:8px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--paper);font-size:16px;color:var(--muted)}
@@ -380,7 +384,6 @@ nav.tabs button.tev.on{color:var(--gold-deep)}
 
   <section class="view on" id="v-shelves"></section>
   <section class="view" id="v-time"></section>
-  <section class="view" id="v-authors"></section>
 
   <section class="view" id="v-tev">
     <div class="lair">
@@ -405,10 +408,6 @@ nav.tabs button.tev.on{color:var(--gold-deep)}
     <div class="letters" id="recs"></div>
   </section>
 
-  <section class="view" id="v-quotes" lang="ru">
-    <div class="q-head"><h2>Цитаты</h2><button class="btn btn-gold" id="qAdd">Добавить</button></div>
-    <div class="qlist" id="qlist"></div>
-  </section>
 
   <section class="view" id="v-want" lang="ru">
     <div class="want-head">
@@ -423,13 +422,12 @@ nav.tabs button.tev.on{color:var(--gold-deep)}
   <button data-v="shelves" class="on"><svg viewBox="0 0 24 24"><path d="M4 4v16M8 6v14M12 4v16M15 7l4 13M3 20h18"/></svg>Полки</button>
   <button data-v="want"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Хочу прочитать</button>
   <button data-v="tev" class="tev"><svg viewBox="0 0 24 24"><path d="M5 20c-1-9 2-15 7-15s8 6 7 15l-2-1.5-2.5 1.5-2.5-1.5L9.5 20 7 18.5z"/><circle cx="10" cy="11" r=".8"/><circle cx="14" cy="11" r=".8"/></svg>Тевосгинк</button>
-  <button data-v="time"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>Время</button>
-  <button data-v="authors"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></svg>Авторы</button>
-  <button data-v="quotes"><svg viewBox="0 0 24 24"><path d="M5 11c0-3 2-5 5-5M5 11h4v6H5zM14 11c0-3 2-5 5-5M14 11h4v6h-4z"/></svg>Цитаты</button>
+  <button data-v="time"><svg viewBox="0 0 24 24"><path d="M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6zM6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2M9 8h6M9 12h6"/></svg>Дневник</button>
 </div></nav>
 
 <div class="scrim" id="scrim"><div class="sheet" id="sheet" role="dialog" aria-modal="true" lang="ru"></div></div>
 <div class="stories" id="stories"></div>
+<div class="tev-modal" id="tevModal" role="dialog" aria-modal="true"><div class="tev-box" id="tevBox"></div></div>
 <div class="disc" id="disc" lang="ru"></div>
 <div class="toast" id="toast"></div>
 
@@ -901,7 +899,7 @@ function saveWant(){
 function saveMine(){LS.set(UKEY,mine);cloudChunks("m",mine)}
 let nowBook=(()=>{const v=LS.get("zal.now",null);return v==="none"?null:(v||NOW_READING)})();
 function saveNow(){LS.set("zal.now",nowBook||"none");if(TG&&TG.CloudStorage){try{TG.CloudStorage.setItem("now",JSON.stringify(nowBook||"none").slice(0,4000))}catch(e){}}}
-function rerenderAll(){renderShelves();renderTime();renderAuthors();renderWant()}
+function rerenderAll(){renderShelves();renderTime();renderWant()}
 function addBook(b){const rec={id:"u"+Date.now(),...b};mine.push(rec);BOOKS.push(prepUser(rec));READ.add(norm(rec.t));saveMine();rerenderAll();return rec}
 const haptic=(t="light")=>{try{TG&&TG.HapticFeedback&&(t==="ok"?TG.HapticFeedback.notificationOccurred("success"):TG.HapticFeedback.impactOccurred(t))}catch(e){}};
 
@@ -1026,7 +1024,7 @@ function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");c
 
 // ---------- shelves ----------
 function renderShelves(){
-  const addBtn=`<button class="add-book" id="addBook"><span>+</span>Добавить прочитанную книгу</button>`;
+  const addBtn=`<button class="add-book" id="addBook"><span>+</span>Поставить книгу на полку</button>`;
   const order=["Россия","Англия","США","Швейцария","Япония","Неразобранное"];
   const rank=c=>{const i=order.indexOf(c);return i<0?50:i};
   const byC={};BOOKS.forEach(b=>(byC[b.c]=byC[b.c]||[]).push(b));
@@ -1047,8 +1045,8 @@ document.addEventListener("click",e=>{if(e.target.closest("#addBook")){haptic();
 function renderTime(){
   const dated=BOOKS.filter(b=>b.y).sort((a,b)=>a.y-b.y);
   const byCt={};dated.forEach(b=>(byCt[centuryOf(b.y)]=byCt[centuryOf(b.y)]||[]).push(b));
-  const seg=`<div class="seg" role="tablist"><button data-tm="cent" class="${timeMode==="cent"?"on":""}">Лента веков</button><button data-tm="sum" class="${timeMode==="sum"?"on":""}">Итоги</button></div>`;
-  $("#v-time").innerHTML=seg+(timeMode==="sum"?summaryHTML():Object.keys(byCt).map(ct=>`<div class="cent"><h2>${ROMAN[ct]||ct} век</h2><div class="tl">${
+  const seg=`<h2 class="diary-h">Дневник</h2><div class="seg" role="tablist"><button data-tm="cent" class="${timeMode==="cent"?"on":""}">Лента веков</button><button data-tm="quotes" class="${timeMode==="quotes"?"on":""}">Цитаты</button><button data-tm="sum" class="${timeMode==="sum"?"on":""}">Итоги</button></div>`;
+  $("#v-time").innerHTML=seg+(timeMode==="sum"?summaryHTML():timeMode==="quotes"?`<div class="q-head"><span></span><button class="btn btn-gold" id="qAdd">Добавить цитату</button></div><div class="qlist" id="qlist">${quotesListHTML()}</div>`:Object.keys(byCt).map(ct=>`<div class="cent"><h2>${ROMAN[ct]||ct} век</h2><div class="tl">${
     byCt[ct].map(b=>`<button class="tl-row" data-id="${b.id}"><span class="yr">${b.y}</span>${cover(b,40)}<span class="tx"><b>${esc(b.t)}</b><span>${esc(b.a)} · ${esc(b.c)}</span></span></button>`).join("")
   }</div></div>`).join(""));
   $("#v-time").querySelectorAll("[data-tm]").forEach(x=>x.onclick=()=>{timeMode=x.dataset.tm;haptic();renderTime()});
@@ -1081,7 +1079,7 @@ const COUNTRIES=()=>[...new Set([...BOOKS.map(b=>b.c),...CAT.map(b=>b.c)])].filt
 function ratingPicker(cur){return `<div class="rate" id="rate">${[...Array(11)].map((_,n)=>`<button type="button" data-r="${n}" class="${cur===n?"on":""}">${n}</button>`).join("")}<button type="button" data-r="" class="none${cur==null?" on":""}">без оценки</button></div>`}
 function bindRating(){let val=null;const box=$("#rate");box.querySelectorAll("button").forEach(x=>x.onclick=()=>{box.querySelectorAll("button").forEach(y=>y.classList.remove("on"));x.classList.add("on");val=x.dataset.r===""?null:+x.dataset.r;haptic()});box.querySelector(".on")&&(val=box.querySelector(".on").dataset.r===""?null:+box.querySelector(".on").dataset.r);return ()=>val}
 function openAddBook(){
-  openSheet(`<h3 class="sheet-h">Добавить прочитанную книгу</h3><div class="qform">
+  openSheet(`<h3 class="sheet-h">Поставить книгу на полку</h3><div class="qform">
    <label for="bT">Название</label><input id="bT" autocomplete="off" placeholder="Например, Мастер и Маргарита"><div class="sugg" id="bSugg"></div>
    <label for="bA">Автор</label><input id="bA" autocomplete="off">
    <div class="two"><div><label for="bC">Страна</label><input id="bC" list="bCL" autocomplete="off"><datalist id="bCL">${COUNTRIES().map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
@@ -1119,7 +1117,7 @@ function openWant(i){
   $("#wNow").onclick=()=>{want.splice(want.indexOf(s),1);if(nowBook&&nowBook.id!=="now-none")want.unshift(nowBook);nowBook=s;saveNow();saveWant();renderWant();closeSheet();haptic("ok");toast(`Читаешь «${s.t}»`)};
 }
 $("#scrim").addEventListener("click",e=>{if(e.target.id==="scrim")closeSheet()});
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(disc)closeDisc();closeStories();closeSheet()}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(tevScope)closeTev();if(disc)closeDisc();closeStories();closeSheet()}});
 
 // ---------- обсуждение ----------
 const discGet=id=>LS.get("zal.disc."+id,{});
@@ -1398,20 +1396,19 @@ function tevCard(scope,st,back){
    ${r._why?`<div class="why">${esc(r._why)}</div>`:""}
    <div class="rec-actions"><button class="btn btn-gold" data-take${has?" disabled":""}>${has?"Уже в списке":"Хочу прочитать"}</button><button class="btn btn-ghost" data-other>Другая книга ↻</button></div></div>`;
 }
-function renderMoods(anim){
-  $("#moods").innerHTML=moods.map(([m],i)=>flipOpen==="m"+i&&picks["m"+i]?`<div class="slip-card${anim==="m"+i?" fi":""}">${tevCard("m"+i,picks["m"+i],true)}</div>`:`<button class="slip" data-i="${i}">${esc(m)}</button>`).join("");
-}
+function renderMoods(){$("#moods").innerHTML=moods.map(([m],i)=>`<button class="slip" data-i="${i}">${esc(m)}</button>`).join("")}
+let tevScope=null;
+function openTev(scope){const st=scope==="ask"?askState:picks[scope];tevScope=scope;$("#tevBox").innerHTML=tevCard(scope,st,false);$("#tevModal").classList.add("on");$("#tevBox .tcard").classList.add("fi");syncBack()}
+function closeTev(){tevScope=null;$("#tevModal").classList.remove("on");syncBack()}
 function flipOut(el,then){if(!el||matchMedia("(prefers-reduced-motion: reduce)").matches)return then();el.classList.add("fo");setTimeout(then,160)}
 $("#moods").addEventListener("click",e=>{
-  const sl=e.target.closest(".slip");
-  if(sl){const i=+sl.dataset.i,key="m"+i,[m,qtext]=moods[i];haptic("medium");wake();
-    if(!picks[key]){picks[key]={label:m,q:parse(qtext),seen:new Set()};nextPick(picks[key])}
-    activeMood=m;flipOut(sl,()=>{flipOpen=key;renderMoods(key);whisper(["Вот, держи.","Из самого дальнего угла норы.","Эту я берёг для тебя."][Math.floor(Math.random()*3)])});return}
-  handleCard(e,()=>renderMoods(flipOpen));
+  const sl=e.target.closest(".slip");if(!sl)return;const i=+sl.dataset.i,key="m"+i,[m,qtext]=moods[i];haptic("medium");wake();
+  if(!picks[key]){picks[key]={label:m,q:parse(qtext),seen:new Set()};nextPick(picks[key])}
+  activeMood=m;flipOut(sl,()=>{sl.classList.remove("fo");openTev(key);whisper(["Вот, держи.","Из самого дальнего угла норы.","Эту я берёг для тебя."][Math.floor(Math.random()*3)])});
 });
+$("#tevModal").addEventListener("click",e=>{if(!e.target.closest(".tcard")){closeTev();return}handleCard(e,()=>{const st=tevScope==="ask"?askState:picks[tevScope];$("#tevBox").innerHTML=tevCard(tevScope,st,false)})});
 function handleCard(e,rerender){
   const card=e.target.closest(".tcard");if(!card)return;const scope=card.dataset.scope,st=scope==="ask"?askState:picks[scope];if(!st)return;
-  if(e.target.closest("[data-back]")){haptic();flipOut(card.parentElement,()=>{flipOpen=null;renderMoods()});return}
   if(e.target.closest("[data-other]")){haptic("medium");flipOut(card,()=>{nextPick(st);rerender();const n=document.querySelector(`.tcard[data-scope="${scope}"]`);if(n){n.classList.add("fi");}});return}
   const t=e.target.closest("[data-take]");
   if(t&&st.cur){const {_why,...rest}=st.cur;want.unshift({...rest,why:_why||rest.ann,from:st.label});saveWant();renderWant();t.textContent="Уже в списке";t.disabled=true;haptic("ok");toast("Добавлено в «Хочу прочитать»")}
@@ -1422,10 +1419,9 @@ function runQuery(text){
   if(q.empty){$("#tevStatus").textContent="";whisper("Не разобрал… Скажи иначе: «драконы», «уютный детектив», «Япония», «что-то короткое».");$("#recs").innerHTML=`<div class="empty">Попробуй словами попроще — жанр, настроение, страна или эпоха.</div>`;return}
   askState={label:text,q,seen:new Set()};nextPick(askState);
   $("#tevStatus").textContent=q.says.length?`Ищу: ${q.says.join(", ")}`:"";
-  $("#recs").innerHTML=tevCard("ask",askState,false);$("#recs .tcard").classList.add("fi");
+  $("#recs").innerHTML="";openTev("ask");
   whisper(askState.cur?"Нашёл! Ещё тёплая.":"Пусто… Такого у меня нет.");
 }
-$("#recs").addEventListener("click",e=>handleCard(e,()=>{$("#recs").innerHTML=tevCard("ask",askState,false)}));
 $("#moreMoods").onclick=()=>{haptic();activeMood=null;shuffleMoods();whisper("Свежие записки. Чернила ещё не высохли.")};
 $("#askBtn").onclick=()=>{const v=$("#askInput").value.trim();if(v){activeMood=null;flipOpen=null;renderMoods();runQuery(v)}};
 $("#askInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("#askBtn").click()});
@@ -1449,10 +1445,11 @@ function saveQuotes(){LS.set("zal.quotes",quotes);if(TG&&TG.CloudStorage){try{co
 function restoreQuotes(){if(!TG||!TG.CloudStorage||quotes.length)return;try{TG.CloudStorage.getItem("qn",(e,n)=>{n=+n;if(e||!n)return;const ks=[...Array(n)].map((_,i)=>"q"+i);TG.CloudStorage.getItems(ks,(e2,v)=>{if(e2||!v)return;try{const arr=JSON.parse(ks.map(k=>v[k]||"").join(""));if(Array.isArray(arr)){quotes=arr;LS.set("zal.quotes",quotes);renderQuotes()}}catch(x){}})})}catch(e){}}
 function qCard(q){const b=findQB(q.book)||{t:q.bt||"Книга",a:q.ba||"",bg:"#8C6A3A",fg:"#fff",g:"modern"};
   return `<div class="qcard" style="--qc:${b.bg}"><button class="qx" data-qx="${q.ts}" aria-label="Удалить цитату">×</button><blockquote>${esc(q.text)}</blockquote><div class="src">${cover(b,24)}<span><b>${esc(b.t)}</b>${b.a?", "+esc(b.a):""}${q.page?` · с. ${esc(q.page)}`:""}</span></div></div>`}
-function renderQuotes(){
-  $("#qlist").innerHTML=quotes.length?[...quotes].reverse().map(qCard).join(""):`<div class="empty">Здесь будут жить фразы, которые хочется запомнить. Нажми «Добавить» или добавь цитату прямо из карточки книги.</div>`;
+function renderQuotes(){if(typeof timeMode!=="undefined"&&timeMode==="quotes")renderTime()}
+function quotesListHTML(){
+  return quotes.length?[...quotes].reverse().map(qCard).join(""):`<div class="empty">Здесь будут жить фразы, которые хочется запомнить. Нажми «Добавить» или добавь цитату прямо из карточки книги.</div>`;
 }
-$("#qlist").addEventListener("click",e=>{const x=e.target.closest("[data-qx]");if(!x)return;
+document.addEventListener("click",e=>{if(e.target.closest("#qAdd")){openQuoteForm(nowBook?nowBook.id||nowBook.t:"");return}const x=e.target.closest("#qlist [data-qx]");if(!x)return;
   if(!x.classList.contains("sure")){x.classList.add("sure");x.textContent="Удалить?";setTimeout(()=>{if(x.isConnected){x.classList.remove("sure");x.textContent="×"}},3000);return}
   quotes=quotes.filter(q=>String(q.ts)!==x.dataset.qx);saveQuotes();renderQuotes();toast("Цитата удалена")});
 function quotesBlock(b){const qs=quotes.filter(q=>q.book===b.id);return `<div class="bq-mini">${qs.length?`<div class="k">Твои цитаты · ${qs.length}</div>${qs.slice(-2).map(q=>`<p>«${esc(q.text)}»</p>`).join("")}`:""}<button class="btn btn-ghost btn-wide" id="qAddBook">Добавить цитату</button></div>`}
@@ -1466,7 +1463,7 @@ function openQuoteForm(bookId){
   const t=$("#qText"),sv=$("#qSave");t.addEventListener("input",()=>sv.disabled=!t.value.trim());
   sv.onclick=()=>{const id=$("#qBook").value,b=findQB(id);quotes.push({ts:Date.now(),book:id,bt:b&&b.t,ba:b&&b.a,text:t.value.trim(),page:$("#qPage").value.trim()});saveQuotes();renderQuotes();closeSheet();haptic("ok");toast("Цитата сохранена")};
 }
-$("#qAdd").onclick=()=>openQuoteForm(nowBook?nowBook.id||nowBook.t:"");
+
 
 // ---------- итоги ----------
 let timeMode="cent";
@@ -1481,7 +1478,7 @@ function summaryHTML(){
   const discN=Object.keys(DISC).filter(id=>Object.keys(discGet(id)).length).length;
   const mini=(b,k)=>`<div class="sum-card"><div class="k">${k}</div><button class="au-book" data-id="${b.id}" style="padding:0;flex-direction:column;align-items:flex-start;gap:10px">${cover(b,44)}<span style="display:flex;flex-direction:column;min-width:0;width:100%"><b class="t">${esc(b.t)}</b><small>${esc(b.a)}${b.y?", "+b.y:""}</small></span></button></div>`;
   return `<div class="sum">
-   <div class="sum-hero"><div class="k">Всего прочитано</div><div class="big">${BOOKS.length}<small>${plural(BOOKS.length,"книга","книги","книг")}</small></div>
+   <div class="sum-hero"><div class="k">Всего прочитано</div><div class="big">${BOOKS.length}<small>${plural(BOOKS.length,"книга","книги","книг")}</small></div><div class="pages">≈ ${BOOKS.reduce((a,b)=>a+(b.pg||0),0).toLocaleString("ru-RU")} страниц</div>
     <div class="sum-nums"><div><b>${countries.length}</b>${plural(countries.length,"страна","страны","стран")}</div><div><b>${cents.length}</b>${plural(cents.length,"век","века","веков")}</div><div><b>${authors.length}</b>${plural(authors.length,"автор","автора","авторов")}</div></div></div>
    ${favs.length?`<div class="sum-card"><div class="k">Десять из десяти</div><h3>Любимые</h3><div class="fav-row">${favs.map(b=>`<button class="au-book" data-id="${b.id}" style="width:auto">${cover(b,64)}</button>`).join("")}</div></div>`:""}
    <div class="sum-card"><div class="k">География</div><h3>Страны на полках</h3>${bars(countries)}</div>
@@ -1489,7 +1486,6 @@ function summaryHTML(){
    <div class="sum-card"><div class="k">Время</div><h3>По векам</h3>${bars(cents)}</div>
    <div class="sum-card"><div class="k">Жанры</div><h3>Что читаешь</h3>${bars(genres)}</div>
    <div class="sum-card"><div class="k">Главный автор</div><h3>${esc(authors[0][0])}</h3><p class="why" style="margin:6px 0 0">${authors[0][1]} ${plural(authors[0][1],"книга","книги","книг")} на полках. Средняя оценка всех книг — ${avg}.</p></div>
-   ${flops.length?`<div class="sum-card"><div class="k">Не зашло</div><h3>Разочарования</h3><div class="fav-row">${flops.map(b=>`<button class="au-book" data-id="${b.id}" style="width:auto">${cover(b,52)}</button>`).join("")}</div></div>`:""}
    <div class="duo"><div class="sum-card"><div class="k">Цитаты</div><b class="t" style="font-size:28px">${quotes.length}</b><small>сохранено</small></div><div class="sum-card"><div class="k">Обсуждения</div><b class="t" style="font-size:28px">${discN}</b><small>${plural(discN,"книга обсуждена","книги обсуждены","книг обсуждено")}</small></div></div>
    <p class="sum-note">Итоги по годам появятся, когда будешь говорить мне, в каком году дочитала книгу.</p>
   </div>`;
@@ -1506,12 +1502,12 @@ document.querySelectorAll("nav.tabs button").forEach(btn=>btn.addEventListener("
 document.addEventListener("click",e=>{const t=e.target.closest(".spine,.tl-row,.au-book");if(t)openBook(t.dataset.id)});
 
 // ---------- свайп между вкладками ----------
-const ORDER=["shelves","want","tev","time","authors","quotes"];let curView="shelves";
+const ORDER=["shelves","want","tev","time"];let curView="shelves";
 const _go=go;go=function(v){curView=v;_go(v)};
 (function(){
   let x0=0,y0=0,t0=0,mode=null,dx=0,el=null;
   const blocked=t=>t.closest(".shelf,.fav-row,select,input,textarea,.stories,.disc,.scrim.on,nav.tabs");
-  document.addEventListener("touchstart",e=>{if(e.touches.length!==1||blocked(e.target)||story||sheetOpen||disc){mode="off";return}
+  document.addEventListener("touchstart",e=>{if(e.touches.length!==1||blocked(e.target)||story||sheetOpen||disc||tevScope){mode="off";return}
     const p=e.touches[0];x0=p.clientX;y0=p.clientY;t0=Date.now();mode=null;dx=0;el=document.getElementById("v-"+curView)},{passive:true});
   document.addEventListener("touchmove",e=>{if(mode==="off"||mode==="v")return;const p=e.touches[0];dx=p.clientX-x0;const dy=p.clientY-y0;
     if(!mode){if(Math.abs(dx)>10&&Math.abs(dx)>Math.abs(dy)*1.3)mode="h";else if(Math.abs(dy)>10){mode="v";return}else return}
@@ -1529,13 +1525,13 @@ const _go=go;go=function(v){curView=v;_go(v)};
 })();
 
 // ---------- Telegram ----------
-function syncBack(){if(!TG||!TG.BackButton)return;(story||sheetOpen||disc)?TG.BackButton.show():TG.BackButton.hide()}
+function syncBack(){if(!TG||!TG.BackButton)return;(story||sheetOpen||disc||tevScope)?TG.BackButton.show():TG.BackButton.hide()}
 if(TG){
-  try{TG.ready();TG.expand();TG.disableVerticalSwipes&&TG.disableVerticalSwipes();TG.setHeaderColor&&TG.setHeaderColor("#FAF9F6");TG.setBackgroundColor&&TG.setBackgroundColor("#FAF9F6");TG.BackButton.onClick(()=>{disc?closeDisc():story?closeStories():closeSheet()})}catch(e){}
+  try{TG.ready();TG.expand();TG.disableVerticalSwipes&&TG.disableVerticalSwipes();TG.setHeaderColor&&TG.setHeaderColor("#FAF9F6");TG.setBackgroundColor&&TG.setBackgroundColor("#FAF9F6");TG.BackButton.onClick(()=>{tevScope?closeTev():disc?closeDisc():story?closeStories():closeSheet()})}catch(e){}
   try{TG.CloudStorage.getItem("want",(err,val)=>{if(!err&&val){try{const ids=JSON.parse(val);if(Array.isArray(ids)&&ids.length){const extra=want.filter(w=>!LIB[w.id]);want=[...extra,...hydrate(ids)];renderWant()}}catch(e){}}})}catch(e){}
 }
 
-renderShelves();renderTime();renderAuthors();shuffleMoods();renderWant();discRestore();renderQuotes();restoreQuotes();
+renderShelves();renderTime();shuffleMoods();renderWant();discRestore();renderQuotes();restoreQuotes();
 if(!mine.length)cloudRead("m",arr=>{if(Array.isArray(arr)&&arr.length&&!mine.length){mine=arr;mine.forEach(b=>{BOOKS.push(prepUser(b));READ.add(norm(b.t))});LS.set(UKEY,mine);rerenderAll()}});
 if(TG&&TG.CloudStorage&&!LS.get("zal.now",null)){try{TG.CloudStorage.getItem("now",(e,v)=>{if(!e&&v){try{const o=JSON.parse(v);nowBook=o==="none"?null:o;LS.set("zal.now",o);renderWant()}catch(x){}}})}catch(e){}}
 

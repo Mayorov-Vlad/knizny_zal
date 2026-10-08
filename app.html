@@ -1328,12 +1328,23 @@ async function libAuthorBooks(id){const j=await flGet("/autor/"+id+"?works=1");c
   return (j.works||[]).filter(w=>{const tp=w.work_type||"",v=w.val_voters||0;if(!w.work_name||w.work_published===0||w.work_preparing)return false;
       if(!(FL_TYPES_RU.has(tp)||(tp==="рассказ"&&v>=40)))return false;const k=norm(w.work_name);if(seen.has(k))return false;seen.add(k);return true})
     .sort((x,y)=>(y.val_voters||0)-(x.val_voters||0)).map(w=>({t:w.work_name,a,c,y:w.work_year||null,pop:w.val_voters||0,kind:w.work_type,_fl:w.work_id,_fa:id}))}
-async function libWorks(q){const j=await flGet("/search-works?q="+encodeURIComponent(q)+"&page=1&onlymatches=1");const arr=Array.isArray(j)?j:(j&&j.matches)||[];
+async function libWorks(q,page=1){const j=await flGet("/search-works?q="+encodeURIComponent(q)+"&page="+page+"&onlymatches=1");const arr=Array.isArray(j)?j:(j&&j.matches)||[];
   const nq=norm(q),seen=new Set();
   return arr.filter(w=>{const tp=w.name_eng||"";const t=w.rusname||w.name;if(!t||!w.autor_rusname)return false;if(!(FL_TYPES_EN.has(tp)||(tp==="shortstory"&&w.markcount>=40)))return false;
       const k=norm(t)+"|"+norm(w.autor_rusname);if(seen.has(k))return false;seen.add(k);return true})
     .map(w=>{const t=w.rusname||w.name;const nt=norm(t);return {t,a:w.autor_rusname,y:w.year||null,pop:w.markcount||0,kind:w.name_show_im,_fl:w.work_id,_fa:w.autor_id,_r:nt===nq?0:nt.startsWith(nq)?1:2}})
     .sort((x,y)=>x._r-y._r||y.pop-x.pop)}
+// автор без своей страницы на Фантлабе — собираем его книги из поиска
+async function libByAuthorName(q){const pages=await Promise.all([1,2,3].map(p=>libWorks(q,p).catch(()=>[])));const by={};
+  pages.flat().filter(b=>nameMatches(q,b.a)).forEach(b=>{const k=b._fa||b.a;(by[k]=by[k]||[]).push(b)});
+  const k=Object.keys(by).sort((x,y)=>by[y].reduce((s,b)=>s+b.pop,0)-by[x].reduce((s,b)=>s+b.pop,0))[0];if(!k)return null;
+  const seen=new Set();const list=by[k].filter(b=>{const n=norm(b.t);if(seen.has(n))return false;seen.add(n);return true}).sort((x,y)=>y.pop-x.pop);
+  let full=null;if(list[0]._fa)full=await libAuthorBooks(list[0]._fa).catch(()=>null);
+  return {name:list[0].a,list:full&&full.length?full:list}}
+// главный вход: книги автора по запросу (или null)
+async function libAuthorSearch(q){if(wordsOfQ(q).length>3)return null;const au=await libAuthors(q).catch(()=>[]);
+  if(au[0]){const list=await libAuthorBooks(au[0].id).catch(()=>null);if(list&&list.length)return {name:list[0].a||au[0].name,list:list.map(b=>({...b,c:b.c||au[0].c}))}}
+  return libByAuthorName(q)}
 function flLabels(c,out=[]){if(!c)return out;if(Array.isArray(c)){c.forEach(x=>flLabels(x,out));return out}if(typeof c==="object"){if(c.label&&(c.percent==null||c.percent>=.3))out.push(c.label);flLabels(c.genre,out);flLabels(c.genre_group,out)}return out}
 function flGenre(labels,kind,y){const L=labels.join(" ");
   if(/документальн|мемуар|биограф|нон-фикшн|научно-популярн/i.test(L+" "+(kind||"")))return "nonfic";
@@ -1375,9 +1386,8 @@ function libSection(box,q,opts={}){const my=++libSeq;const v=String(q||"").trim(
     // локально — сразу
     const loc=localAuthorBooks(v),la=Object.keys(loc).sort((x,y)=>loc[y].length-loc[x].length)[0];
     if(la)draw(`Книги автора · ${esc(la)}`,loc[la].slice().sort((x,y)=>(y.q||0)-(x.q||0)).map(b=>({t:b.t,a:b.a,c:b.c,y:b.y,g:b.g})));
-    try{const au=await libAuthors(v);if(my!==libSeq)return;
-      if(au.length&&(wordsOfQ(v).length<=3)){const A=au[0];const list=await libAuthorBooks(A.id);if(my!==libSeq)return;
-        if(list.length){draw(`Книги автора · ${esc(list[0].a||A.name)} <small>от самых популярных</small>`,list.map(b=>({...b,c:b.c||A.c})));return}}
+    try{const A=await libAuthorSearch(v);if(my!==libSeq)return;
+      if(A&&A.list.length){draw(`Книги автора · ${esc(A.name)} <small>от самых популярных</small>`,A.list);return}
       const ws=await libWorks(v);if(my!==libSeq)return;
       if(ws.length)draw("В большой библиотеке",ws);else if(!la)box.innerHTML=opts.empty||""}
     catch(e){if(my===libSeq&&!la)box.innerHTML=`<div class="lib-k">Большая библиотека сейчас не отвечает — попробуй позже.</div>`}
@@ -1640,9 +1650,9 @@ function openAddBook(target,pre){const toW=target==="want";
   const onlineSugg=(v,localHits)=>{const my=++oSeq;clearTimeout(oBox._t);if(norm(v).length<3){oBox.innerHTML="";return}
     oBox._t=setTimeout(async()=>{try{const [au,ws]=await Promise.all([libAuthors(v).catch(()=>[]),libWorks(v).catch(()=>[])]);if(my!==oSeq)return;
       const have=new Set([...(localHits||[]),...BOOKS].map(b=>norm(b.t)));const items=ws.filter(b=>!have.has(norm(b.t))).slice(0,6);
-      const A=au[0];const btn=A&&wordsOfQ(v).length<=3?`<button type="button" class="lib-author" id="bAuth">Все книги автора ${esc(A.name)} →<small>от самых популярных</small></button>`:"";
+      const A=au[0]||(()=>{const m=ws.find(b=>nameMatches(v,b.a));return m?{name:m.a,_q:v}:null})();const btn=A&&wordsOfQ(v).length<=3?`<button type="button" class="lib-author" id="bAuth">Все книги автора ${esc(A.name)} →<small>от самых популярных</small></button>`:"";
       drawO(items,"Ещё в большой библиотеке",btn);
-      const ab=oBox.querySelector("#bAuth");if(ab)ab.onclick=async()=>{ab.textContent="Листаю каталог…";try{const list=(await libAuthorBooks(A.id)).map(b=>({...b,c:b.c||A.c}));if(my!==oSeq)return;$("#bSugg").innerHTML="";drawO(list.filter(b=>!BOOKS.some(x=>norm(x.t)===norm(b.t))).slice(0,40),`Книги автора · ${esc(A.name)}`)}catch(e){ab.textContent="Не получилось — попробуй ещё раз"}}
+      const ab=oBox.querySelector("#bAuth");if(ab)ab.onclick=async()=>{ab.textContent="Листаю каталог…";try{const R0=await libAuthorSearch(A._q||A.name);const list=R0?R0.list:[];if(my!==oSeq)return;$("#bSugg").innerHTML="";drawO(list.filter(b=>!BOOKS.some(x=>norm(x.t)===norm(b.t))).slice(0,40),`Книги автора · ${esc(A.name)}`)}catch(e){ab.textContent="Не получилось — попробуй ещё раз"}}
     }catch(e){}},400)};
   T.addEventListener("focus",()=>{const sh=$("#sheet");setTimeout(()=>{const d=T.getBoundingClientRect().top-sh.getBoundingClientRect().top-70;if(d>0)sh.scrollBy({top:d,behavior:"smooth"})},300)});
   T.addEventListener("input",()=>{picked=null;upd();const v=norm(T.value);if(v.length<2){$("#bSugg").innerHTML="";return}

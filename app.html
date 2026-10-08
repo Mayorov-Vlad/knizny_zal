@@ -1,7 +1,7 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><script src="https://telegram.org/js/telegram-web-app.js"></script><title>Книжный зал</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Forum&family=Oswald:wght@600;700&family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..600&family=Manrope:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora:wght@600&family=PT+Serif:wght@700&family=Prata&family=Montserrat:wght@700&family=Rubik:wght@600&family=Alegreya:wght@700&family=Yeseva+One&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Forum&family=Oswald:wght@600;700&family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..600&family=Manrope:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: a daylight bookstore — enamel country signs over oak shelves, spines you pull out; bottom tab bar like an app. Light-only by choice. */
 :root{
@@ -60,7 +60,7 @@ html,body{overflow-x:hidden}
 .ledge{height:12px;background:linear-gradient(var(--oak),var(--oak-dark));border-radius:0 0 4px 4px;box-shadow:0 6px 10px -6px rgba(80,55,20,.45)}
 .spine{flex:none;border:none;padding:12px 6px 12px;border-radius:3px 3px 1px 1px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;transition:transform .2s ease;position:relative;box-shadow:inset -3px 0 0 rgba(0,0,0,.12),inset 2px 0 0 rgba(255,255,255,.15)}
 .spine:hover{transform:translateY(-8px) rotate(-1.5deg)}
-.spine .st{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--serif);font-weight:600;font-size:12.5px;line-height:1.12;white-space:normal;text-align:center}
+.spine .st{writing-mode:vertical-rl;transform:rotate(180deg);line-height:1.15;white-space:nowrap;text-align:center}
 .spine .sa{writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;letter-spacing:.08em;text-transform:uppercase;opacity:.8;white-space:nowrap;flex:none}
 .spine .band{position:absolute;left:0;right:0;height:3px;background:currentColor;opacity:.3;top:8px}
 .spine .score{position:absolute;top:-9px;right:-6px;background:var(--gold);color:#fff;font-size:10px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;padding:0 4px;font-variant-numeric:tabular-nums;box-shadow:0 1px 3px rgba(0,0,0,.2);z-index:1}
@@ -1042,6 +1042,22 @@ const mix=(h1,h2,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));con
 const lum=h=>{const v=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);return .2126*v[0]+.7152*v[1]+.0722*v[2]};
 const STYLE_FIX={};
 function styleOf(b){const k=b.id||b.t;if(STYLE_FIX[k]!=null)return STYLE_FIX[k];return hsh(k+"ed")%8}
+const BFONTS=[["'Literata',Georgia,serif",600,.55],["'Playfair Display',Georgia,serif",700,.57],["'Lora',Georgia,serif",600,.54],["'PT Serif',Georgia,serif",700,.56],["'Prata',Georgia,serif",400,.6],["'Oswald','Arial Narrow',sans-serif",600,.43],["'Montserrat','Segoe UI',sans-serif",700,.63],["'Rubik','Segoe UI',sans-serif",600,.57],["'Alegreya',Georgia,serif",700,.5],["'Yeseva One',Georgia,serif",400,.6],["'Cormorant Garamond',Georgia,serif",700,.47]];
+const BF_OVR={};
+function bfont(b){const k=b.id||b.t;return BFONTS[BF_OVR[k]!=null?BF_OVR[k]:hsh(k+"font")%BFONTS.length]}
+// Разбивка названия на строки равной длины: предлоги держатся за следующее слово, короткое слово не остаётся одно
+const GLUE=new Set(["и","в","во","на","с","со","о","об","у","к","ко","из","от","по","за","до","без","для","не","а","the","a","of"]);
+function wordsOf(t){const raw=String(t).split(/\s+/).filter(Boolean),out=[];for(let i=0;i<raw.length;i++){let w=raw[i];while(GLUE.has(w.toLowerCase().replace(/[«»"]/g,""))&&i+1<raw.length){w+=" "+raw[++i]}out.push(w)}return out}
+function splitLines(t,n){const ws=wordsOf(t);if(n<=1||ws.length<2)return [ws.join(" ")];n=Math.min(n,ws.length);
+  const L=ws.map(w=>w.length),pre=[0];L.forEach((x,i)=>pre.push(pre[i]+x));const len=(i,j)=>pre[j]-pre[i]+(j-i-1);
+  const memo={};const best=(i,k)=>{const key=i+","+k;if(key in memo)return memo[key];if(k===1)return memo[key]=[len(i,ws.length),[ws.slice(i).join(" ")]];
+    let r=[1e9,null];for(let j=i+1;j<=ws.length-k+1;j++){const [m,rest]=best(j,k-1);const v=Math.max(len(i,j),m);if(v<r[0])r=[v,[ws.slice(i,j).join(" "),...rest]]}return memo[key]=r};
+  return best(0,n)[1]}
+function typeset(t,boxW,baseFs,cw,maxLines,minFs){t=String(t||"");const cands=[];
+  for(let n=1;n<=maxLines;n++){const lines=splitLines(t,n);if(lines.length<n)break;const ls=lines.map(l=>l.length),longest=Math.max(...ls),ratio=Math.min(...ls)/longest;
+    const fs=Math.min(baseFs*(n>2?.92:1),boxW/(longest*cw));cands.push({lines,fs,ratio,n});if(fs>=minFs&&(n===1||ratio>=.42))return fin(cands[cands.length-1])}
+  const ok=cands.filter(c=>c.n===1||c.ratio>=.42);let pick=(ok.length?ok:cands).reduce((a,c)=>c.fs>a.fs?c:a);if(pick.fs<minFs*.85)pick=cands.filter(c=>c.ratio>=.3||c.n===1).reduce((a,c)=>c.fs>a.fs?c:a);return fin(pick);
+  function fin(c){return {html:c.lines.map(l=>esc(l).replace(/ /g,"&nbsp;")).join("<br>"),fs:Math.max(5.5,Math.round(c.fs*10)/10),n:c.lines.length}}}
 function fitFs(t,w,base,cw){const lw=Math.max(...String(t||"").split(/[\s'-]+/).map(x=>x.length));let fs=base;const L=(t||"").length;if(L>16)fs*=.9;if(L>26)fs*=.84;return Math.max(5.5,Math.min(fs,w/(lw*cw)))}
 function cover(b,w){
   const h=Math.round(w*1.5),st=styleOf(b),T=esc(b.t).replace(/'/g,"'​"),A=esc(b.a);
@@ -1049,32 +1065,34 @@ function cover(b,w){
   const box=(bg,fg,inner,extra="")=>`<div class="cover cv cv${st}${w<60?" mini":""}" style="--w:${w}px;width:${w}px;height:${h}px;background:${bg};color:${fg};${extra}">${inner}</div>`;
   const M=(cls,style)=>motifSVG(b,"cvm "+cls).replace("<svg ",`<svg style="${style}" `);
   if(w<60){const bgs=[b.bg,paper,b.bg,light,b.bg,b.bg,paper,b.bg][st],fgs=[gold,b.bg,gold,b.bg,b.fg,b.fg,b.bg,b.fg][st];return box(bgs,fgs,M("","width:78%;opacity:.85;stroke-width:4"))}
-  const u=w/100;
+  const u=w/100,bf=bfont(b),UPC=[0,2,5].includes(st);
+  const TS=(boxW,base,cwMul)=>{const r=typeset(b.t,boxW*.88,base,bf[2]*(UPC?1.34:1)*(cwMul||1),4,Math.max(8,w/13));return {fs:r.fs,h:r.html}};
+  let R1={fs:10,h:""};
   switch(st){
   case 0: // тканевый переплёт с золотом
     return box(b.bg,gold,`<span class="cv-cloth"></span><span class="cv-frame" style="inset:${6*u}px;border-color:${gold}"></span><span class="cv-frame" style="inset:${9*u}px;border-color:${gold};opacity:.6"></span>
-     <div class="cv-t serifc" style="top:17%;font-size:${fitFs(b.t,w*.7,w/8.5,.8)}px;color:${gold}">${T}</div>${M("","left:36%;width:28%;top:52%;opacity:.9")}<div class="cv-a" style="bottom:12%;color:${gold}">${A}</div>`);
+     <div class="cv-t serifc" style="top:17%;font-size:${(R1=TS(w*.7,w/8.5)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap;color:${gold}">${R1.h}</div>${M("","left:36%;width:28%;top:52%;opacity:.9")}<div class="cv-a" style="bottom:12%;color:${gold}">${A}</div>`);
   case 1: // цветные плашки
     return box(paper,b.bg,`<span class="cv-band" style="top:0;height:31%;background:${b.bg}"></span><span class="cv-band" style="bottom:0;height:13%;background:${b.bg}"></span>
-     <div class="cv-t sansb" style="top:7%;font-size:${fitFs(b.t,w*.8,w/8,.72)}px;color:${b.fg}">${T}</div>${M("","left:22%;width:56%;top:37%;opacity:.9")}<div class="cv-a" style="bottom:3.5%;color:${b.fg}">${A}</div>`);
+     <div class="cv-t sansb" style="top:7%;font-size:${(R1=TS(w*.8,w/8)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap;color:${b.fg}">${R1.h}</div>${M("","left:22%;width:56%;top:37%;opacity:.9")}<div class="cv-a" style="bottom:3.5%;color:${b.fg}">${A}</div>`);
   case 2: // ар-деко
     return box(b.bg,gold,`<span class="cv-deco" style="--g:${gold}"></span><span class="cv-frame deco" style="inset:${7*u}px;border-color:${gold}"></span>
-     ${M("","left:38%;width:24%;top:13%")}<div class="cv-t deco" style="top:43%;font-size:${fitFs(b.t,w*.72,w/9,.9)}px;color:${gold}">${T}</div><div class="cv-a" style="bottom:13%;color:${gold};letter-spacing:.2em">${A}</div>`);
+     ${M("","left:38%;width:24%;top:13%")}<div class="cv-t deco" style="top:43%;font-size:${(R1=TS(w*.72,w/9)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap;color:${gold}">${R1.h}</div><div class="cv-a" style="bottom:13%;color:${gold};letter-spacing:.2em">${A}</div>`);
   case 3: // швейцарский минимализм
     return box(light,b.bg,`${M("","right:-28%;width:110%;top:14%;opacity:.55;stroke-width:1.6")}<div class="cv-a left" style="top:8%;color:${b.bg}">${A}</div>
-     <div class="cv-t sansb left" style="bottom:9%;top:auto;font-size:${fitFs(b.t,w*.76,w/7.5,.68)}px;color:${b.bg};text-transform:lowercase">${T}</div>`);
+     <div class="cv-t sansb left" style="bottom:9%;top:auto;font-size:${(R1=TS(w*.76,w/7.5)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap;color:${b.bg};text-transform:lowercase">${R1.h}</div>`);
   case 4: // акварельное небо
     return box(`linear-gradient(175deg,${mix(b.bg,"#FFFFFF",.35)} 0%,${b.bg} 58%,${mix(b.bg,"#000000",.25)} 100%)`,b.fg,`<span class="cv-sun" style="background:${mix(b.fg,b.bg,.25)}"></span>
-     <div class="cv-t serifi" style="top:9%;font-size:${fitFs(b.t,w*.78,w/7.8,.6)}px">${T}</div>${M("","left:14%;width:72%;top:40%;opacity:.8;stroke-width:2.8")}<div class="cv-a" style="bottom:7%">${A}</div>`);
+     <div class="cv-t serifi" style="top:9%;font-size:${(R1=TS(w*.78,w/7.8)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap">${R1.h}</div>${M("","left:14%;width:72%;top:40%;opacity:.8;stroke-width:2.8")}<div class="cv-a" style="bottom:7%">${A}</div>`);
   case 5: // яркий пейпербек
     return box(b.bg,b.fg,`<span class="cv-slash" style="background:${mix(b.bg,b.fg,.22)}"></span>
-     <div class="cv-t cond" style="top:10%;font-size:${fitFs(b.t,w*.8,w/6.2,.88)}px">${T}</div>${M("","left:30%;width:56%;top:46%;opacity:.9;stroke-width:3")}<div class="cv-a boxed" style="bottom:7%;border-color:${b.fg}">${A}</div>`);
+     <div class="cv-t cond" style="top:10%;font-size:${(R1=TS(w*.8,w/6.2)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap">${R1.h}</div>${M("","left:30%;width:56%;top:46%;opacity:.9;stroke-width:3")}<div class="cv-a boxed" style="bottom:7%;border-color:${b.fg}">${A}</div>`);
   case 6: // академическая серия
     return box(paper,"#2A2622",`<span class="cv-stripe" style="background:${b.bg}"></span><span class="cv-stripe two" style="background:${b.bg}"></span>
-     <div class="cv-a left" style="top:26%;left:24%;color:#5A524A">${A}</div><div class="cv-t serif left" style="top:33%;left:24%;font-size:${fitFs(b.t,w*.64,w/8.6,.66)}px">${T}</div>${M("","right:9%;width:26%;bottom:8%;top:auto;color:${b.bg}".replace("${b.bg}",b.bg))}`);
+     <div class="cv-a left" style="top:26%;left:24%;color:#5A524A">${A}</div><div class="cv-t serif left" style="top:33%;left:24%;font-size:${(R1=TS(w*.64,w/8.6)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap">${R1.h}</div>${M("","right:9%;width:26%;bottom:8%;top:auto;color:${b.bg}".replace("${b.bg}",b.bg))}`);
   default: // узорный переплёт
     return box(b.bg,b.fg,`<div class="cv-pattern">${Array(12).fill(M("","position:static;width:100%;opacity:.28;stroke-width:3")).join("")}</div>
-     <div class="cv-label" style="background:${paper};color:${b.bg}"><div class="cv-lt" style="font-size:${fitFs(b.t,w*.56,w/9.5,.66)}px">${T}</div><div class="cv-la">${A}</div></div>`);
+     <div class="cv-label" style="background:${paper};color:${b.bg}"><div class="cv-lt" style="font-size:${(R1=TS(w*.56,w/9.5)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap">${R1.h}</div><div class="cv-la">${A}</div></div>`);
   }
 }
 function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("on"),2000)}
@@ -1100,9 +1118,11 @@ function renderShelves(){
     return `<div class="country"><div class="sign"><h2>${esc(c)}</h2></div>`+
      Object.keys(GEN).filter(g=>byG[g]).map(g=>`<div class="genre"><span class="genre-label">${GEN[g]}</span><div class="shelf">${
        byG[g].sort((a,b)=>(a.y||9999)-(b.y||9999)).map(b=>{
-         const w=Math.min(44,Math.max(30,Math.round(24+b.pg/30)));const h=214+((b.pg*7)%30);
+         let w=Math.min(44,Math.max(30,Math.round(24+b.pg/30)));const h=214+((b.pg*7)%30);
          const sur=b.a==="Автор не указан"?"?":b.a.split(" ").slice(-1)[0];
-         return `<button class="spine" data-id="${b.id}" style="min-width:${w}px;height:${h}px;background:${b.bg};color:${b.fg}" aria-label="${esc(b.t)}, ${esc(b.a)}"><span class="band"></span>${motifSVG(b,"sm")}<span class="st" style="inline-size:${h-62-sur.length*6.2}px">${esc(b.t)}</span><span class="sa">${esc(sur)}</span></button>`;
+         const bf=bfont(b),avail=h-64-sur.length*6.4;let ts=typeset(b.t,avail,14,bf[2],1,11);if(ts.fs<11)ts=typeset(b.t,avail,13,bf[2],3,10.5);
+         w=Math.max(w,Math.ceil(ts.n*ts.fs*1.18+16));
+         return `<button class="spine" data-id="${b.id}" style="min-width:${w}px;height:${h}px;background:${b.bg};color:${b.fg}" aria-label="${esc(b.t)}, ${esc(b.a)}"><span class="band"></span>${motifSVG(b,"sm")}<span class="st" style="font-family:${bf[0]};font-weight:${bf[1]};font-size:${ts.fs}px">${ts.html}</span><span class="sa">${esc(sur)}</span></button>`;
        }).join("")}</div><div class="ledge"></div></div>`).join("")+`</div>`;
   }).join("");
 }
@@ -1132,7 +1152,7 @@ function openSheet(html){$("#sheet").innerHTML=`<div class="grab"></div>`+html;$
 function closeSheet(){$("#scrim").classList.remove("on");sheetOpen=false;syncBack()}
 function openBook(id){
   const b=BOOKS.find(x=>x.id===id);if(!b)return;haptic();
-  openSheet(`<div class="bk">${cover(b,112)}<div class="bk-meta"><h3>${esc(b.t)}</h3><div class="au">${esc(b.a)}</div><div class="chips"><span class="chip">${esc(b.c)}</span>${b.y?`<span class="chip">${b.y}</span>`:""}<span class="chip">${GEN[b.g]}</span></div></div></div>
+  openSheet(`<div class="bk">${cover(b,112)}<div class="bk-meta"><h3 style="font-family:${bfont(b)[0]};font-weight:${bfont(b)[1]}">${esc(b.t)}</h3><div class="au">${esc(b.a)}</div><div class="chips"><span class="chip">${esc(b.c)}</span>${b.y?`<span class="chip">${b.y}</span>`:""}<span class="chip">${GEN[b.g]}</span></div></div></div>
    ${b.r!=null?`<div class="rating"><b>${b.r}</b><span>/ 10</span></div>`:`<div class="rating"><span>Без оценки</span></div>`}
    ${b.n?`<div class="note">${esc(b.n)}</div>`:""}
    ${DISC[b.id]?`<button class="btn btn-disc" id="discBtn">${discLabel(b.id)}</button>`:""}
@@ -1196,7 +1216,7 @@ function openAddBook(){
    <label for="bN">Заметка (необязательно)</label><textarea id="bN" placeholder="Напиши что-нибудь"></textarea></div>
    <div class="sheet-actions"><button class="btn btn-main" id="bSave" style="margin-top:0" disabled>Поставить на полку</button></div></div>`);
   const getR=bindRating(),T=$("#bT"),sv=$("#bSave");let picked=null,found=[];
-  const upd=()=>{sv.disabled=!T.value.trim()&&!found.length;$("#bOne").hidden=found.length>0;const n=found.length+(T.value.trim()?1:0),nw=found.filter(b=>b._w).length;sv.textContent=!found.length?"Поставить на полку":nw===0?`Поставить на полку · ${n}`:nw===n?`В «Хочу прочитать» · ${n}`:`Разложить книги · ${n}`};
+  const upd=()=>{sv.disabled=!T.value.trim()&&!found.length;$("#bOne").hidden=found.length>0;const n=found.length+(T.value.trim()?1:0),nw=found.filter(b=>b._w).length;sv.textContent=!found.length||nw===0?"Поставить на полку":nw===n?"В «Хочу прочитать»":"Разложить книги"};
   let unk=[];
   const drawUnk=()=>{const el=$("#bUnk");el.innerHTML=unk.length?`<div class="unk-k">Не нашёл в каталоге, но прочитал на фото — нажми, если это книга</div><div class="unk">${unk.map((l,i)=>`<button type="button" data-u="${i}">+ ${esc(l)}</button>`).join("")}</div>`:"";
     el.querySelectorAll("[data-u]").forEach(x=>x.onclick=()=>{const t=unk[+x.dataset.u];const nice=t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();found.push({t:nice,a:"",bg:"#6E5A44",fg:"#F7EEDD",g:"unknown"});unk.splice(+x.dataset.u,1);drawUnk();drawFound();haptic()})};
@@ -1217,7 +1237,7 @@ function openAddBook(){
       const known=new Set([...found,...BOOKS].flatMap(b=>[norm(b.t),...toks(b.a||"").map(norm)]));
       const cand=[...new Set(lines.map(l=>l.replace(/[^А-Яа-яЁёA-Za-z0-9 .,:!?«»"'—-]/g," ").replace(/\s+/g," ").trim()))].filter(l=>{const letters=(l.match(/[А-Яа-яЁёA-Za-z]/g)||[]).length;const ws=l.split(" ").filter(w=>w.length>=3);return l.length>=4&&l.length<=48&&letters/l.length>.75&&ws.length>=1&&!known.has(norm(l))&&![...known].some(k=>k.length>4&&norm(l).includes(k))}).slice(0,10);
       unk=[...new Set([...unk,...cand])].slice(0,12);drawUnk();
-      box.innerHTML=total?`<div class="ocr-t ok">Узнал ${total} ${plural(total,"книгу","книги","книг")}</div>`:`<div class="ocr-t">Не разобрал названия. Попробуй ближе и при хорошем свете — или впиши вручную.</div>`;
+      box.innerHTML=total?`<div class="ocr-t">Узнал ${total} ${plural(total,"книгу","книги","книг")}</div>`:`<div class="ocr-t">Не разобрал названия. Попробуй ближе и при хорошем свете — или впиши вручную.</div>`;
     }catch(err){box.innerHTML=`<div class="ocr-t">Распознавание не запустилось${location.protocol==="file:"?"":" — открой зал в Telegram"}. Впиши книгу вручную.</div>`}
     e.target.value=""};
   T.addEventListener("input",()=>{picked=null;upd();const v=norm(T.value);if(v.length<3){$("#bSugg").innerHTML="";return}

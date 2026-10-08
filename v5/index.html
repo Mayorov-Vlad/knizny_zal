@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Нора — пятая версия</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!--
+  ПЯТАЯ ВЕРСИЯ «НОРЫ» — «пространственный» вид: стекло, глубина, атмосфера из самих обложек.
+  Живёт только в папке v5/. Не понравится — удалить папку v5 целиком.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#FFFFFF;--ink2:rgba(255,255,255,.72);--ink3:rgba(255,255,255,.5);--glass:rgba(255,255,255,.12);--glass2:rgba(255,255,255,.2);--edge:rgba(255,255,255,.22);--acc:#FFFFFF;--f:'Golos Text',system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#05060A;color:var(--ink);overflow:hidden}
+body{font-family:var(--f);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.gl{background:var(--glass);backdrop-filter:blur(26px) saturate(1.6);-webkit-backdrop-filter:blur(26px) saturate(1.6);border:1px solid var(--edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.25),0 20px 50px -20px rgba(0,0,0,.6)}
+
+/* атмосфера */
+.amb{position:fixed;inset:-20%;z-index:0;pointer-events:none}
+.amb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(70px) saturate(1.8) brightness(.75);opacity:0;transition:opacity 1.2s ease}
+.amb img.on{opacity:1}
+.amb::after{content:"";position:absolute;inset:0;background:radial-gradient(80% 60% at 50% 40%,transparent,rgba(5,6,10,.55))}
+.aurora{position:fixed;inset:0;z-index:0;background:radial-gradient(40% 35% at 20% 20%,#5B3BFF55,transparent 70%),radial-gradient(45% 40% at 85% 30%,#FF4D8D44,transparent 70%),radial-gradient(50% 45% at 50% 95%,#00C2A844,transparent 70%);animation:au 18s ease-in-out infinite alternate;pointer-events:none}
+@keyframes au{to{transform:scale(1.2) rotate(8deg)}}
+
+/* верх */
+.top{position:fixed;top:0;left:0;right:0;z-index:20;display:flex;justify-content:space-between;align-items:center;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 0;pointer-events:none}
+.top > *{pointer-events:auto}
+.brand{font-weight:800;font-size:20px;letter-spacing:-.02em;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+.brand small{font-weight:500;font-size:11px;opacity:.6;margin-left:6px}
+.seg{position:relative;display:grid;grid-template-columns:1fr 1fr;border-radius:999px;padding:3px}
+.seg button{position:relative;z-index:1;padding:7px 15px;font-size:13px;font-weight:600;color:var(--ink2);transition:color .3s}
+.seg button.on{color:#0B0B10}
+.seg i{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;background:#fff;transition:transform .5s cubic-bezier(.3,1.3,.5,1)}
+body.films .seg i{transform:translateX(100%)}
+
+/* экраны */
+.screen{position:fixed;inset:0;z-index:5;display:none}
+.screen.on{display:block}
+
+/* лента — вертикальные слайды */
+.feed{position:absolute;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;scrollbar-width:none;overscroll-behavior:contain}
+.feed::-webkit-scrollbar{display:none}
+.slide{position:relative;height:100%;scroll-snap-align:start;scroll-snap-stop:always;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(64px + env(safe-area-inset-top,0px)) 20px calc(118px + env(safe-area-inset-bottom,0px))}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:18px}
+.tag i{width:7px;height:7px;border-radius:50%;background:#7CFFB2;box-shadow:0 0 10px #7CFFB2}
+.tag.find i{background:#FFD36B;box-shadow:0 0 10px #FFD36B}
+.obj{perspective:1000px;width:min(58vw,240px)}
+.obj .cv{transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .25s ease-out;border-radius:10px;box-shadow:0 40px 70px -24px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.12)}
+.obj .cv::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.28) 0%,transparent 35%,transparent 65%,rgba(255,255,255,.08));pointer-events:none;mix-blend-mode:overlay}
+.card{width:min(100%,420px);margin-top:26px;border-radius:26px;padding:16px 18px 14px}
+.card h2{margin:0;font-size:24px;font-weight:700;letter-spacing:-.02em;line-height:1.1}
+.card .meta{color:var(--ink2);font-size:14px;margin-top:4px}
+.card p{margin:10px 0 0;font-size:14.5px;line-height:1.45;color:var(--ink2)}
+.acts{display:flex;gap:8px;margin-top:14px}
+.btn{flex:1;height:46px;border-radius:999px;font-weight:600;font-size:14.5px;background:var(--glass2);border:1px solid var(--edge)}
+.btn.w{background:#fff;color:#0B0B10;border-color:#fff}
+.stars{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin-top:12px}
+.stars::-webkit-scrollbar{display:none}
+.stars button{aspect-ratio:1;width:100%;max-width:34px;justify-self:center;border-radius:50%;font-size:12.5px;font-weight:700;background:rgba(255,255,255,.08);color:var(--ink2);transition:transform .2s,background .2s}
+.stars button.on{background:#fff;color:#0B0B10;transform:scale(1.12)}
+.dots{position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:6;display:flex;flex-direction:column;gap:6px}
+.dots i{width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.35);transition:height .3s,background .3s}
+.dots i.on{height:16px;background:#fff}
+.swipehint{position:absolute;bottom:calc(98px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);font-size:12px;color:var(--ink3);animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translate(-50%,-5px)}}
+
+/* коллекция — coverflow + сетка */
+.scroll{position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:calc(64px + env(safe-area-inset-top,0px)) 0 calc(120px + env(safe-area-inset-bottom,0px))}
+.scroll::-webkit-scrollbar{display:none}
+.h1{font-size:40px;font-weight:800;letter-spacing:-.03em;margin:8px 20px 0}
+.flow{position:relative;height:330px;margin-top:6px;perspective:900px;overflow:hidden;touch-action:pan-y}
+.flow .cv{position:absolute;left:50%;top:30px;width:170px;margin-left:-85px;border-radius:8px;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .5s,filter .5s;box-shadow:0 30px 50px -20px rgba(0,0,0,.8)}
+.flow-cap{text-align:center;margin-top:-6px;padding:0 20px}
+.flow-cap b{display:block;font-size:19px;font-weight:700;letter-spacing:-.01em}
+.flow-cap span{color:var(--ink2);font-size:13.5px}
+.pills{display:flex;gap:6px;margin:22px 20px 0;overflow-x:auto;scrollbar-width:none}
+.pills::-webkit-scrollbar{display:none}
+.pills button{flex:none;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600}
+.pills button.on{background:#fff;color:#0B0B10}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 10px;padding:16px 20px 0}
+.grid button{text-align:left}
+.grid .cv{border-radius:8px;box-shadow:0 14px 24px -14px rgba(0,0,0,.8)}
+.grid small{display:block;margin-top:6px;font-size:12px;line-height:1.25;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* итоги */
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 20px 0}
+.bx{border-radius:24px;padding:16px;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.bx.tall{grid-row:span 2}
+.bx.wide{grid-column:span 2}
+.bx .n{font-size:58px;font-weight:800;letter-spacing:-.05em;line-height:.9}
+.bx.tall .n{font-size:96px}
+.bx .l{font-size:13px;color:var(--ink2);font-weight:500}
+.ring{width:110px;height:110px;align-self:center}
+.mini{display:flex;margin-top:8px}
+.mini .cv{width:40px;margin-right:-12px;border-radius:5px;box-shadow:0 6px 12px rgba(0,0,0,.5)}
+.mini .gen{font-size:0}.mini .gen small{display:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chips span{padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.1);font-size:12.5px}
+
+/* док */
+.dock{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;display:flex;gap:4px;padding:6px;border-radius:30px}
+.dock button{width:58px;height:50px;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:10px;font-weight:600;color:var(--ink2);transition:background .3s,color .3s}
+.dock svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dock button.on{background:rgba(255,255,255,.22);color:#fff}
+
+/* обложки */
+.cv{position:relative;aspect-ratio:2/3;overflow:hidden;background:#222}
+.cv .gen{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:10%;font-weight:700;font-size:13px;line-height:1.1;color:#fff}
+.cv .gen small{font-weight:500;opacity:.75;font-size:10px;margin-top:3px}
+.cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}
+.cv img.ok{opacity:1}
+.toast{position:fixed;left:50%;top:calc(58px + env(safe-area-inset-top,0px));transform:translate(-50%,-20px);opacity:0;z-index:40;padding:10px 16px;border-radius:999px;font-weight:600;font-size:13.5px;transition:.35s cubic-bezier(.2,1.3,.4,1);white-space:nowrap}
+.toast.on{transform:translate(-50%,0);opacity:1}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="aurora"></div>
+<div class="amb" id="amb"><img id="ambA" alt=""><img id="ambB" alt=""></div>
+
+<header class="top"><div class="brand">Нора<small>v5</small></div>
+  <div class="seg gl" role="tablist"><i></i><button data-realm="books" class="on">Книги</button><button data-realm="films">Кино</button></div></header>
+
+<section class="screen on" id="s-feed"><div class="feed" id="feed"></div><div class="dots" id="dots"></div></section>
+<section class="screen" id="s-col"><div class="scroll" id="colScroll"><div class="h1" id="colH">Полка</div><div class="flow" id="flow"></div><div class="flow-cap" id="flowCap"></div><div class="pills" id="pills"></div><div class="grid" id="grid"></div></div></section>
+<section class="screen" id="s-sum"><div class="scroll"><div class="h1">Итоги</div><div class="bento" id="bento"></div></div></section>
+
+<nav class="dock gl" aria-label="Разделы">
+  <button data-s="feed" class="on"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M9 21v-3M15 21v-3"/></svg>Лента</button>
+  <button data-s="col"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="16" rx="1"/><path d="M17 5l3.5 1-3.5 14"/></svg>Полка</button>
+  <button data-s="sum"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 4v8l6 4"/></svg>Итоги</button>
+</nav>
+<div class="toast gl" id="toast"></div>
+
+<script>
+const TG=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?Telegram.WebApp:null;
+if(TG){try{TG.ready();TG.expand();TG.disableVerticalSwipes&&TG.disableVerticalSwipes();TG.setHeaderColor&&TG.setHeaderColor("#05060A");TG.setBackgroundColor&&TG.setBackgroundColor("#05060A")}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const haptic=t=>{try{TG&&TG.HapticFeedback.impactOccurred(t||"light")}catch(e){}};
+const toast=t=>{const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("on"),1700)};
+const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c};
+const hsh=s=>{let h=0;for(const ch of String(s))h=(h*31+ch.charCodeAt(0))>>>0;return h};
+const norm=s=>String(s||"").toLowerCase().replace(/ё/g,"е").replace(/[^a-zа-я0-9]/g,"");
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const FL=id=>"https://fantlab.ru/images/editions/big/"+id, WP=p=>"https://upload.wikimedia.org/wikipedia/en/"+p;
+const SAMPLE={
+ books:{now:{t:"Джейн Эйр",a:"Шарлотта Бронте",y:1847,img:FL(446413),w:"Ты на середине — Торнфилд уже позади."},
+  read:[{t:"Преступление и наказание",a:"Фёдор Достоевский",y:1866,c:"Россия",r:10,img:FL(66847)},{t:"Правда о деле Гарри Квеберта",a:"Жоэль Диккер",y:2012,c:"Швейцария",r:8,img:FL(210352)},
+   {t:"Ребекка",a:"Дафна дю Морье",y:1938,c:"Англия",r:8,img:FL(40302)},{t:"Тонкая работа",a:"Сара Уотерс",y:2002,c:"Англия",r:9,img:FL(40076)},
+   {t:"Убийство в «Восточном экспрессе»",a:"Агата Кристи",y:1933,c:"Англия",r:8,img:FL(390280)},{t:"Норвежский лес",a:"Харуки Мураками",y:1987,c:"Япония",r:7,img:FL(6684)},
+   {t:"Грозовой перевал",a:"Эмили Бронте",y:1847,c:"Англия",r:9,img:FL(136191)},{t:"Анна Каренина",a:"Лев Толстой",y:1877,c:"Россия",r:10,img:FL(266824)}],
+  want:[{t:"Тайная история",a:"Донна Тартт",y:1992,img:FL(136461)}],
+  pool:[{t:"Бархатные коготки",a:"Сара Уотерс",y:1998,img:FL(40077),w:"Тебе понравилась «Тонкая работа» — здесь тот же викторианский Лондон и смелая героиня."},
+   {t:"Дом, в котором…",a:"Мариам Петросян",y:2009,img:FL(40654),w:"Огромный мир, в котором можно пропасть на месяц."},
+   {t:"Сто лет одиночества",a:"Габриэль Гарсиа Маркес",y:1967,img:FL(286489),w:"Семейная сага, где чудо — часть быта."},
+   {t:"Лавр",a:"Евгений Водолазкин",y:2012,img:FL(189346),w:"Тихая большая книга о любви и вине."},
+   {t:"Исчезновение Стефани Мейлер",a:"Жоэль Диккер",y:2018,img:FL(263603),w:"Раз «Гарри Квеберт» на восемь — ещё одна загадка того же автора."}]},
+ films:{now:null,
+  read:[{t:"Идеальные дни",a:"Вим Вендерс",y:2023,c:"Япония",r:9,img:WP("c/c9/Perfect_Days_poster.jpg")},{t:"Анатомия падения",a:"Жюстин Трие",y:2023,c:"Франция",r:8,img:WP("8/88/Anatomy_of_a_Fall_%282023%29_film_poster.jpg")},
+   {t:"Паразиты",a:"Пон Чжун Хо",y:2019,c:"Южная Корея",r:9,img:WP("5/53/Parasite_%282019_film%29.png")},{t:"Сталкер",a:"Андрей Тарковский",y:1979,c:"СССР",r:9,img:WP("d/d4/Stalker_poster.jpg")},
+   {t:"Унесённые призраками",a:"Хаяо Миядзаки",y:2001,c:"Япония",r:10,img:WP("d/db/Spirited_Away_Japanese_poster.png")}],
+  want:[{t:"Солнце моё",a:"Шарлотта Уэллс",y:2022,img:WP("1/11/Aftersun.jpg")}],
+  pool:[{t:"Прошлые жизни",a:"Селин Сон",y:2023,img:WP("d/da/Past_Lives_film_poster.png"),w:"Тихая история о том, что могло бы быть."},
+   {t:"Любовное настроение",a:"Вонг Карвай",y:2000,img:WP("4/45/In_the_Mood_for_Love_movie.jpg"),w:"Самый красивый фильм о несказанном."},
+   {t:"Портрет девушки в огне",a:"Селин Сьямма",y:2019,img:WP("c/cb/Portrait_of_a_Lady_on_Fire.jpg"),w:"Медленно, красиво, надолго в памяти."},
+   {t:"Опавшие листья",a:"Аки Каурисмяки",y:2023,img:WP("d/d2/Kuolleet_lehdet_Poster.jpg"),w:"В России почти не показывали — смешная грустная сказка."},
+   {t:"Ходячий замок",a:"Хаяо Миядзаки",y:2004,img:WP("a/a0/Howls-moving-castleposter.jpg"),w:"Раз «Унесённые призраками» на десять — ещё вечер у Миядзаки."}]}
+};
+let D;try{D=JSON.parse(localStorage.getItem("nora5"))}catch(e){}
+if(!D||!D.books)D=JSON.parse(JSON.stringify(SAMPLE));
+const save=()=>{try{localStorage.setItem("nora5",JSON.stringify(D))}catch(e){}};
+let realm="books";const R=()=>D[realm],isF=()=>realm==="films";
+const T={books:{now:"Сейчас читаю",find:"Находка Тевосгинка",read:"Прочитано",want:"Хочу прочитать",did:"Прочитала",u:["книга","книги","книг"],col:"Полка"},
+         films:{now:"Сейчас смотрю",find:"Находка Тевосоника",read:"Посмотрено",want:"Хочу посмотреть",did:"Посмотрела",u:["фильм","фильма","фильмов"],col:"Фильмотека"}};
+const GR=[["#3A2BFF","#FF5DA2"],["#00A6A6","#2B2D6E"],["#FF8A3D","#7A1F3D"],["#1F8A5B","#0B2A3A"],["#8C6CFF","#1E1E3F"]];
+function cover(x){const [a,b]=GR[hsh(x.t)%GR.length];return `<div class="cv"><div class="gen" style="background:linear-gradient(160deg,${a},${b})">${esc(x.t)}<small>${esc(x.a||"")}</small></div>${x.img?`<img src="${esc(x.img)}" alt="" referrerpolicy="no-referrer" onload="this.classList.add('ok')" onerror="this.remove()">`:""}</div>`}
+
+// ---------- атмосфера: размытая обложка текущего слайда заливает фон ----------
+let ambFlip=false,ambSrc="";
+function ambient(src){if(!src||src===ambSrc)return;ambSrc=src;const a=$("#ambA"),b=$("#ambB"),n=ambFlip?a:b,o=ambFlip?b:a;ambFlip=!ambFlip;n.referrerPolicy="no-referrer";n.onload=()=>{n.classList.add("on");o.classList.remove("on")};n.src=src}
+
+// ---------- лента ----------
+let slides=[];
+function buildFeed(){const r=R(),have=new Set([...r.read,...r.want].map(x=>norm(x.t)));
+  const finds=r.pool.filter(x=>!have.has(norm(x.t))&&!(r.skip||[]).includes(x.t));
+  slides=[];if(r.now)slides.push({k:"now",x:r.now});
+  const recent=r.read.slice(0,6);let fi=0;
+  recent.forEach((x,i)=>{if(finds[fi]&&(i%2===0))slides.push({k:"find",x:finds[fi++]});slides.push({k:"read",x,i})});
+  while(finds[fi])slides.push({k:"find",x:finds[fi++]});
+  $("#feed").innerHTML=slides.map((s,j)=>{const x=s.x;
+    const tag=s.k==="now"?`<div class="tag gl"><i></i>${T[realm].now}</div>`:s.k==="find"?`<div class="tag gl find"><i></i>${T[realm].find}</div>`:`<div class="tag gl">${T[realm].read}${x.r!=null?` · ${x.r} из 10`:""}</div>`;
+    const body=s.k==="find"?`<p>${esc(x.w)}</p><div class="acts"><button class="btn" data-skip="${j}">Не то</button><button class="btn w" data-want="${j}">${T[realm].want}</button></div>`
+      :s.k==="now"?`<p>${esc(x.w||"")}</p><div class="acts"><button class="btn w" data-done="${j}">${T[realm].did}</button></div>`
+      :`<div class="stars">${Array.from({length:11},(_,n)=>`<button data-rate="${j}" data-n="${n}" class="${x.r===n?"on":""}">${n}</button>`).join("")}</div>`;
+    return `<article class="slide" data-j="${j}">${tag}<div class="obj">${cover(x)}</div><div class="card gl"><h2>${esc(x.t)}</h2><div class="meta">${esc(x.a||"")}${x.y?", "+x.y:""}</div>${body}</div>${j===0?`<div class="swipehint">листай вверх</div>`:""}</article>`}).join("");
+  $("#dots").innerHTML=slides.map((_,j)=>`<i class="${j===0?"on":""}"></i>`).join("");
+  $("#feed").scrollTop=0;cur=-1;onFeedScroll()}
+let cur=-1;
+function onFeedScroll(){const f=$("#feed"),j=Math.round(f.scrollTop/f.clientHeight);if(j===cur)return;cur=j;const s=slides[j];if(!s)return;ambient(s.x.img);
+  document.querySelectorAll("#dots i").forEach((d,k)=>d.classList.toggle("on",k===j));haptic("soft")}
+$("#feed").addEventListener("scroll",onFeedScroll,{passive:true});
+// наклон обложки за пальцем / телефоном
+function tilt(x,y){document.querySelectorAll(".slide .obj .cv").forEach(c=>{c.style.setProperty("--ry",(x*24)+"deg");c.style.setProperty("--rx",(-y*18)+"deg")})}
+addEventListener("pointermove",e=>{if(!RM&&$("#s-feed").classList.contains("on"))tilt(e.clientX/innerWidth-.5,e.clientY/innerHeight-.5)},{passive:true});
+addEventListener("deviceorientation",e=>{if(RM||e.gamma==null)return;tilt(Math.max(-.5,Math.min(.5,e.gamma/40)),Math.max(-.5,Math.min(.5,(e.beta-50)/50)))},{passive:true});
+$("#feed").addEventListener("click",e=>{const t=e.target;
+  const w=t.closest("[data-want]");if(w){const x=slides[+w.dataset.want].x;R().want.unshift({t:x.t,a:x.a,y:x.y,img:x.img});save();toast(`«${x.t}» — ${T[realm].want.toLowerCase()}`);haptic("medium");w.textContent="✓ В списке";w.disabled=true;return}
+  const sk=t.closest("[data-skip]");if(sk){const x=slides[+sk.dataset.skip].x;(R().skip=R().skip||[]).push(x.t);save();const f=$("#feed");f.scrollBy({top:f.clientHeight,behavior:"smooth"});toast("Тевосгинк запомнил");return}
+  const rt=t.closest("[data-rate]");if(rt){const s=slides[+rt.dataset.rate];s.x.r=+rt.dataset.n;save();rt.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===rt));const tg=rt.closest(".slide").querySelector(".tag");tg.textContent=`${T[realm].read} · ${s.x.r} из 10`;haptic();return}
+  const dn=t.closest("[data-done]");if(dn){const x=R().now;R().now=null;R().read.unshift({...x,r:null,c:x.c||"—"});save();buildFeed();toast("Поставь оценку");setTimeout(()=>{const f=$("#feed");f.scrollTo({top:0})},50)}});
+
+// ---------- полка: coverflow ----------
+let fi=0,colF="read";
+function flowList(){return colF==="want"?R().want:colF==="top"?R().read.filter(x=>x.r===10):R().read}
+function drawFlow(){const L=flowList();fi=Math.min(fi,Math.max(0,L.length-1));
+  $("#flow").innerHTML=L.map((x,i)=>cover(x)).join("");[...$("#flow").children].forEach((c,i)=>{c.dataset.i=i});layoutFlow()}
+function layoutFlow(){const L=flowList();[...$("#flow").children].forEach((c,i)=>{const o=i-fi,a=Math.abs(o);
+    c.style.transform=o===0?"translateZ(60px)":`translateX(${o*70+(o>0?60:-60)}px) translateZ(-${a*40}px) rotateY(${o>0?-55:55}deg)`;c.style.zIndex=100-a;c.style.opacity=a>4?0:1;c.style.filter=o===0?"none":"brightness(.6)"});
+  const x=L[fi];$("#flowCap").innerHTML=x?`<b>${esc(x.t)}</b><span>${esc(x.a||"")}${x.r!=null?` · ${x.r} из 10`:""}</span>`:`<span>Здесь пока пусто</span>`;if(x)ambient(x.img)}
+(function(){const el=$("#flow");let x0=null,moved=0;el.addEventListener("pointerdown",e=>{x0=e.clientX;moved=0});
+  el.addEventListener("pointermove",e=>{if(x0==null)return;const d=e.clientX-x0;if(Math.abs(d)>40){const L=flowList();fi=Math.max(0,Math.min(L.length-1,fi+(d<0?1:-1)));x0=e.clientX;moved++;layoutFlow();haptic()}});
+  addEventListener("pointerup",()=>{x0=null});
+  el.addEventListener("click",e=>{const c=e.target.closest(".cv");if(c&&!moved){fi=+c.dataset.i;layoutFlow();haptic()}})})();
+function drawCol(){$("#colH").textContent=T[realm].col;
+  $("#pills").innerHTML=[["read",T[realm].read],["want",T[realm].want],["top","10 из 10"]].map(([k,l])=>`<button class="gl ${colF===k?"on":""}" data-f="${k}">${l}</button>`).join("");
+  $("#grid").innerHTML=flowList().map((x,i)=>`<button data-g="${i}">${cover(x)}<small>${esc(x.t)}</small></button>`).join("");drawFlow()}
+$("#pills").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(b){colF=b.dataset.f;fi=0;drawCol();haptic()}});
+$("#grid").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(b){fi=+b.dataset.g;layoutFlow();$("#colScroll").scrollTo({top:0,behavior:"smooth"});haptic()}});
+
+// ---------- итоги ----------
+function drawSum(){const r=R().read,u=T[realm].u,cs=[...new Set(r.map(x=>x.c))],rated=r.filter(x=>x.r!=null),avg=rated.reduce((s,x)=>s+x.r,0)/Math.max(1,rated.length),best=r.filter(x=>x.r===10);
+  const C=2*Math.PI*44,frac=avg/10;
+  $("#bento").innerHTML=`<div class="bx tall gl"><div class="l">${new Date().getFullYear()}</div><div><div class="n">${r.length}</div><div class="l">${plural(r.length,...u)} — ${T[realm].read.toLowerCase()}</div></div></div>
+   <div class="bx gl"><div class="l">Средняя оценка</div><svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="rgba(255,255,255,.15)" stroke-width="8" fill="none"/><circle cx="50" cy="50" r="44" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${C*frac} ${C}" transform="rotate(-90 50 50)"/><text x="50" y="58" text-anchor="middle" fill="#fff" font-size="26" font-weight="800" font-family="Golos Text,system-ui,sans-serif">${avg.toFixed(1).replace(".",",")}</text></svg></div>
+   <div class="bx gl"><div class="l">${T[realm].want}</div><div class="n">${R().want.length}</div></div>
+   <div class="bx wide gl"><div class="l">${cs.length} ${plural(cs.length,"страна","страны","стран")}</div><div class="chips">${cs.map(c=>`<span>${esc(c)}</span>`).join("")}</div></div>
+   <div class="bx wide gl"><div class="l">Десять из десяти</div><div class="mini">${best.map(cover).join("")||'<span class="l">Пока нет</span>'}</div></div>`}
+
+// ---------- навигация ----------
+function show(s){document.querySelectorAll(".screen").forEach(x=>x.classList.toggle("on",x.id==="s-"+s));document.querySelectorAll(".dock button").forEach(b=>b.classList.toggle("on",b.dataset.s===s));haptic();
+  if(s==="feed"){const sl=slides[Math.max(0,cur)];sl&&ambient(sl.x.img)}if(s==="col")drawCol();if(s==="sum"){drawSum();const x=R().read[0];x&&ambient(x.img)}}
+document.querySelector(".dock").addEventListener("click",e=>{const b=e.target.closest("[data-s]");if(b)show(b.dataset.s)});
+document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.closest("[data-realm]");if(!b||b.dataset.realm===realm)return;realm=b.dataset.realm;document.body.classList.toggle("films",isF());
+  document.querySelectorAll("[data-realm]").forEach(x=>x.classList.toggle("on",x===b));haptic("medium");ambSrc="";buildFeed();const on=document.querySelector(".screen.on").id.slice(2);if(on!=="feed")show(on)});
+buildFeed();
+</script>
+</body>
+</html>

@@ -65,20 +65,29 @@ body.films .seg i{transform:translateX(100%)}
 .rb.w svg{stroke:#0B0B10;stroke-width:2.2}
 .rb:disabled{opacity:.3}
 .slide.done [data-skip],.slide.done [data-want]{opacity:.3;pointer-events:none}
-.card .st{height:0;overflow:hidden;text-align:center;font-size:13px;color:var(--ink2);transition:height .3s,margin .3s}
-.slide.done .card .st{height:18px;margin-top:10px}
+.st{height:0;overflow:hidden;text-align:center;font-size:13px;color:var(--ink2);transition:height .3s,margin .3s}
+.slide.done .st{height:18px;margin-top:10px}
 .slide{touch-action:pan-y}
+.wrap{position:absolute;left:10px;right:10px;top:calc(66px + env(safe-area-inset-top,0px));bottom:calc(94px + env(safe-area-inset-bottom,0px))}
+.slide .fly{position:absolute;inset:0;border-radius:34px;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 0 20px;will-change:transform}
+.fly .bg{position:absolute;inset:0;z-index:-2;overflow:hidden;border-radius:inherit;background:#15151c}
+.fly .bg img{position:absolute;inset:-20%;width:140%;height:140%;object-fit:cover;filter:blur(38px) saturate(1.5) brightness(.6);transform:scale(1.1)}
+.fly .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(0,0,0,.1) 40%,rgba(0,0,0,.6) 100%)}
+.lean{position:absolute;top:22px;z-index:3;padding:6px 12px;border-radius:10px;border:2px solid;font-weight:700;font-size:15px;letter-spacing:.04em;text-transform:uppercase;opacity:0;pointer-events:none}
+.lean.l{right:20px;color:#FF9C9C;transform:rotate(10deg)}.lean.r{left:20px;color:#9CF5C0;transform:rotate(-10deg)}
 .fly{transition:transform .45s cubic-bezier(.2,.9,.3,1),opacity .45s}
-.slide[data-lean=want] .fly .cv{box-shadow:0 0 0 3px #8CF5B5,0 40px 70px -24px rgba(0,0,0,.85)}
-.slide[data-lean=skip] .fly .cv{box-shadow:0 0 0 3px #FF8A8A,0 40px 70px -24px rgba(0,0,0,.85)}
-.slide.end .card{text-align:center}
+.slide.end .card{text-align:center;margin:auto}
 .slide.end .card p{font-family:var(--f);font-style:normal;font-size:15px;color:var(--ink2)}
 .tag i{width:7px;height:7px;border-radius:50%;background:#7CFFB2;box-shadow:0 0 10px #7CFFB2}
 .tag.find i{background:#FFD36B;box-shadow:0 0 10px #FFD36B}
-.obj{perspective:1000px;width:min(58vw,240px,calc((100dvh - 470px) * .66))}
+.obj{perspective:1000px;width:min(50vw,210px,calc((100dvh - 500px) * .66))}
 .obj .cv{transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .25s ease-out;border-radius:10px;box-shadow:0 40px 70px -24px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.12)}
 .obj .cv::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,rgba(255,255,255,.28) 0%,transparent 35%,transparent 65%,rgba(255,255,255,.08));pointer-events:none;mix-blend-mode:overlay}
 .card{width:min(100%,420px);margin-top:min(22px,2.2dvh);border-radius:26px;padding:16px 18px 14px}
+.info{width:100%;max-width:420px;margin-top:min(20px,2dvh);padding:0 22px}
+.info h2{margin:0;font-family:var(--serif);font-size:34px;font-weight:600;line-height:.98}
+.info .meta{color:var(--ink2);font-size:14px;margin-top:6px}
+.info p{margin:10px 0 0;font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.25;color:rgba(255,255,255,.88);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .card h2{margin:0;font-family:var(--serif);font-size:34px;font-weight:600;letter-spacing:-.01em;line-height:.98}
 .card .meta{color:var(--ink2);font-size:14px;margin-top:4px}
 .card p{margin:10px 0 0;font-family:var(--serif);font-style:italic;font-size:20px;line-height:1.25;color:rgba(255,255,255,.88)}
@@ -88,9 +97,9 @@ body.films .seg i{transform:translateX(100%)}
 .btn:disabled{opacity:.7}
 .btn.w{background:#F5F5F7;color:#0B0B10;box-shadow:0 6px 20px -8px rgba(0,0,0,.5)}
 .btn.sm{flex:none;height:36px;padding:0 14px;font-size:13px}
-.stars{display:grid;grid-template-columns:repeat(11,1fr);gap:3px;margin-top:12px}
+.stars{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:16px}
 .stars::-webkit-scrollbar{display:none}
-.stars button{aspect-ratio:1;width:100%;max-width:34px;justify-self:center;border-radius:50%;font-size:13px;font-weight:500;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12);color:var(--ink2);transition:transform .4s cubic-bezier(.3,1.7,.5,1),background .2s}
+.stars button{aspect-ratio:1;width:100%;max-width:44px;justify-self:center;border-radius:50%;font-size:15px;font-weight:500;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12);color:var(--ink2);transition:transform .4s cubic-bezier(.3,1.7,.5,1),background .2s}
 .stars button.on{background:#F5F5F7;box-shadow:none;color:#0B0B10;font-weight:600;transform:scale(1.12)}
 .dots{position:absolute;right:10px;top:50%;transform:translateY(-50%);z-index:6;display:flex;flex-direction:column;gap:6px}
 .dots i{width:4px;height:4px;border-radius:2px;background:rgba(255,255,255,.35);transition:height .3s,background .3s}
@@ -127,6 +136,16 @@ body.films .seg i{transform:translateX(100%)}
 
 /* итоги */
 .bento{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:6px 20px 0}
+.bx.hero{grid-column:span 2;min-height:0;flex-direction:row;align-items:flex-end;justify-content:flex-start;gap:14px;padding:20px 22px}
+.bx.hero .n{font-size:112px;line-height:.8}
+.bx.hero .l{font-size:16px;line-height:1.25;padding-bottom:10px}
+.bx.met{min-height:0;justify-content:flex-start;gap:8px;padding:18px}
+.bx.met .n{font-size:56px}
+.bx.wantb{grid-column:span 2;min-height:0;flex-direction:row;align-items:center;justify-content:flex-start;gap:16px;padding:16px 22px}
+.bx.wantb .n{font-size:64px}
+.bx.wantb .l{font-size:14px;line-height:1.3}
+.bx.rt{min-height:0;justify-content:flex-start;gap:6px;padding:18px}
+.bx.rt .ring{width:96px;height:96px;align-self:flex-start}
 .bx{border-radius:24px;padding:16px;min-height:130px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
 .bx.tall{grid-row:span 2}
 .bx.wide{grid-column:span 2}
@@ -140,16 +159,16 @@ body.films .seg i{transform:translateX(100%)}
 .mini .gen{font-size:0}.mini .gen small{display:none}
 .sc{margin:10px 20px 0;border-radius:24px;padding:18px}
 .sc .l{font-size:13px;color:var(--ink2);font-weight:500}
-.sc h3{margin:4px 0 0;font-family:var(--serif);font-size:30px;font-weight:600;line-height:1}
-.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}
+.sc h3{margin:0;font-family:var(--serif);font-size:30px;font-weight:600;line-height:1}
+.nums{display:flex;flex-wrap:wrap;gap:12px 34px}
 .nums b{display:block;font-family:var(--serif);font-size:44px;font-weight:600;line-height:.9}
-.nums span{font-size:12.5px;color:var(--ink2)}
-.sbars{margin-top:14px;display:grid;gap:9px}
+.nums span{display:block;font-size:13px;color:var(--ink2);margin-top:4px}
+.sbars{margin-top:12px;display:grid;gap:9px}
 .bar2{display:grid;grid-template-columns:118px 1fr 22px;gap:10px;align-items:center;font-size:13px}
 .bar2 span:first-child{color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .bar2 i{display:block;height:8px;border-radius:4px;background:linear-gradient(90deg,rgba(255,255,255,.85),rgba(255,255,255,.45))}
 .bar2 span:last-child{text-align:right;font-variant-numeric:tabular-nums}
-.yrs{margin-top:10px}
+.yrs{margin-top:8px}
 .yr{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid rgba(255,255,255,.08)}
 .yr:first-child{border-top:0}
 .yr b{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1}
@@ -159,10 +178,15 @@ body.films .seg i{transform:translateX(100%)}
 .yr .fav span{font-size:12px;color:var(--ink3)}.yr .fav em{display:block;font-style:normal;font-family:var(--serif);font-size:17px;color:#fff;line-height:1.05}
 .stamps{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 8px;margin-top:14px}
 .stp{text-align:center}
-.stp svg{width:70px;height:70px;display:block;margin:0 auto}
-.stp b{display:block;font-size:12.5px;font-weight:600;margin-top:6px;line-height:1.15}
-.stp small{display:block;font-size:11.5px;color:var(--ink3);margin-top:2px}
-.stp.off svg{opacity:.55}
+.stp .em{position:relative;width:78px;height:78px;margin:0 auto}
+.stp .em svg{position:absolute;inset:0;width:100%;height:100%}
+.stp .em .mo{inset:20px;width:38px;height:38px;color:#fff}
+.stp b{display:block;font-size:13px;font-weight:600;margin-top:8px;line-height:1.15}
+.stp small{display:block;font-size:11.5px;color:var(--ink2);margin-top:3px;line-height:1.25}
+.stp i{display:block;font-style:normal;font-size:11px;color:var(--ink3);margin-top:3px}
+.sc .hd{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.sc .hd span{font-size:13px;color:var(--ink2);white-space:nowrap}
+.stp.off .em{opacity:.5}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
 .chips span{padding:5px 11px;border-radius:999px;font-size:13px;background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.14)}
 
@@ -175,7 +199,8 @@ body.films .seg i{transform:translateX(100%)}
 .dock button.on{color:#fff}
 .lens{position:absolute;top:6px;left:0;height:48px;border-radius:25px;z-index:0;transition:transform .6s cubic-bezier(.3,1.3,.5,1),width .4s,scale .35s cubic-bezier(.3,1.6,.5,1)}
 .lens.go{scale:1.16 .84}
-.srch{width:44px;height:44px;border-radius:50%;display:grid;place-items:center}
+body.sum #srchB{opacity:0;pointer-events:none}
+.srch{transition:opacity .3s;width:44px;height:44px;border-radius:50%;display:grid;place-items:center}
 .srch svg{width:19px;height:19px;fill:none;stroke:#fff;stroke-width:1.6;stroke-linecap:round}
 
 /* обложки */
@@ -188,6 +213,30 @@ body.films .seg i{transform:translateX(100%)}
 .toast.gl{background:linear-gradient(180deg,rgba(44,44,56,.92),rgba(22,22,30,.94))}
 .toast.on{transform:translate(-50%,0);opacity:1}
 .obj{position:relative}
+.onb{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:#07070b}
+.onb.on{display:flex}
+.onb-top{padding:calc(22px + env(safe-area-inset-top,0px)) 22px 10px}
+.onb-top .stp{font-size:12.5px;color:var(--ink3);font-weight:500}
+.onb-top h1{margin:6px 0 0;font-family:var(--serif);font-size:44px;font-weight:600;line-height:.95}
+.onb-top p{margin:10px 0 0;font-size:14.5px;color:var(--ink2);line-height:1.4}
+.onb-grid{flex:1;overflow-y:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:16px 10px;padding:12px 18px 140px;align-content:start;scrollbar-width:none}
+.op{position:relative;text-align:left}
+.op .cv{border-radius:8px;transition:transform .35s cubic-bezier(.3,1.6,.5,1),box-shadow .3s}
+.op small{display:block;margin-top:6px;font-size:12px;line-height:1.2;color:var(--ink2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.op.rated .cv{box-shadow:0 0 0 2.5px #fff}
+.op .rate5{position:absolute;left:0;right:0;top:0;aspect-ratio:2/3;border-radius:8px;display:none;align-items:center;justify-content:center;flex-direction:column;gap:8px;background:rgba(0,0,0,.62);backdrop-filter:blur(2px)}
+.op.open .rate5{display:flex}
+.rate5 span{font-size:11.5px;color:rgba(255,255,255,.8)}
+.rate5 div{display:flex;gap:1px}
+.rate5 button{width:21px;height:28px;display:grid;place-items:center}
+.rate5 svg{width:19px;height:19px;fill:rgba(255,255,255,.25)}
+.rate5 button.on svg{fill:#FFD66B}
+.op .badge{position:absolute;right:6px;top:6px;padding:3px 7px;border-radius:999px;background:#F5F5F7;color:#0B0B10;font-size:11.5px;font-weight:700;display:none}
+.op.rated .badge{display:block}
+.onb-bar{position:fixed;left:0;right:0;bottom:0;padding:16px 18px calc(16px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,#07070b 35%);display:flex;flex-direction:column;align-items:center;gap:10px}
+.onb-bar .btn{width:100%;max-width:420px;flex:none}
+.onb-bar .btn:disabled{opacity:.45}
+.onb-skip{font-size:13px;color:var(--ink3)}
 .coach{position:fixed;inset:0;z-index:60;display:grid;grid-template-columns:1fr 1fr;background:rgba(4,4,8,.72);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .45s}
 .coach.on{opacity:1;pointer-events:auto}
 .coach::after{content:"";position:absolute;left:50%;top:18%;bottom:24%;width:1px;background:linear-gradient(transparent,rgba(255,255,255,.35),transparent)}
@@ -195,7 +244,7 @@ body.films .seg i{transform:translateX(100%)}
 .cz .ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center}
 .cz .ic svg{width:26px;height:26px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .cz.r .ic{background:#F5F5F7}.cz.r .ic svg{stroke:#0B0B10}
-.cz b{font-family:var(--serif);font-size:34px;font-weight:600;line-height:1}
+.cz b{font-family:var(--serif);font-size:30px;text-align:center;line-height:.95;font-weight:600;line-height:1}
 .cz small{font-size:13px;color:rgba(255,255,255,.65);margin-top:-8px}
 .trail{position:relative;width:120px;height:44px}
 .trail i{position:absolute;top:50%;left:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 8px rgba(255,255,255,.18);animation:swL 2.2s cubic-bezier(.5,0,.3,1) infinite}
@@ -237,9 +286,9 @@ body.films .seg i{transform:translateX(100%)}
 .hint{color:var(--ink3);font-size:13.5px;text-align:center;margin:22px 0 4px}
 @supports (animation-timeline:view()){
   .slide{view-timeline:--sl block}
-  .slide .obj{animation:pObj linear both;animation-timeline:--sl;animation-range:cover}
-  .slide .card,.slide .tag{animation:pCard linear both;animation-timeline:--sl;animation-range:cover}
+  .slide .wrap{animation:pWrap linear both;animation-timeline:--sl;animation-range:cover}
 }
+@keyframes pWrap{0%{opacity:.2;transform:translateY(70px) scale(.9)}40%,60%{opacity:1;transform:none}100%{opacity:.2;transform:translateY(-70px) scale(.9)}}
 @keyframes pObj{0%{opacity:0;transform:translateY(120px) scale(.82)}38%,62%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-120px) scale(.82)}}
 @keyframes pCard{0%{opacity:0;transform:translateY(60px)}40%,60%{opacity:1;transform:none}100%{opacity:0;transform:translateY(-40px)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
@@ -255,19 +304,21 @@ body.films .seg i{transform:translateX(100%)}
 
 <section class="screen" id="s-feed"><div class="feed" id="feed"></div><div class="dots" id="dots"></div></section>
 <section class="screen on" id="s-col"><div class="scroll" id="colScroll"><div class="flow" id="flow"></div><div class="flow-cap" id="flowCap"></div><div class="pills" id="pills"></div><div class="grid" id="grid"></div></div></section>
-<section class="screen" id="s-sum"><div class="scroll" id="sumScroll"><div class="h1" id="sumH">Итоги</div><div class="bento" id="bento"></div><div id="sumMore"></div></div></section>
+<section class="screen" id="s-sum"><div class="scroll" id="sumScroll"><div class="h1" id="sumH">Статистика</div><div class="bento" id="bento"></div><div id="sumMore"></div></div></section>
 
 <div class="bottom"><nav class="dock gl" aria-label="Разделы"><i class="lens lensy" id="lens"></i>
   
   <button data-s="col" class="on"><svg viewBox="0 0 24 24"><path d="M4.5 4v16M9 7v13M13.5 5v15M16.5 6.5l4 13"/></svg>Полка</button>
   <button data-s="feed"><svg viewBox="0 0 24 24"><path d="M8 3.5h8M6 6.5h12"/><rect x="4" y="9.5" width="16" height="11" rx="3"/></svg>Лента</button>
-  <button data-s="sum"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5V12l6 6"/><path d="M12 12h8.5"/></svg>Итоги</button>
+  <button data-s="sum"><svg viewBox="0 0 24 24"><path d="M3.5 17.5l5.5-5.5 4 3.5 7.5-8"/><path d="M15.5 7.5h5v5"/></svg>Статистика</button>
 
 </nav></div>
 <div class="sheet" id="sheet"><div class="sh-bg" data-close></div><div class="sh gl" id="sh"><div class="grab"></div><div id="shBody"></div></div></div>
 <div class="toast gl" id="toast"></div>
+<div class="onb" id="onb"><div class="onb-top"><div class="stp" id="onbStep">1 из 2</div><h1 id="onbH">Что ты уже читала?</h1><p id="onbP">Нажми на обложку и поставь звёзды — хватит двух-трёх. По ним я и буду подбирать.</p></div>
+  <div class="onb-grid" id="onbGrid"></div><div class="onb-bar"><button class="btn w" id="onbNext" disabled>Отметь хотя бы две</button><button class="onb-skip" id="onbSkip" hidden>пропустить</button></div></div>
 <div class="coach" id="coach" role="dialog" aria-label="Подсказка">
-  <div class="cz l"><div class="trail"><i></i></div><div class="ic gl"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></div><b>Не то</b><small>смахни влево</small></div>
+  <div class="cz l"><div class="trail"><i></i></div><div class="ic gl"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></div><b>Не предлагать</b><small>смахни влево</small></div>
   <div class="cz r"><div class="trail"><i></i></div><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><b>Хочу</b><small>смахни вправо</small></div>
   <div class="cundo" id="cUndo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/></svg>передумала? верну последние три</div>
   <div class="ctap">нажми, чтобы начать</div></div>
@@ -291,11 +342,11 @@ const SAMPLE={
    {t:"Убийство в «Восточном экспрессе»",a:"Агата Кристи",y:1933,c:"Англия",r:8,img:FL(390280)},{t:"Норвежский лес",a:"Харуки Мураками",y:1987,c:"Япония",r:7,img:FL(6684)},
    {t:"Грозовой перевал",a:"Эмили Бронте",y:1847,c:"Англия",r:9,img:FL(136191)},{t:"Анна Каренина",a:"Лев Толстой",y:1877,c:"Россия",r:10,img:FL(266824)}],
   want:[{t:"Тайная история",a:"Донна Тартт",y:1992,img:FL(136461)}],
-  pool:[{t:"Бархатные коготки",a:"Сара Уотерс",y:1998,img:FL(40077),w:"Тебе понравилась «Тонкая работа» — здесь тот же викторианский Лондон и смелая героиня."},
+  pool:[{t:"Бархатные коготки",a:"Сара Уотерс",y:1998,img:FL(40077),w:"Викторианский Лондон, мюзик-холл и смелая героиня — затягивает с первых страниц."},
    {t:"Дом, в котором…",a:"Мариам Петросян",y:2009,img:FL(40654),w:"Огромный мир, в котором можно пропасть на месяц."},
    {t:"Сто лет одиночества",a:"Габриэль Гарсиа Маркес",y:1967,img:FL(286489),w:"Семейная сага, где чудо — часть быта."},
    {t:"Лавр",a:"Евгений Водолазкин",y:2012,img:FL(189346),w:"Тихая большая книга о любви и вине."},
-   {t:"Исчезновение Стефани Мейлер",a:"Жоэль Диккер",y:2018,img:FL(263603),w:"Раз «Гарри Квеберт» на восемь — ещё одна загадка того же автора."}]},
+   {t:"Исчезновение Стефани Мейлер",a:"Жоэль Диккер",y:2018,img:FL(263603),w:"Детектив, который проглатывается за пару вечеров."}]},
  films:{now:null,
   read:[{t:"Идеальные дни",a:"Вим Вендерс",y:2023,c:"Япония",r:9,img:WP("c/c9/Perfect_Days_poster.jpg")},{t:"Анатомия падения",a:"Жюстин Трие",y:2023,c:"Франция",r:8,img:WP("8/88/Anatomy_of_a_Fall_%282023%29_film_poster.jpg")},
    {t:"Паразиты",a:"Пон Чжун Хо",y:2019,c:"Южная Корея",r:9,img:WP("5/53/Parasite_%282019_film%29.png")},{t:"Сталкер",a:"Андрей Тарковский",y:1979,c:"СССР",r:9,img:WP("d/d4/Stalker_poster.jpg")},
@@ -305,7 +356,7 @@ const SAMPLE={
    {t:"Любовное настроение",a:"Вонг Карвай",y:2000,img:WP("4/45/In_the_Mood_for_Love_movie.jpg"),w:"Самый красивый фильм о несказанном."},
    {t:"Портрет девушки в огне",a:"Селин Сьямма",y:2019,img:WP("c/cb/Portrait_of_a_Lady_on_Fire.jpg"),w:"Медленно, красиво, надолго в памяти."},
    {t:"Опавшие листья",a:"Аки Каурисмяки",y:2023,img:WP("d/d2/Kuolleet_lehdet_Poster.jpg"),w:"В России почти не показывали — смешная грустная сказка."},
-   {t:"Ходячий замок",a:"Хаяо Миядзаки",y:2004,img:WP("a/a0/Howls-moving-castleposter.jpg"),w:"Раз «Унесённые призраками» на десять — ещё вечер у Миядзаки."}]}
+   {t:"Ходячий замок",a:"Хаяо Миядзаки",y:2004,img:WP("a/a0/Howls-moving-castleposter.jpg"),w:"Ещё один вечер в мире Миядзаки."}]}
 };
 // короткие описания для карточек (по названию)
 const DESC={
@@ -347,6 +398,25 @@ Object.assign(DESC,{
  "Вечное сияние чистого разума":"Расставшись, Джоэл узнаёт, что Клементина стёрла его из памяти, — и решается на ту же процедуру.",
  "Мой сосед Тоторо":"Две сестры переезжают в деревню и знакомятся с добрым лесным духом Тоторо.",
  "Олдбой":"Мужчину пятнадцать лет держат взаперти, не объясняя причин, а потом отпускают — и дают пять дней на разгадку."});
+const POP={books:[
+ ["Мастер и Маргарита","Михаил Булгаков",1967,"Россия","classic",480],["1984","Джордж Оруэлл",1949,"Англия","scifi",320],["Гарри Поттер и философский камень","Джоан Роулинг",1997,"Англия","fantasy",432],
+ ["Преступление и наказание","Фёдор Достоевский",1866,"Россия","classic",672],["Маленький принц","Антуан де Сент-Экзюпери",1943,"Франция","classic",112],["Три товарища","Эрих Мария Ремарк",1936,"Германия","classic",480],
+ ["Гордость и предубеждение","Джейн Остин",1813,"Англия","classic",416],["Над пропастью во ржи","Джером Сэлинджер",1951,"США","classic",272],["Шантарам","Грегори Дэвид Робертс",2003,"Австралия","modern",864],
+ ["Анна Каренина","Лев Толстой",1877,"Россия","classic",864],["Портрет Дориана Грея","Оскар Уайльд",1890,"Англия","classic",320],["Убить пересмешника","Харпер Ли",1960,"США","classic",416],
+ ["Великий Гэтсби","Фрэнсис Скотт Фицджеральд",1925,"США","classic",224],["Норвежский лес","Харуки Мураками",1987,"Япония","modern",384],["Тень ветра","Карлос Руис Сафон",2001,"Испания","modern",576],
+ ["Цветы для Элджернона","Дэниел Киз",1966,"США","scifi",320],["Джейн Эйр","Шарлотта Бронте",1847,"Англия","classic",512],["Мартин Иден","Джек Лондон",1909,"США","classic",448],
+ ["Властелин колец","Джон Р. Р. Толкин",1954,"Англия","fantasy",1120],["Убийство в «Восточном экспрессе»","Агата Кристи",1933,"Англия","detective",256],["Отцы и дети","Иван Тургенев",1862,"Россия","classic",288],
+ ["Игра престолов","Джордж Мартин",1996,"США","fantasy",768],["Унесённые ветром","Маргарет Митчелл",1936,"США","classic",1024],["Сто лет одиночества","Габриэль Гарсиа Маркес",1967,"Колумбия","classic",480]],
+ films:[
+ ["Интерстеллар","Кристофер Нолан",2014,"США","scifi",169],["Форрест Гамп","Роберт Земекис",1994,"США","drama",142],["Побег из Шоушенка","Фрэнк Дарабонт",1994,"США","drama",142],
+ ["Зелёная миля","Фрэнк Дарабонт",1999,"США","drama",189],["Начало","Кристофер Нолан",2010,"США","scifi",148],["Титаник","Джеймс Кэмерон",1997,"США","drama",194],
+ ["Бойцовский клуб","Дэвид Финчер",1999,"США","thriller",139],["Криминальное чтиво","Квентин Тарантино",1994,"США","thriller",154],["Матрица","Лана и Лилли Вачовски",1999,"США","scifi",136],
+ ["1+1","Оливье Накаш и Эрик Толедано",2011,"Франция","comedy",112],["Амели","Жан-Пьер Жёне",2001,"Франция","comedy",122],["Унесённые призраками","Хаяо Миядзаки",2001,"Япония","anim",125],
+ ["Паразиты","Пон Чжун Хо",2019,"Южная Корея","thriller",132],["Ла-Ла Ленд","Дэмьен Шазелл",2016,"США","drama",128],["Остров проклятых","Мартин Скорсезе",2010,"США","thriller",138],
+ ["Брат","Алексей Балабанов",1997,"Россия","drama",99],["Москва слезам не верит","Владимир Меньшов",1979,"СССР","drama",150],["Король Лев","Роджер Аллерс",1994,"США","anim",88],
+ ["Властелин колец: Братство Кольца","Питер Джексон",2001,"Новая Зеландия","fantasy",178],["Отступники","Мартин Скорсезе",2006,"США","thriller",151],["Джентльмены","Гай Ричи",2019,"Англия","comedy",113],
+ ["Иван Васильевич меняет профессию","Леонид Гайдай",1973,"СССР","comedy",88],["Достучаться до небес","Томас Ян",1997,"Германия","comedy",87],["Амадей","Милош Форман",1984,"США","drama",160]]};
+const popItem=(k,a)=>k==="books"?{t:a[0],a:a[1],y:a[2],c:a[3],g:a[4],pg:a[5]}:{t:a[0],a:a[1],y:a[2],c:a[3],g:a[4],min:a[5]};
 const descOf=x=>x.d||DESC[x.t]||x.w||"";
 // дополнительные поля для статистики примеров: жанр, страницы/минуты, когда прочитано
 const META={"Преступление и наказание":{g:"classic",pg:672,rd:"2025-03"},"Правда о деле Гарри Квеберта":{g:"detective",pg:704,rd:"2025-07"},"Ребекка":{g:"classic",pg:448,rd:"2025-11"},
@@ -355,21 +425,21 @@ const META={"Преступление и наказание":{g:"classic",pg:672
  "Идеальные дни":{g:"drama",min:124,rd:"2026-02"},"Анатомия падения":{g:"thriller",min:151,rd:"2025-12"},"Паразиты":{g:"thriller",min:132,rd:"2025-06"},"Сталкер":{g:"scifi",min:163,rd:"2025-09"},"Унесённые призраками":{g:"anim",min:125,rd:"2026-05"}};
 const EXTRA={books:{want:[{t:"Мастер и Маргарита",a:"Михаил Булгаков",y:1967},{t:"Маленькая жизнь",a:"Ханья Янагихара",y:2015},{t:"Щегол",a:"Донна Тартт",y:2013}],pool:[]},
  films:{want:[{t:"Дюна: Часть вторая",a:"Дени Вильнёв",y:2024},{t:"Анора",a:"Шон Бейкер",y:2024}],
-  pool:[{t:"Зона интересов",a:"Джонатан Глейзер",y:2023,w:"Раз «Анатомия падения» на восемь — вторая главная картина того же Каннского фестиваля."},
+  pool:[{t:"Зона интересов",a:"Джонатан Глейзер",y:2023,w:"Одна из главных картин последних лет — страшная именно тишиной."},
    {t:"Бедные-несчастные",a:"Йоргос Лантимос",y:2023,w:"Странная, смешная и очень красивая сказка для взрослых."},
-   {t:"Олдбой",a:"Пак Чхан Ук",y:2003,w:"Раз «Паразиты» на девять — ещё один корейский фильм, от которого не оторваться."},
-   {t:"Мой сосед Тоторо",a:"Хаяо Миядзаки",y:1988,w:"Раз Миядзаки у тебя на десять — самый тёплый его фильм."},
+   {t:"Олдбой",a:"Пак Чхан Ук",y:2003,w:"Корейский триллер, от которого невозможно оторваться."},
+   {t:"Мой сосед Тоторо",a:"Хаяо Миядзаки",y:1988,w:"Самый тёплый фильм Миядзаки."},
    {t:"Вечное сияние чистого разума",a:"Мишель Гондри",y:2004,w:"Про любовь, которую пытаются стереть из памяти."},
    {t:"Всё везде и сразу",a:"Дэниел Кван и Дэниел Шайнерт",y:2022,w:"Безумная мультивселенная, внутри которой — история про маму и дочь."}]}};
-let D;try{D=JSON.parse(localStorage.getItem("nora5"))}catch(e){}
-if(!D||!D.books)D=JSON.parse(JSON.stringify(SAMPLE));
+let D;try{D=JSON.parse(localStorage.getItem("nora5b"))}catch(e){}
+if(!D||!D.books)D={books:{now:null,read:[],want:[],skip:[],pool:JSON.parse(JSON.stringify(SAMPLE.books.pool))},films:{now:null,read:[],want:[],skip:[],pool:JSON.parse(JSON.stringify(SAMPLE.films.pool))}};
 ["books","films"].forEach(k=>{const r=D[k],has=t=>[...r.read,...r.want,...r.pool].some(y=>norm(y.t)===norm(t));
-  EXTRA[k].want.forEach(x=>{if(!has(x.t)&&!(r.skip||[]).includes(x.t))r.want.push({...x})});EXTRA[k].pool.forEach(x=>{if(!has(x.t))r.pool.push({...x})});
-  [...r.read,...r.want].forEach(x=>{const m=META[x.t];if(m)for(const f in m)if(x[f]==null)x[f]=m[f]})});
-const save=()=>{try{localStorage.setItem("nora5",JSON.stringify(D))}catch(e){}};
+EXTRA[k].pool.forEach(x=>{if(!has(x.t))r.pool.push({...x})});
+  [...r.read,...r.want].forEach(x=>{const m=META[x.t];if(m)for(const f in m)if(x[f]==null)x[f]=m[f];if(x.r>5)x.r=Math.round(x.r/2)})});
+const save=()=>{try{localStorage.setItem("nora5b",JSON.stringify(D))}catch(e){}};
 let realm="books";const R=()=>D[realm],isF=()=>realm==="films";
-const T={books:{tev:"Тевосгинк",what:"эту книгу",now:"Сейчас читаю",find:"Находка Тевосгинка",read:"Прочитано",want:"Хочу прочитать",did:"Прочитала",u:["книга","книги","книг"],col:"Полка"},
-         films:{tev:"Тевосоник",what:"этот фильм",now:"Сейчас смотрю",find:"Находка Тевосоника",read:"Посмотрено",want:"Хочу посмотреть",did:"Посмотрела",u:["фильм","фильма","фильмов"],col:"Фильмотека"}};
+const T={books:{did2:"читала",tev:"Тевосгинк",what:"эту книгу",now:"Сейчас читаю",find:"Находка Тевосгинка",read:"Прочитано",want:"Хочу прочитать",did:"Прочитала",u:["книга","книги","книг"],col:"Полка"},
+         films:{did2:"смотрела",tev:"Тевосоник",what:"этот фильм",now:"Сейчас смотрю",find:"Находка Тевосоника",read:"Посмотрено",want:"Хочу посмотреть",did:"Посмотрела",u:["фильм","фильма","фильмов"],col:"Фильмотека"}};
 const GR=[["#3A2BFF","#FF5DA2"],["#00A6A6","#2B2D6E"],["#FF8A3D","#7A1F3D"],["#1F8A5B","#0B2A3A"],["#8C6CFF","#1E1E3F"]];
 function cover(x){const [a,b]=GR[hsh(x.t)%GR.length];return `<div class="cv"><div class="gen" style="background:linear-gradient(160deg,${a},${b})">${esc(x.t)}<small>${esc(x.a||"")}</small></div>${x.img?`<img src="${esc(x.img)}" alt="" referrerpolicy="no-referrer" onload="this.classList.add('ok')" onerror="this.remove()">`:""}</div>`}
 
@@ -381,8 +451,8 @@ function ambient(src){if(!src||src===ambSrc)return;ambSrc=src;const a=$("#ambA")
 let slides=[],cur=-1,acts=[],refilling=false;
 const fresh=x=>{const r=R(),k=norm(x.t);return ![...r.read,...r.want].some(y=>norm(y.t)===k)&&!(r.skip||[]).some(t=>norm(t)===k)};
 const IC={x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',u:'<svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/></svg>',v:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'};
-function slideHTML(x,j){return `<article class="slide" data-j="${j}"><div class="obj"><div class="fly">${cover(x)}</div></div><div class="card gl"><h2>${esc(x.t)}</h2><div class="meta">${esc([x.a,x.y].filter(Boolean).join(", "))}</div>${x.w||descOf(x)?`<p>${esc(x.w||descOf(x))}</p>`:""}
-  <div class="acts3"><button class="rb gl press" data-skip="${j}" aria-label="Не показывать">${IC.x}</button><button class="rb sm gl press" data-undo aria-label="Отменить">${IC.u}</button><button class="rb w press" data-want="${j}" aria-label="${T[realm].want}">${IC.v}</button></div><div class="st"></div></div></article>`}
+function slideHTML(x,j){return `<article class="slide" data-j="${j}"><div class="wrap"><div class="fly gl"><div class="bg">${x.img?`<img src="${esc(x.img)}" alt="" referrerpolicy="no-referrer">`:""}</div><span class="lean r">Хочу</span><span class="lean l">Не предлагать</span><div class="obj">${cover(x)}</div><div class="info"><h2>${esc(x.t)}</h2><div class="meta">${esc([x.a,x.y].filter(Boolean).join(", "))}</div>${x.w||descOf(x)?`<p>${esc(x.w||descOf(x))}</p>`:""}
+  <div class="acts3"><button class="rb gl press" data-skip="${j}" aria-label="Не показывать">${IC.x}</button><button class="rb sm gl press" data-undo aria-label="Отменить">${IC.u}</button><button class="rb w press" data-want="${j}" aria-label="${T[realm].want}">${IC.v}</button></div><div class="st"></div></div></div></div></article>`}
 function endInner(){return refilling?`<h2>Ищу ещё…</h2><p>${T[realm].tev} листает каталог по твоим любимым авторам.</p>`:`<h2>Пока всё</h2><p>${T[realm].tev} подберёт новое чуть позже. А пока можно найти самой.</p><div class="acts"><button class="btn w" data-find>Найти через поиск</button></div>`}
 function updEnd(){const e=$("#feed [data-end] .card");if(e)e.innerHTML=endInner()}
 function drawDots(){$("#dots").innerHTML=[...slides,0].map((_,j)=>`<i class="${j===Math.max(0,cur)?"on":""}"></i>`).join("")}
@@ -395,9 +465,9 @@ $("#feed").addEventListener("scroll",onFeedScroll,{passive:true});
 function slideEl(j){return $(`#feed .slide[data-j="${j}"]`)}
 function decide(j,kind){const x=slides[j];if(!x||x._done)return;x._done=kind;const r=R();
   if(kind==="want")r.want.unshift({t:x.t,a:x.a,y:x.y,img:x.img,w:x.w,d:x.d,c:x.c,g:x.g});else (r.skip=r.skip||[]).push(x.t);save();
-  acts.push({j,kind,t:x.t});if(acts.length>3)acts.shift();const sl=slideEl(j);sl.classList.add("done");sl.querySelector(".st").textContent=kind==="want"?`✓ В списке «${T[realm].want}»`:"Больше не покажу";
-  const fl=sl.querySelector(".fly");fl.style.transition="";fl.style.transform=`translateX(${kind==="want"?130:-130}%) rotate(${kind==="want"?16:-16}deg)`;fl.style.opacity=0;
-  toast(kind==="want"?`«${x.t}» — ${T[realm].want.toLowerCase()}`:`${T[realm].tev} запомнил`);haptic("medium");updUndo();
+  acts.push({j,kind,t:x.t});if(acts.length>3)acts.shift();const sl=slideEl(j);sl.classList.add("done");sl.querySelector(".st").textContent=kind==="want"?`✓ В списке «${T[realm].want}»`:"Больше не предложу";
+  const fl=sl.querySelector(".fly");fl.style.transition="";fl.style.transform=`translateX(${kind==="want"?120:-120}%) rotate(${kind==="want"?12:-12}deg)`;fl.style.opacity=0;
+  toast(kind==="want"?`«${x.t}» — ${T[realm].want.toLowerCase()}`:`Больше не предложу`);haptic("medium");updUndo();
   setTimeout(()=>{const f=$("#feed");f.scrollTo({top:(j+1)*f.clientHeight,behavior:"smooth"})},420);
   if(!isF()&&slides.filter(s=>!s._done).length<3)refill()}
 function undo(){if(!acts.length)return;const {j,kind,t}=acts.pop(),x=slides[j],r=R();
@@ -410,21 +480,21 @@ function updUndo(){document.querySelectorAll("#feed [data-undo]").forEach(b=>b.d
   f.addEventListener("pointerdown",e=>{const sl=e.target.closest(".slide:not(.end)");if(!sl||e.target.closest("button")||slides[+sl.dataset.j]._done)return;g={x:e.clientX,y:e.clientY,sl,mode:null,dx:0}});
   f.addEventListener("pointermove",e=>{if(!g)return;const dx=e.clientX-g.x,dy=e.clientY-g.y;
     if(!g.mode){if(Math.abs(dx)>12&&Math.abs(dx)>Math.abs(dy)*1.3)g.mode="h";else if(Math.abs(dy)>12){g=null;return}}
-    if(g.mode==="h"){g.dx=dx;const fl=g.sl.querySelector(".fly");fl.style.transition="none";fl.style.transform=`translateX(${dx}px) rotate(${dx/16}deg)`;g.sl.dataset.lean=dx>60?"want":dx<-60?"skip":""}});
-  const end=()=>{if(!g)return;const {sl,mode,dx}=g;g=null;if(mode!=="h")return;sl.dataset.lean="";const fl=sl.querySelector(".fly");
+    if(g.mode==="h"){g.dx=dx;const fl=g.sl.querySelector(".fly");fl.style.transition="none";fl.style.transform=`translateX(${dx}px) rotate(${dx/22}deg)`;fl.querySelector(".lean.r").style.opacity=Math.max(0,Math.min(1,(dx-20)/80));fl.querySelector(".lean.l").style.opacity=Math.max(0,Math.min(1,(-dx-20)/80))}});
+  const end=()=>{if(!g)return;const {sl,mode,dx}=g;g=null;if(mode!=="h")return;const fl=sl.querySelector(".fly");fl.querySelectorAll(".lean").forEach(e=>e.style.opacity="");
     if(Math.abs(dx)>90)decide(+sl.dataset.j,dx>0?"want":"skip");else{fl.style.transition="";fl.style.transform=""}};
   f.addEventListener("pointerup",end);f.addEventListener("pointercancel",end)})();
 // Тевосгинк подбирает ещё: другие книги любимых авторов (Фантлаб)
 async function flj(path){const r=await fetch("https://api.fantlab.ru"+path);if(!r.ok)throw new Error(r.status);return r.json()}
 const flClean=d=>{d=String(d||"").replace(/\[[^\]]*\]/g,"").replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim();return d.length>260?d.slice(0,d.lastIndexOf(" ",250))+"…":d};
 async function refill(){if(refilling)return;const r=D.books;refilling=true;if(!isF())updEnd();const added=[];
-  try{const favs=[...r.read.filter(x=>(x.r||0)>=8).sort((a,b)=>b.r-a.r),...r.want].sort(()=>Math.random()-.4),seenA=new Set();
+  try{const favs=[...r.read.filter(x=>(x.r||0)>=4).sort((a,b)=>b.r-a.r),...r.want].sort(()=>Math.random()-.4),seenA=new Set();
     for(const fav of favs){if(added.length>=6)break;if(!fav.a||seenA.has(fav.a))continue;seenA.add(fav.a);
       try{const sa=await flj("/search-autors?q="+encodeURIComponent(fav.a));const m=((sa&&sa.matches)||(Array.isArray(sa)?sa:[])).filter(a=>a.markcount>0).sort((a,b)=>b.markcount-a.markcount)[0];if(!m)continue;
         const au=await flj("/autor/"+m.autor_id+"?works=1");
         const ws=(au.works||[]).filter(w=>w.work_name&&w.work_published!==0&&!w.work_preparing&&["роман","повесть","роман-эпопея"].includes(w.work_type)).sort((a,b)=>(b.val_voters||0)-(a.val_voters||0));
         let k=0;for(const w of ws){if(k>=2)break;const x={t:w.work_name,a:fav.a,y:w.work_year||null};if(!fresh(x)||r.pool.some(p=>norm(p.t)===norm(x.t)))continue;
-          x.w=fav.r!=null?`Раз «${fav.t}» у тебя на ${fav.r} из 10 — ещё одна книга того же автора.`:`Ты собираешься читать «${fav.t}» — у этого автора есть и такая книга.`;
+          x.w=fav.r!=null?`Раз «${fav.t}» у тебя на ${fav.r} из 5 — ещё одна книга того же автора.`:`Ты собираешься читать «${fav.t}» — у этого автора есть и такая книга.`;
           try{const wd=await flj("/work/"+w.work_id+"?extended=1");const d=flClean(wd.work_description);if(d)x.d=d}catch(e){}
           r.pool.push(x);added.push(x);k++}}catch(e){}}}
   finally{refilling=false;save()}
@@ -434,11 +504,15 @@ async function refill(){if(refilling)return;const r=D.books;refilling=true;if(!i
 // обложки и постеры для того, у чего их нет: книги — Фантлаб, фильмы — Википедия
 async function findImg(x,film){try{
   if(!film){const s=await flj("/search-works?q="+encodeURIComponent(x.t)+"&page=1&onlymatches=1");const sur=norm(String(x.a||"").split(" ").slice(-1)[0]);
-    const w=(Array.isArray(s)?s:[]).find(w=>(w.pic_edition_id||w.pic_edition_id_auto)&&(!sur||norm(w.autor_rusname||"").includes(sur)));return w?FL(w.pic_edition_id||w.pic_edition_id_auto):""}
-  const j=await (await fetch("https://ru.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=5&gsrsearch="+encodeURIComponent(x.t+" "+(x.y||"")+" фильм")+"&prop=pageimages&piprop=thumbnail&pithumbsize=500&pilicense=any")).json();
-  const p=Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index).find(p=>p.thumbnail);return p?p.thumbnail.source:""}catch(e){return ""}}
+    const w=(Array.isArray(s)?s:[]).find(w=>(w.pic_edition_id||w.pic_edition_id_auto)&&(!sur||norm(w.autor_rusname||"").includes(sur)));if(!w)return "";
+    if(!x.d&&!DESC[x.t]&&w.work_id){try{const wd=await flj("/work/"+w.work_id+"?extended=1");const d=flClean(wd.work_description);if(d)x.d=d}catch(e){}}
+    return FL(w.pic_edition_id||w.pic_edition_id_auto)}
+  const j=await (await fetch("https://ru.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=5&gsrsearch="+encodeURIComponent(x.t+" "+(x.y||"")+" фильм")+"&prop=pageimages|extracts&exintro=1&explaintext=1&exsentences=2&exlimit=5&piprop=thumbnail&pithumbsize=500&pilicense=any")).json();
+  const p=Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index).find(p=>p.thumbnail);if(!p)return "";
+  if(!x.d&&!DESC[x.t]&&p.extract){x.d=p.extract.replace(/\s*\([^)]*\)/g,"").replace(/\s+/g," ").trim().slice(0,260)}
+  return p.thumbnail.source}catch(e){return ""}}
 function resolveImgs(list,where,base=0){const film=isF();list.forEach(async(x,i)=>{if(x.img||x._noimg)return;const u=await findImg(x,film);if(!u){x._noimg=1;return}x.img=u;save();
-  if(where==="feed"){const sl=slideEl(base+i);if(sl&&slides[base+i]===x){sl.querySelector(".fly").innerHTML=cover(x);if(cur===base+i)ambient(u)}}
+  if(where==="feed"){const sl=slideEl(base+i);if(sl&&slides[base+i]===x){{const ob=sl.querySelector(".obj");ob.innerHTML=cover(x);sl.querySelector(".fly .bg").innerHTML=`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer">`;if(x.d&&!x.w){const pp=sl.querySelector(".info p");if(pp)pp.textContent=x.d}}if(cur===base+i)ambient(u)}}
   if(where==="flow"&&$("#s-col").classList.contains("on"))drawCol()})}
 $("#feed").addEventListener("click",e=>{const t=e.target;
   const w=t.closest("[data-want]");if(w){decide(+w.dataset.want,"want");return}
@@ -459,7 +533,7 @@ addEventListener("deviceorientation",e=>{if(RM||e.gamma==null)return;tilt(Math.m
 
 
 // ---------- полка: coverflow ----------
-let fi=0,colF="want";
+let fi=0,colF="want";const pickCol=()=>{colF=R().want.length?"want":"read"};
 function flowList(){return colF==="want"?R().want:R().read}
 function drawFlow(){const L=flowList();fi=L.length?((fi%L.length)+L.length)%L.length:0;
   $("#flow").innerHTML=L.map((x,i)=>cover(x)).join("");resolveImgs(L,"flow");[...$("#flow").children].forEach((c,i)=>{c.dataset.i=i});layoutFlow(true)}
@@ -471,7 +545,7 @@ function layoutFlow(first){const L=flowList(),n=L.length;
     else{c.style.transform=tf;c.style.opacity=op}
     c.style.zIndex=50-a;c.style.pointerEvents=a>2?"none":"";c.style.filter=o===0?"none":`brightness(${1-a*.15})`;c.classList.toggle("mid",o===0)});
   const x=L[fi],cap=$("#flowCap");
-  cap.innerHTML=x?`<b>${esc(x.t)}</b><span class="fm">${esc([x.a,x.y].filter(Boolean).join(", "))}${x.r!=null?` · ${x.r} из 10`:""}</span><p>${esc(descOf(x))}</p>`:`<span class="fm">Здесь пока пусто — найди что-нибудь через лупу внизу.</span>`;
+  cap.innerHTML=x?`<b>${esc(x.t)}</b><span class="fm">${esc([x.a,x.y].filter(Boolean).join(", "))}${x.r!=null?` · ${x.r} из 5`:""}</span><p>${esc(descOf(x))}</p>`:`<span class="fm">Здесь пока пусто — найди что-нибудь через лупу внизу.</span>`;
   if(!first){cap.classList.remove("sw");void cap.offsetWidth;cap.classList.add("sw")}
   if(x)ambient(x.img)}
 function stepFlow(d){const n=flowList().length;if(n<2)return;fi=((fi+d)%n+n)%n;layoutFlow()}
@@ -493,40 +567,80 @@ const ROMAN={15:"XV",16:"XVI",17:"XVII",18:"XVIII",19:"XIX",20:"XX",21:"XXI"};
 const ASIA=new Set(["Япония","Южная Корея","Китай","Индия","Тайвань","Гонконг","Вьетнам","Таиланд","Иран","Турция"]);
 const cntBy=(arr,f)=>{const m={};arr.forEach(x=>{const k=f(x);if(k!=null&&k!=="")m[k]=(m[k]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
 function bars(list){const mx=Math.max(1,...list.map(x=>x[1]));return `<div class="sbars">${list.map(([k,v])=>`<div class="bar2"><span>${esc(k)}</span><i style="width:${Math.max(6,v/mx*100)}%"></i><span>${v}</span></div>`).join("")}</div>`}
-function stampSVG(st){const C=2*Math.PI*30,f=st.cur/st.need;return `<svg viewBox="0 0 70 70"><circle cx="35" cy="35" r="30" fill="${st.ok?"rgba(255,255,255,.14)":"none"}" stroke="rgba(255,255,255,.14)" stroke-width="3"/><circle cx="35" cy="35" r="30" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-dasharray="${C*f} ${C}" transform="rotate(-90 35 35)"/>${st.ok?'<path d="M25 35.5l6.5 6.5L46 28" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>':`<text x="35" y="43" text-anchor="middle" fill="#fff" font-size="22" font-weight="600" font-family="Cormorant Garamond,Georgia,serif" style="font-variant-numeric:lining-nums">${st.need}</text>`}</svg>`}
-function drawSum(){const F=isF(),r=R().read,u=T[realm].u,known=r.filter(x=>x.c&&x.c!=="—"),rated=r.filter(x=>x.r!=null),avg=rated.reduce((s,x)=>s+x.r,0)/Math.max(1,rated.length),best=r.filter(x=>x.r===10);
-  const C=2*Math.PI*44,frac=avg/10,cs=cntBy(known,x=>x.c),au=cntBy(r,x=>x.a),dated=r.filter(x=>x.y);
+const MOTIFS={books:'<rect x="18" y="66" width="64" height="12"/><rect x="24" y="54" width="54" height="12"/><rect x="20" y="78" width="60" height="12"/><path d="M50 20 C34 14 22 24 26 40 C30 50 44 50 50 44 C56 50 70 50 74 40 C78 24 66 14 50 20Z"/><path d="M50 20 C50 14 54 10 58 8"/>',
+compass:'<circle cx="50" cy="50" r="30"/><path d="M50 26 L56 50 L50 74 L44 50Z"/><path d="M50 14 V20 M50 80 V86 M14 50 H20 M80 50 H86"/>',
+hourglass:'<path d="M30 14 H70 M30 86 H70 M34 14 C34 36 50 42 50 50 C50 58 34 64 34 86 M66 14 C66 36 50 42 50 50 C50 58 66 64 66 86"/><path d="M40 80 Q50 70 60 80Z" fill="currentColor"/>',
+cherry:'<path d="M50 14 C46 30 36 44 30 60 M50 14 C56 32 64 46 70 58"/><circle cx="30" cy="68" r="9"/><circle cx="70" cy="66" r="9"/><path d="M50 14 C58 10 68 12 74 18 C66 22 56 20 50 14Z"/>',
+column:'<path d="M30 20 H70 M34 26 H66 M30 88 H70 M34 82 H66"/><path d="M38 26 V82 M46 26 V82 M54 26 V82 M62 26 V82"/><path d="M18 50 C10 40 14 28 22 24 M82 50 C90 40 86 28 78 24"/>',
+magnifier:'<circle cx="42" cy="44" r="22"/><path d="M58 60 L84 86"/><path d="M30 40 A12 12 0 0 1 42 30"/>',
+quill:'<path d="M30 90 C45 70 60 45 80 15 C70 35 62 50 52 60 C58 50 62 42 66 36"/><path d="M30 90 L26 96"/><circle cx="24" cy="22" r="8"/>',
+stars:'<path d="M50 20 L54 44 L78 48 L54 52 L50 76 L46 52 L22 48 L46 44Z"/><path d="M80 18 l2 6 6 2 -6 2 -2 6 -2 -6 -6 -2 6 -2Z M22 70 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2Z"/>',
+stones:'<path d="M8 90 H92"/><path d="M16 90 V52 H28 V90 M40 90 V44 H52 V90 M64 90 V50 H76 V90"/><path d="M14 52 H54 V44 H38"/><circle cx="76" cy="22" r="8"/>',
+candle:'<rect x="40" y="46" width="20" height="44"/><path d="M50 46 V38"/><path d="M50 36 C44 28 48 20 50 14 C52 20 56 28 50 36Z"/><path d="M30 90 H70"/><path d="M16 24 l6 6 m0 -6 l-6 6 M78 50 l6 6 m0 -6 l-6 6 M22 64 l4 4 m0 -4 l-4 4"/>',
+tree:'<path d="M50 92 V56"/><circle cx="50" cy="38" r="22"/><path d="M50 64 L40 54 M50 72 L62 60"/><path d="M18 92 H82"/>',
+eye:'<path d="M10 50 C26 26 74 26 90 50 C74 74 26 74 10 50Z"/><circle cx="50" cy="50" r="12"/><circle cx="50" cy="50" r="4" fill="currentColor"/>',
+masks:'<path d="M20 24 H52 V48 C52 62 44 70 36 70 C28 70 20 62 20 48Z"/><path d="M28 38 h6 M40 38 h6 M28 54 Q36 60 44 54"/><path d="M52 40 H80 V62 C80 76 72 84 64 84 C56 84 50 76 50 66"/><path d="M58 54 h6 M70 54 h6 M58 72 Q66 66 74 72"/>',
+crown:'<path d="M22 50 L30 26 L42 42 L50 18 L58 42 L70 26 L78 50Z"/><path d="M22 50 H78 V58 H22Z"/><path d="M26 92 L50 66 L74 92 M38 92 L50 78 L62 92"/>',
+moon:'<path d="M60 18 A32 32 0 1 0 82 66 A26 26 0 1 1 60 18Z"/><circle cx="24" cy="24" r="1.4" fill="currentColor"/><circle cx="80" cy="22" r="1.4" fill="currentColor"/>'};
+function stampSVG(st){const C=2*Math.PI*35,f=st.cur/st.need;return `<div class="em"><svg viewBox="0 0 78 78"><circle cx="39" cy="39" r="35" fill="${st.ok?"rgba(255,255,255,.16)":"rgba(255,255,255,.04)"}" stroke="rgba(255,255,255,.14)" stroke-width="2.5"/><circle cx="39" cy="39" r="35" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="${C*f} ${C}" transform="rotate(-90 39 39)"/></svg><svg class="mo" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">${MOTIFS[st.mo]||MOTIFS.stars}</svg></div>`}
+function drawSum(){const F=isF(),r=R().read,u=T[realm].u,known=r.filter(x=>x.c&&x.c!=="—"),rated=r.filter(x=>x.r!=null),avg=rated.reduce((s,x)=>s+x.r,0)/Math.max(1,rated.length),best=r.filter(x=>x.r===5);
+  const C=2*Math.PI*44,frac=avg/5,cs=cntBy(known,x=>x.c),au=cntBy(r,x=>x.a),dated=r.filter(x=>x.y);
   const eras=F?cntBy(dated,x=>Math.floor(x.y/10)*10+"-е"):cntBy(dated,x=>(ROMAN[Math.ceil(x.y/100)]||Math.ceil(x.y/100))+" век");
-  const gens=cntBy(r,x=>GEN[x.g]);const vol=F?Math.round(r.reduce((a,x)=>a+(x.min||0),0)/60):r.reduce((a,x)=>a+(x.pg||0),0);
-  $("#sumH").textContent="Итоги";
-  $("#bento").innerHTML=`<div class="bx tall gl"><div class="l">Всего</div><div><div class="n">${r.length}</div><div class="l">${plural(r.length,...u)} — ${T[realm].read.toLowerCase()}${vol?`<br>≈ ${vol.toLocaleString("ru-RU")} ${F?plural(vol,"час","часа","часов"):plural(vol,"страница","страницы","страниц")}`:""}</div></div></div>
-   <div class="bx gl"><div class="l">Средняя оценка</div><svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="rgba(255,255,255,.15)" stroke-width="8" fill="none"/><circle cx="50" cy="50" r="44" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${C*frac} ${C}" transform="rotate(-90 50 50)"/><text x="50" y="61" text-anchor="middle" fill="#fff" font-size="34" font-weight="600" font-family="Cormorant Garamond,Georgia,serif" style="font-variant-numeric:lining-nums">${rated.length?avg.toFixed(1).replace(".",","):"—"}</text></svg></div>
-   <div class="bx gl"><div class="l">${T[realm].want}</div><div class="n">${R().want.length}</div></div>`;
-  // штампы-паспорт
+  const gens=cntBy(r,x=>GEN[x.g]);const vol=F?Math.round(r.reduce((a,x)=>a+(x.min||0),0)/60):r.reduce((a,x)=>a+(x.pg||0),0);const wn=R().want.length;
+  if(!r.length){$("#bento").innerHTML=`<div class="bx hero gl"><div class="l">Статистика появится, когда на полке будет что-то ${F?"просмотренное":"прочитанное"}.</div></div>`;$("#sumMore").innerHTML="";return}
+  $("#bento").innerHTML=`<div class="bx hero gl"><div class="n">${r.length}</div><div class="l">${plural(r.length,...u)}<br>${F?"посмотрено":"прочитано"}</div></div>
+   <div class="bx met gl"><div class="l">${F?"Часов в кино":"Страниц прочитано"}</div><div class="n">${vol.toLocaleString("ru-RU")}</div></div>
+   <div class="bx rt gl"><div class="l">Средняя оценка</div><svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="rgba(255,255,255,.15)" stroke-width="8" fill="none"/><circle cx="50" cy="50" r="44" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${C*frac} ${C}" transform="rotate(-90 50 50)"/><text x="50" y="61" text-anchor="middle" fill="#fff" font-size="34" font-weight="600" font-family="Cormorant Garamond,Georgia,serif" style="font-variant-numeric:lining-nums">${rated.length?avg.toFixed(1).replace(".",","):"—"}</text></svg></div>
+   <div class="bx wantb gl"><div class="n">${wn}</div><div class="l">${plural(wn,...u)}<br>в списке «${T[realm].want}»</div></div>`;
   const yNow=new Date().getFullYear(),maxA=au.length?au[0][1]:0,yearMax=Math.max(0,...cntBy(r.filter(x=>x.rd),x=>x.rd.slice(0,4)).map(x=>x[1])),g=Object.fromEntries(cntBy(r,x=>x.g));
-  const ST=F?[["Первый фильм",r.length,1],["Десятка",r.length,10],["Пять стран",cs.length,5],["Три десятилетия",eras.length,3],["Азия",known.some(x=>ASIA.has(x.c))?1:0,1],["Верность режиссёру",maxA,3],["Десять из десяти",best.length,5],["Долгий вечер",r.filter(x=>(x.min||0)>=150).length,1],["Старое кино",r.filter(x=>x.y&&x.y<1980).length,1],["Киногод",yearMax,12]]
-    :[["Первая книга",r.length,1],["Десятка",r.length,10],["Пять стран",cs.length,5],["Три века",eras.length,3],["Азия",known.some(x=>ASIA.has(x.c))?1:0,1],["Классик",g.classic||0,10],["Сыщик",g.detective||0,5],["Верность автору",maxA,3],["Десять из десяти",best.length,5],["Кирпич",r.filter(x=>(x.pg||0)>=600).length,1],["Старше двухсот лет",r.filter(x=>x.y&&x.y<=yNow-200).length,1],["Книжный год",yearMax,12]];
-  const sts=ST.map(([t,c,n])=>({t,cur:Math.min(c,n),need:n,ok:c>=n})),got=sts.filter(x=>x.ok);
+  const ST=F?[["Первый фильм","первый фильм на полке","eye",r.length,1],["Десять фильмов","10 фильмов на полке","masks",r.length,10],["Пять стран","фильмы из 5 стран","compass",cs.length,5],
+     ["Три десятилетия","фильмы трёх разных десятилетий","hourglass",eras.length,3],["Азия","фильм из Азии","cherry",known.some(x=>ASIA.has(x.c))?1:0,1],["Любимый режиссёр","3 фильма одного режиссёра","crown",maxA,3],
+     ["Пять из пяти","5 фильмов на оценку 5","stars",best.length,5],["Долгий вечер","фильм длиннее 2,5 часов","moon",r.filter(x=>(x.min||0)>=150).length,1],["Старое кино","фильм, снятый до 1980 года","candle",r.filter(x=>x.y&&x.y<1980).length,1],["Киногод","12 фильмов за один год","tree",yearMax,12]]
+    :[["Первая книга","первая книга на полке","books",r.length,1],["Десять книг","10 книг на полке","books",r.length,10],["Пять стран","книги из 5 стран","compass",cs.length,5],["Три века","книги трёх разных веков","hourglass",eras.length,3],
+     ["Азия","книга автора из Азии","cherry",known.some(x=>ASIA.has(x.c))?1:0,1],["Классика","10 классических книг","column",g.classic||0,10],["Сыщик","5 детективов","magnifier",g.detective||0,5],["Верность автору","3 книги одного автора","quill",maxA,3],
+     ["Пять из пяти","5 книг на оценку 5","stars",best.length,5],["Толстая книга","книга от 600 страниц","stones",r.filter(x=>(x.pg||0)>=600).length,1],["Старинная книга","книга старше 200 лет","candle",r.filter(x=>x.y&&x.y<=yNow-200).length,1],["Книжный год","12 книг за один год","tree",yearMax,12]];
+  const sts=ST.map(([t,h,mo,c,n])=>({t,h,mo,cur:Math.min(c,n),need:n,ok:c>=n})),got=sts.filter(x=>x.ok);
   const shown=[...got,...sts.filter(x=>!x.ok).sort((a,b)=>b.cur/b.need-a.cur/a.need)].slice(0,9);
   const byY={};r.filter(x=>x.rd).forEach(x=>(byY[x.rd.slice(0,4)]=byY[x.rd.slice(0,4)]||[]).push(x));
   const yrs=Object.keys(byY).sort((a,b)=>b-a).map(y=>{const bs=byY[y],fav=bs.filter(x=>x.r!=null).sort((a,b)=>b.r-a.r)[0];
     return `<div class="yr"><div><b>${y}</b><small>${bs.length} ${plural(bs.length,...u)}</small></div>${fav?`<div class="fav"><div><span>Любим${F?"ый":"ая"}</span><em>${esc(fav.t)}</em></div>${cover(fav)}</div>`:""}</div>`}).join("");
   $("#sumMore").innerHTML=`
    <div class="sc gl"><div class="nums"><div><b>${cs.length}</b><span>${plural(cs.length,"страна","страны","стран")}</span></div><div><b>${eras.length}</b><span>${F?plural(eras.length,"десятилетие","десятилетия","десятилетий"):plural(eras.length,"век","века","веков")}</span></div><div><b>${au.length}</b><span>${F?plural(au.length,"режиссёр","режиссёра","режиссёров"):plural(au.length,"автор","автора","авторов")}</span></div></div><div class="chips">${cs.map(([c])=>`<span>${esc(c)}</span>`).join("")}</div></div>
-   ${best.length?`<div class="sc gl"><div class="l">Десять из десяти</div><h3>Любимые</h3><div class="mini">${best.map(cover).join("")}</div></div>`:""}
-   ${yrs?`<div class="sc gl"><div class="l">По годам</div><h3>Год за годом</h3><div class="yrs">${yrs}</div></div>`:""}
-   <div class="sc gl"><div class="l">Штампы · ${got.length} из ${sts.length}</div><h3>${F?"Паспорт зрителя":"Читательский паспорт"}</h3><div class="stamps">${shown.map(st=>`<div class="stp${st.ok?"":" off"}">${stampSVG(st)}<b>${esc(st.t)}</b><small>${st.ok?"получен":`${st.cur} из ${st.need}`}</small></div>`).join("")}</div></div>
-   ${eras.length?`<div class="sc gl"><div class="l">Время</div><h3>${F?"По десятилетиям":"По векам"}</h3>${bars(F?eras.sort((a,b)=>parseInt(b[0])-parseInt(a[0])):eras)}</div>`:""}
-   ${gens.length?`<div class="sc gl"><div class="l">Жанры</div><h3>${F?"Что смотришь":"Что читаешь"}</h3>${bars(gens)}</div>`:""}
-   ${au.length&&au[0][1]>1?`<div class="sc gl"><div class="l">${F?"Главный режиссёр":"Главный автор"}</div><h3>${esc(au[0][0])}</h3><p style="margin:8px 0 0;color:var(--ink2);font-size:14px">${au[0][1]} ${plural(au[0][1],...u)} на полке. Средняя оценка всего — ${rated.length?avg.toFixed(1).replace(".",","):"—"}.</p></div>`:""}`}
+   ${best.length?`<div class="sc gl"><h3>Любимые</h3><div class="mini">${best.map(cover).join("")}</div></div>`:""}
+   ${yrs?`<div class="sc gl"><h3>Год за годом</h3><div class="yrs">${yrs}</div></div>`:""}
+   <div class="sc gl"><div class="hd"><h3>${F?"Паспорт зрителя":"Читательский паспорт"}</h3><span>${got.length} из ${sts.length}</span></div><div class="stamps">${shown.map(st=>`<div class="stp${st.ok?"":" off"}">${stampSVG(st)}<b>${esc(st.t)}</b><small>${esc(st.h)}</small>${st.ok?"":`<i>${st.cur} из ${st.need}</i>`}</div>`).join("")}</div></div>
+   ${eras.length?`<div class="sc gl"><h3>${F?"По десятилетиям":"По векам"}</h3>${bars(F?eras.sort((a,b)=>parseInt(b[0])-parseInt(a[0])):eras)}</div>`:""}
+   ${gens.length?`<div class="sc gl"><h3>${F?"Что смотришь":"Что читаешь"}</h3>${bars(gens)}</div>`:""}
+   ${au.length&&au[0][1]>1?`<div class="sc gl"><h3>${esc(au[0][0])}</h3><p style="margin:8px 0 0;color:var(--ink2);font-size:14px">${F?"Главный режиссёр":"Главный автор"}: ${au[0][1]} ${plural(au[0][1],...u)} на полке.</p></div>`:""}`}
+
+// ---------- первая настройка: отметить пару книг и фильмов ----------
+let onbK="books",onbPick={};
+const STAR='<svg viewBox="0 0 24 24"><path d="M12 3.2l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/></svg>';
+function onbDraw(){const F=onbK==="films",list=POP[onbK].map(a=>popItem(onbK,a));onbPick={};
+  $("#onbStep").textContent=F?"2 из 2":"1 из 2";$("#onbH").textContent=F?"А что смотрела?":"Что ты уже читала?";
+  $("#onbP").textContent=F?"Так же: нажми на постер и поставь звёзды.":"Нажми на обложку и поставь звёзды — хватит двух-трёх. По ним я буду подбирать новое.";
+  $("#onbSkip").hidden=!F;$("#onbGrid").scrollTop=0;
+  $("#onbGrid").innerHTML=list.map((x,i)=>`<div class="op" data-i="${i}">${cover(x)}<div class="rate5"><span>Как тебе?</span><div>${[1,2,3,4,5].map(n=>`<button data-st="${n}" aria-label="${n}">${STAR}</button>`).join("")}</div></div><span class="badge"></span><small>${esc(x.t)}</small></div>`).join("");
+  $("#onbGrid")._l=list;onbBtn();
+  list.forEach(async(x,i)=>{const u=await findImg(x,F);if(!u)return;x.img=u;const el=$(`#onbGrid .op[data-i="${i}"] .cv`);if(el)el.outerHTML=cover(x)})}
+function onbBtn(){const n=Object.keys(onbPick).length,b=$("#onbNext");b.disabled=n<2;b.textContent=n<2?(n?"Ещё одну":"Отметь хотя бы две"):`Дальше · ${n}`}
+$("#onbGrid").addEventListener("click",e=>{const op=e.target.closest(".op");if(!op)return;const i=+op.dataset.i,st=e.target.closest("[data-st]");
+  if(st){const n=+st.dataset.st;if(onbPick[i]===n){delete onbPick[i];op.classList.remove("rated")}else{onbPick[i]=n;op.classList.add("rated");op.querySelector(".badge").textContent="★ "+n}
+    op.querySelectorAll("[data-st]").forEach(b=>b.classList.toggle("on",onbPick[i]!=null&&+b.dataset.st<=onbPick[i]));op.classList.remove("open");haptic();onbBtn();return}
+  document.querySelectorAll("#onbGrid .op.open").forEach(o=>o!==op&&o.classList.remove("open"));op.classList.toggle("open");haptic("soft")});
+function onbSave(){const list=$("#onbGrid")._l,r=D[onbK];Object.entries(onbPick).forEach(([i,n])=>{const x=list[+i];if(!r.read.some(y=>norm(y.t)===norm(x.t)))r.read.push({...x,r:n})});save()}
+function onbFinish(){D.onb=1;save();$("#onb").classList.remove("on");realm="books";document.body.classList.remove("films");document.querySelectorAll("[data-realm]").forEach(x=>x.classList.toggle("on",x.dataset.realm==="books"));
+  pickCol();fi=0;buildFeed();show("col");toast("Полки готовы");refill()}
+$("#onbNext").onclick=()=>{onbSave();haptic("medium");if(onbK==="books"){onbK="films";onbDraw()}else onbFinish()};
+$("#onbSkip").onclick=()=>onbFinish();
 
 // ---------- навигация ----------
 function moveLens(){const b=document.querySelector(".dock button.on"),l=$("#lens");if(!b)return;l.style.width=b.offsetWidth+"px";l.style.transform=`translateX(${b.offsetLeft}px)`}
-function show(s){document.body.classList.toggle("col",s==="col");const was=document.querySelector(".dock button.on");document.querySelectorAll(".screen").forEach(x=>x.classList.toggle("on",x.id==="s-"+s));document.querySelectorAll(".dock button").forEach(b=>b.classList.toggle("on",b.dataset.s===s));haptic();if(was&&was.dataset.s!==s){const l=$("#lens");l.classList.add("go");setTimeout(()=>l.classList.remove("go"),260)}moveLens();
+function show(s){document.body.classList.toggle("col",s==="col");document.body.classList.toggle("sum",s==="sum");const was=document.querySelector(".dock button.on");document.querySelectorAll(".screen").forEach(x=>x.classList.toggle("on",x.id==="s-"+s));document.querySelectorAll(".dock button").forEach(b=>b.classList.toggle("on",b.dataset.s===s));haptic();if(was&&was.dataset.s!==s){const l=$("#lens");l.classList.add("go");setTimeout(()=>l.classList.remove("go"),260)}moveLens();
   if(s==="feed"){cur=-1;onFeedScroll();const x=slides[Math.max(0,cur)];x&&ambient(x.img);coach()}if(s==="col")drawCol();if(s==="sum"){drawSum();const x=R().read[0];x&&ambient(x.img)}}
 document.querySelector(".dock").addEventListener("click",e=>{const b=e.target.closest("[data-s]");if(b)show(b.dataset.s)});
 document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.closest("[data-realm]");if(!b||b.dataset.realm===realm)return;realm=b.dataset.realm;document.body.classList.toggle("films",isF());
-  document.querySelectorAll("[data-realm]").forEach(x=>x.classList.toggle("on",x===b));haptic("medium");ambSrc="";acts=[];fi=0;buildFeed();const on=document.querySelector(".screen.on").id.slice(2);show(on)});
+  document.querySelectorAll("[data-realm]").forEach(x=>x.classList.toggle("on",x===b));haptic("medium");ambSrc="";acts=[];fi=0;pickCol();buildFeed();const on=document.querySelector(".screen.on").id.slice(2);show(on)});
 // ---------- лист: карточка и поиск ----------
 let shDirty=false;
 function openSheet(html,tall){$("#shBody").innerHTML=html;const sh=$("#sheet");sh.classList.toggle("tall",!!tall);sh.classList.add("on");$("#sh").scrollTop=0;haptic("medium");TG&&TG.BackButton&&TG.BackButton.show()}
@@ -541,16 +655,16 @@ TG&&TG.BackButton&&TG.BackButton.onClick(closeSheet);
 let cardX=null,cardL=null;
 function itemHTML(){const x=cardX,L=cardL;return `<div class="dt">${cover(x)}<h2>${esc(x.t)}</h2><div class="meta">${esc([x.a,x.y,x.c&&x.c!=="—"?x.c:""].filter(Boolean).join(", "))}</div>
   ${descOf(x)?`<p class="dd">${esc(descOf(x))}</p>`:""}${x.w&&x.d?`<p class="dd">${esc(x.w)}</p>`:""}
-  ${L==="read"?`<div class="stars">${Array.from({length:11},(_,n)=>`<button data-cr="${n}" class="${x.r===n?"on":""}">${n}</button>`).join("")}</div>`:""}
+  ${L==="read"?`<div class="stars">${Array.from({length:6},(_,n)=>`<button data-cr="${n}" class="${x.r===n?"on":""}">${n}</button>`).join("")}</div>`:""}
   <div class="acts">${L==="want"?`<button class="btn w" data-cmv>${T[realm].did}</button>`:""}<button class="btn" data-crm>Убрать с полки</button></div></div>`}
 function openItem(x,L){if(!x)return;cardX=x;cardL=L;ambient(x.img);openSheet(itemHTML())}
 $("#shBody").addEventListener("click",e=>{const t=e.target;
   const cr=t.closest("[data-cr]");if(cr){cardX.r=+cr.dataset.cr;save();cr.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===cr));layoutFlow();shDirty=true;haptic();return}
-  if(t.closest("[data-cmv]")){R().want=R().want.filter(y=>y!==cardX);cardX.r=null;R().read.unshift(cardX);save();cardL="read";$("#shBody").innerHTML=itemHTML();shDirty=true;toast("Поставь оценку");return}
+  if(t.closest("[data-cmv]")){R().want=R().want.filter(y=>y!==cardX);cardX.r=null;cardX.rd=new Date().toISOString().slice(0,7);R().read.unshift(cardX);save();cardL="read";$("#shBody").innerHTML=itemHTML();shDirty=true;toast("Поставь оценку");return}
   if(t.closest("[data-crm]")){R()[cardL]=R()[cardL].filter(y=>y!==cardX);save();shDirty=true;toast(`«${cardX.t}» — убрано с полки`);closeSheet();return}
   const fa=t.closest("[data-fadd]");if(fa){const x=$("#fres")._l[+fa.dataset.i],L=fa.dataset.fadd,r=R();
     if([...r.read,...r.want].some(y=>norm(y.t)===norm(x.t))){toast("Уже на полке");return}
-    r[L].unshift(L==="read"?{...x,r:null}:{...x});save();shDirty=true;haptic("medium");fa.parentElement.innerHTML=`<span>✓ ${L==="read"?T[realm].read:T[realm].want}</span>`}});
+    r[L].unshift(L==="read"?{...x,r:null,rd:new Date().toISOString().slice(0,7)}:{...x});save();shDirty=true;haptic("medium");fa.parentElement.innerHTML=`<span>✓ ${L==="read"?T[realm].read:T[realm].want}</span>`}});
 // поиск: книги — Фантлаб, фильмы — Википедия
 let fT=0,fSeq=0;
 async function onlineFind(q){if(!isF()){const s=await (await fetch("https://api.fantlab.ru/search-works?q="+encodeURIComponent(q)+"&page=1&onlymatches=1")).json();
@@ -570,7 +684,7 @@ $("#feed").addEventListener("pointerup",e=>{const o=e.target.closest(".obj");if(
   const j=+o.closest(".slide").dataset.j;if(!slides[j]||slides[j]._done)return;const h=document.createElement("div");h.className="heart";h.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.5-9.3C1 8 3.4 4.5 7 4.5c2 0 3.6 1.1 5 3 1.4-1.9 3-3 5-3 3.6 0 6 3.5 4.5 7.2C19.5 16.4 12 21 12 21z"/></svg>';o.appendChild(h);setTimeout(()=>h.remove(),950);
   setTimeout(()=>decide(j,"want"),260)});
 addEventListener("resize",moveLens);
-buildFeed();show("col");moveLens();document.fonts&&document.fonts.ready.then(moveLens);
+pickCol();buildFeed();show("col");moveLens();if(!D.onb){$("#onb").classList.add("on");onbDraw()}document.fonts&&document.fonts.ready.then(moveLens);
 </script>
 </body>
 </html>

@@ -881,10 +881,11 @@ CAT.forEach(b=>{b.id="c"+hsh(b.t+b.a).toString(36);const p=PAL[hsh(b.t)%PAL.leng
 const CATMAP=Object.fromEntries(CAT.map(b=>[b.id,b]));
 
 const LIB={...WANT,...CATMAP};
+const NEWSHELF="Новые поступления",NOCOUNTRY=new Set(["Неразобранное",NEWSHELF,"Без страны"]);
 // Свои книги, добавленные в приложении
 const UKEY="zal.mine";
 let mine=(()=>{try{const v=localStorage.getItem(UKEY);return v?JSON.parse(v):[]}catch(e){return []}})();
-function prepUser(b){const p=PAL[hsh(b.t+b.a)%PAL.length];const o={pg:300,f:[],n:"",r:null,c:"Без страны",g:"modern",...b,bg:b.bg||p[0],fg:b.fg||p[1],user:true};if(b.m)o._m=b.m;return o}
+function prepUser(b){const p=PAL[hsh(b.t+b.a)%PAL.length];const o={pg:300,f:[],n:"",r:null,c:NEWSHELF,g:"modern",...b,bg:b.bg||p[0],fg:b.fg||p[1],user:true};if(b.m)o._m=b.m;return o}
 mine.forEach(b=>BOOKS.push(prepUser(b)));
 function cloudChunks(prefix,arr){if(!TG||!TG.CloudStorage)return;try{const str=JSON.stringify(arr),parts=[];for(let i=0;i<str.length;i+=3800)parts.push(str.slice(i,i+3800));parts.forEach((x,i)=>TG.CloudStorage.setItem(prefix+i,x));TG.CloudStorage.setItem(prefix+"n",String(parts.length))}catch(e){}}
 function cloudRead(prefix,cb){if(!TG||!TG.CloudStorage)return;try{TG.CloudStorage.getItem(prefix+"n",(e,n)=>{n=+n;if(e||!n)return;const ks=[...Array(n)].map((_,i)=>prefix+i);TG.CloudStorage.getItems(ks,(e2,v)=>{if(e2||!v)return;try{cb(JSON.parse(ks.map(k=>v[k]||"").join("")))}catch(x){}})})}catch(e){}}
@@ -1017,7 +1018,7 @@ function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");c
 
 // ---------- stats ----------
 (function(){
-  const known=BOOKS.filter(b=>b.c!=="Неразобранное");
+  const known=BOOKS.filter(b=>!NOCOUNTRY.has(b.c));
   const countries=new Set(known.map(b=>b.c)).size;
   const cents=new Set(known.filter(b=>b.y).map(b=>centuryOf(b.y))).size;
   const authors=new Set(known.map(b=>b.a)).size;
@@ -1027,7 +1028,7 @@ function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");c
 // ---------- shelves ----------
 function renderShelves(){
   const addBtn=`<button class="add-book" id="addBook"><span>+</span>Поставить книгу на полку</button>`;
-  const order=["Россия","Англия","США","Швейцария","Япония","Неразобранное"];
+  const order=["Россия","Англия","США","Швейцария","Япония","Неразобранное","Новые поступления"];
   const rank=c=>{const i=order.indexOf(c);return i<0?50:i};
   const byC={};BOOKS.forEach(b=>(byC[b.c]=byC[b.c]||[]).push(b));
   $("#v-shelves").innerHTML=addBtn+Object.keys(byC).sort((a,b)=>rank(a)-rank(b)).map(c=>{
@@ -1056,7 +1057,7 @@ function renderTime(){
 
 // ---------- authors ----------
 function renderAuthors(){
-  const by={};BOOKS.filter(b=>b.c!=="Неразобранное").forEach(b=>(by[b.a]=by[b.a]||[]).push(b));
+  const by={};BOOKS.filter(b=>!NOCOUNTRY.has(b.c)).forEach(b=>(by[b.a]=by[b.a]||[]).push(b));
   const list=Object.entries(by).sort((x,y)=>(y[1].length-x[1].length)||x[0].localeCompare(y[0],"ru"));
   $("#v-authors").innerHTML=`<div class="authors">${list.map(([a,bs])=>`<div class="au-card"><h3>${esc(a)}</h3><div class="sub">${esc(bs[0].c)}</div><div class="au-books">${bs.map(b=>`<button class="au-book" data-id="${b.id}">${cover(b,34)}<b>${esc(b.t)}</b></button>`).join("")}</div></div>`).join("")}</div>`;
 }
@@ -1071,42 +1072,53 @@ function openBook(id){
    ${b.r!=null?`<div class="rating"><b>${b.r}</b><span>/ 10</span></div>`:`<div class="rating"><span>Без оценки</span></div>`}
    ${b.n?`<div class="note">${esc(b.n)}</div>`:""}
    ${DISC[b.id]?`<button class="btn btn-disc" id="discBtn">${discLabel(b.id)}</button>`:""}
-   ${b.c!=="Неразобранное"?`<button class="btn btn-ghost btn-wide" id="cmpBtn">Столкнуть с другой книгой</button>`:""}
+   ${!NOCOUNTRY.has(b.c)?`<button class="btn btn-ghost btn-wide" id="cmpBtn">Столкнуть с другой книгой</button>`:""}
    ${quotesBlock(b)}
    ${b.user?`<button class="btn btn-ghost btn-wide" id="uDel">Убрать с полки</button>`:""}
    ${b.f.length?`<button class="btn btn-main" id="factsBtn">Интересные факты · ${b.f.length}</button>`:(b.user?"":`<p class="status">Автор забылся — и Тевосгинк тоже не знает, чья это книга. Если вспомнится, книга переедет на полку своей страны.</p>`)}`);
   const ud=$("#uDel");if(ud)ud.onclick=()=>{if(!ud.classList.contains("sure")){ud.classList.add("sure");ud.textContent="Точно убрать? Нажми ещё раз";return}mine=mine.filter(x=>x.id!==b.id);BOOKS.splice(BOOKS.indexOf(b),1);READ.delete(norm(b.t));saveMine();rerenderAll();closeSheet();toast("Убрано с полки")};const fb=$("#factsBtn");if(fb)fb.onclick=()=>openStories(b);const db=$("#discBtn");if(db)db.onclick=()=>{closeSheet();openDisc(b)};const cb=$("#cmpBtn");if(cb)cb.onclick=()=>openCompare(b);const qb=$("#qAddBook");if(qb)qb.onclick=()=>openQuoteForm(b.id);
 }
-const COUNTRIES=()=>[...new Set([...BOOKS.map(b=>b.c),...CAT.map(b=>b.c)])].filter(c=>c&&c!=="Неразобранное"&&c!=="Без страны").sort((a,b)=>a.localeCompare(b,"ru"));
+const COUNTRIES=()=>[...new Set([...BOOKS.map(b=>b.c),...CAT.map(b=>b.c)])].filter(c=>c&&!NOCOUNTRY.has(c)).sort((a,b)=>a.localeCompare(b,"ru"));
 function ratingPicker(cur){return `<div class="rate" id="rate">${[...Array(11)].map((_,n)=>`<button type="button" data-r="${n}" class="${cur===n?"on":""}">${n}</button>`).join("")}<button type="button" data-r="" class="none${cur==null?" on":""}">без оценки</button></div>`}
 function bindRating(){let val=null;const box=$("#rate");box.querySelectorAll("button").forEach(x=>x.onclick=()=>{box.querySelectorAll("button").forEach(y=>y.classList.remove("on"));x.classList.add("on");val=x.dataset.r===""?null:+x.dataset.r;haptic()});box.querySelector(".on")&&(val=box.querySelector(".on").dataset.r===""?null:+box.querySelector(".on").dataset.r);return ()=>val}
+
+const AUTHOR_FIX={"толстой":"Лев Толстой","достоевский":"Фёдор Достоевский","чехов":"Антон Чехов","пушкин":"Александр Пушкин","булгаков":"Михаил Булгаков","гоголь":"Николай Гоголь","тургенев":"Иван Тургенев","бронте":"Шарлотта Бронте","остин":"Джейн Остин","диккенс":"Чарльз Диккенс","кристи":"Агата Кристи","лондон":"Джек Лондон","харди":"Томас Харди","мураками":"Харуки Мураками","ремарк":"Эрих Мария Ремарк","хемингуэй":"Эрнест Хемингуэй","набоков":"Владимир Набоков"};
+function resolveMeta(t,a,picked){
+  const all=[...want,...CAT,...BOOKS.filter(b=>!b.user)],nt=norm(t),na=norm(a);
+  let src=picked||all.find(b=>norm(b.t)===nt&&(!na||norm(b.a).includes(na)||na.includes(norm(b.a).slice(-5))))||(nt.length>5?all.find(b=>norm(b.t).startsWith(nt)||nt.startsWith(norm(b.t))):null);
+  if(src)return {t:src.t,a:src.a||a||"Автор не указан",c:src.c||NEWSHELF,y:src.y||null,g:GEN[src.g]?src.g:"modern",pg:src.pg||(src.len==="short"?200:src.len==="long"?600:320),bg:src.bg,fg:src.fg,m:motifOf(src),ann:src.ann,tags:src.tags};
+  let fullA=a;
+  if(na){const fix=Object.keys(AUTHOR_FIX).find(k=>na===norm(k));if(fix)fullA=AUTHOR_FIX[fix]}
+  const byA=fullA?all.filter(b=>{const x=norm(b.a);return x===norm(fullA)||x.endsWith(norm(fullA))||norm(fullA).endsWith(x.slice(-6))}):[];
+  if(byA.length){const cnt={};byA.forEach(b=>cnt[b.g]=(cnt[b.g]||0)+1);const g=Object.entries(cnt).sort((x,y)=>y[1]-x[1])[0][0];
+    return {t,a:byA[0].a,c:byA[0].c||NEWSHELF,y:null,g:GEN[g]?g:"modern",pg:320,tags:byA[0].tags}}
+  return {t,a:fullA||"Автор не указан",c:NEWSHELF,y:null,g:"unknown",pg:320};
+}
 function openAddBook(){
   openSheet(`<h3 class="sheet-h">Поставить книгу на полку</h3><div class="qform">
    <label for="bT">Название</label><input id="bT" autocomplete="off" placeholder="Например, Мастер и Маргарита"><div class="sugg" id="bSugg"></div>
-   <label for="bA">Автор</label><input id="bA" autocomplete="off">
-   <div class="two"><div><label for="bC">Страна</label><input id="bC" list="bCL" autocomplete="off"><datalist id="bCL">${COUNTRIES().map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
-   <div><label for="bY">Год издания</label><input id="bY" inputmode="numeric" maxlength="4"></div></div>
-   <label for="bG">Жанр</label><select id="bG">${Object.entries(GEN).filter(([k])=>k!=="unknown").map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select>
+   <label for="bA">Автор (необязательно)</label><input id="bA" autocomplete="off">
    <label>Оценка</label>${ratingPicker(null)}
-   <label for="bN">Заметка (необязательно)</label><textarea id="bN" placeholder="Что зацепило или нет"></textarea>
+   <label for="bN">Заметка (необязательно)</label><textarea id="bN" placeholder="Напиши что-нибудь"></textarea>
    <div class="sheet-actions"><button class="btn btn-main" id="bSave" style="margin-top:0" disabled>Поставить на полку</button></div></div>`);
   const getR=bindRating(),T=$("#bT"),sv=$("#bSave");let picked=null;
   T.addEventListener("input",()=>{sv.disabled=!T.value.trim();picked=null;const v=norm(T.value);if(v.length<3){$("#bSugg").innerHTML="";return}
     const hits=[...want,...CAT].filter(b=>norm(b.t).includes(v)).slice(0,5);
     $("#bSugg").innerHTML=hits.map((b,i)=>`<button type="button" data-s="${i}"><b>${esc(b.t)}</b> <small>${esc(b.a)}${b.y?", "+b.y:""}</small></button>`).join("");
-    $("#bSugg").querySelectorAll("[data-s]").forEach(x=>x.onclick=()=>{const b=hits[+x.dataset.s];picked=b;T.value=b.t;$("#bA").value=b.a||"";$("#bC").value=b.c||"";$("#bY").value=b.y||"";if(GEN[b.g])$("#bG").value=b.g;$("#bSugg").innerHTML="";sv.disabled=false})});
+    $("#bSugg").querySelectorAll("[data-s]").forEach(x=>x.onclick=()=>{const b=hits[+x.dataset.s];picked=b;T.value=b.t;$("#bA").value=b.a||"";$("#bSugg").innerHTML="";sv.disabled=false})});
   sv.onclick=()=>{const t=T.value.trim();if(!t)return;const r=getR();
-    const rec=addBook({t,a:$("#bA").value.trim()||"Автор не указан",c:$("#bC").value.trim()||"Без страны",y:+$("#bY").value||null,g:$("#bG").value,r,n:$("#bN").value.trim(),pg:picked&&picked.len==="short"?200:picked&&picked.len==="long"?600:320,bg:picked&&picked.bg,fg:picked&&picked.fg,m:picked?motifOf(picked):undefined,ann:picked&&picked.ann});
+    const m=resolveMeta(t,$("#bA").value.trim(),picked);
+    const rec=addBook({t:m.t,a:m.a,c:m.c,y:m.y,g:m.g,r,n:$("#bN").value.trim(),pg:m.pg,bg:m.bg,fg:m.fg,m:m.m,ann:m.ann,tags:m.tags});
     if(picked){const wi=want.findIndex(w=>norm(w.t)===norm(picked.t));if(wi>=0){want.splice(wi,1);saveWant();renderWant()}}
     closeSheet();haptic("ok");toast(`«${rec.t}» на полке`)};
 }
 function openMarkRead(s,onDone){
   openSheet(`<div class="bk">${cover(s,80)}<div class="bk-meta"><h3>Как тебе «${esc(s.t)}»?</h3><div class="au">${esc(s.a)}</div></div></div><div class="qform">
    <label>Оценка</label>${ratingPicker(null)}
-   <label for="mN">Пара слов о книге (необязательно)</label><textarea id="mN" placeholder="Что зацепило или нет"></textarea>
+   <label for="mN">Пара слов о книге (необязательно)</label><textarea id="mN" placeholder="Напиши что-нибудь"></textarea>
    <div class="sheet-actions"><button class="btn btn-main" id="mSave" style="margin-top:0">Поставить на полку</button></div></div>`);
   const getR=bindRating();
-  $("#mSave").onclick=()=>{addBook({t:s.t,a:s.a,c:s.c||"Без страны",y:s.y||null,g:GEN[s.g]?s.g:"modern",r:getR(),n:$("#mN").value.trim(),pg:s.len==="short"?200:s.len==="long"?600:360,bg:s.bg,fg:s.fg,m:motifOf(s),ann:s.ann});onDone();closeSheet();haptic("ok");toast(`«${s.t}» теперь на полке`)};
+  $("#mSave").onclick=()=>{addBook({t:s.t,a:s.a,c:s.c||NEWSHELF,y:s.y||null,g:GEN[s.g]?s.g:"modern",r:getR(),n:$("#mN").value.trim(),pg:s.len==="short"?200:s.len==="long"?600:360,bg:s.bg,fg:s.fg,m:motifOf(s),ann:s.ann});onDone();closeSheet();haptic("ok");toast(`«${s.t}» теперь на полке`)};
 }
 function openWant(i){
   const s=want[i];if(!s)return;haptic();
@@ -1139,7 +1151,7 @@ function pairQs(A,B){
   ]};
 }
 function openCompare(A){
-  const others=BOOKS.filter(b=>b.id!==A.id&&b.c!=="Неразобранное");
+  const others=BOOKS.filter(b=>b.id!==A.id&&!NOCOUNTRY.has(b.c));
   const cur=others.filter(b=>PAIRS[A.id+"|"+b.id]||PAIRS[b.id+"|"+A.id]),rest=others.filter(b=>!cur.includes(b));
   const row=(b,c)=>`<button class="pick" data-p="${b.id}">${cover(b,34)}<span><b>${esc(b.t)}</b><small>${esc(b.a)}${c?" · Тевосгинк подготовил вопросы":""}</small></span></button>`;
   openSheet(`<h3 class="sheet-h">С какой книгой столкнуть «${esc(A.t)}»?</h3>${cur.length?`<div class="pick-k">Особые пары</div>${cur.map(b=>row(b,true)).join("")}`:""}<div class="pick-k">Все прочитанные</div>${rest.map(b=>row(b,false)).join("")}`);
@@ -1202,7 +1214,7 @@ function closeStories(){if(story)clearTimeout(story.timer);story=null;$("#storie
 
 // ---------- Тевосгинк ----------
 (function lairShelf(){
-  const cols=BOOKS.filter(b=>b.c!=="Неразобранное").slice(0,14);
+  const cols=BOOKS.filter(b=>!NOCOUNTRY.has(b.c)).slice(0,14);
   const left=cols.slice(0,6),right=cols.slice(6,12);
   const sp=(b,i,tilt)=>`<span class="ls${tilt?" tilt":""}" style="height:${96+((i*37)%44)}px;background:${b.bg}"></span>`;
   $("#lairShelf").innerHTML=left.map((b,i)=>sp(b,i,i===left.length-1)).join("")+
@@ -1472,7 +1484,7 @@ function openQuoteForm(bookId){
 // ---------- итоги ----------
 let timeMode="cent";
 function summaryHTML(){
-  const known=BOOKS.filter(b=>b.c!=="Неразобранное"),dated=known.filter(b=>b.y);
+  const known=BOOKS.filter(b=>!NOCOUNTRY.has(b.c)),dated=known.filter(b=>b.y);
   const cnt=(arr,f)=>{const m={};arr.forEach(x=>{const k=f(x);if(k)m[k]=(m[k]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
   const bars=list=>{const mx=Math.max(...list.map(x=>x[1]));return `<div class="sbars">${list.map(([k,v])=>`<div class="sbar"><span>${esc(k)}</span><i style="width:${Math.max(6,v/mx*100)}%"></i><span>${v}</span></div>`).join("")}</div>`};
   const countries=cnt(known,b=>b.c),cents=cnt(dated,b=>(ROMAN[centuryOf(b.y)]||centuryOf(b.y))+" век"),genres=cnt(known,b=>GEN[b.g]),authors=cnt(known,b=>b.a);

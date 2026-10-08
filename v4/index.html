@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Нора — четвёртая версия</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!--
+  ЧЕТВЁРТАЯ ВЕРСИЯ «НОРЫ» — светлый «стол», на котором обложки можно двигать, бросать и раскладывать.
+  Живёт только в папке v4/. Не понравится — удалить папку v4 целиком.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geologica:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ECECEA;--paper:#F7F7F5;--ink:#0A0A0A;--ink2:#5B5B5B;--ink3:#9A9A97;--line:#0A0A0A;--acc:#0047FF;--acc-ink:#FFFFFF;--f:'Geologica',system-ui,sans-serif}
+body.films{--acc:#FF4F00}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);overflow-x:clip}
+body{font-family:var(--f);font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.wrap{max-width:720px;margin:0 auto;padding:calc(10px + env(safe-area-inset-top,0px)) 14px calc(40px + env(safe-area-inset-bottom,0px))}
+
+/* шапка-сетка */
+.mast{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid var(--line)}
+.mast > *{padding:8px 0;border-bottom:1px solid var(--line);font-size:12px;font-weight:500}
+.mast .r{text-align:right}
+.word{font-weight:900;font-size:clamp(84px,30vw,210px);line-height:.78;letter-spacing:-.07em;margin:14px 0 6px;display:flex;justify-content:space-between}
+.word span{display:inline-block;transition:transform .5s cubic-bezier(.3,1.6,.5,1),color .3s}
+.word span:hover,.word span.jump{transform:translateY(-12px);color:var(--acc)}
+.realm{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+.realm button{display:flex;justify-content:space-between;align-items:flex-end;height:74px;padding:10px 12px;border:1px solid var(--line);text-align:left;transition:background .35s,color .35s}
+.realm button b{font-weight:700;font-size:22px;letter-spacing:-.02em;line-height:1}
+.realm button span{font-size:12px;font-weight:500}
+.realm button.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+
+/* стол */
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;margin:30px 0 8px;border-top:2px solid var(--line);padding-top:8px}
+.sec-h h2{margin:0;font-weight:700;font-size:28px;letter-spacing:-.03em}
+.sec-h small{font-size:12px;color:var(--ink2)}
+.modes{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -14px;padding:0 14px 10px}
+.modes::-webkit-scrollbar{display:none}
+.modes button{flex:none;height:34px;padding:0 14px;border:1px solid var(--line);border-radius:17px;font-size:13px;font-weight:500}
+.modes button.on{background:var(--ink);color:var(--paper)}
+.table{position:relative;height:min(118vw,720px);background:var(--paper);border:1px solid var(--line);overflow:hidden;touch-action:none;background-image:radial-gradient(var(--ink3) .7px,transparent .8px);background-size:18px 18px}
+.it{position:absolute;left:0;top:0;width:var(--w);touch-action:none;user-select:none;-webkit-user-select:none;will-change:transform;cursor:grab}
+.it.anim{transition:transform .9s cubic-bezier(.2,.9,.2,1)}
+.it.drag{cursor:grabbing;z-index:50!important}
+.it .cv{box-shadow:0 10px 18px -10px rgba(0,0,0,.55);transition:box-shadow .2s,transform .2s}
+.it.drag .cv{box-shadow:0 26px 30px -14px rgba(0,0,0,.6);transform:scale(1.06)}
+.it .rt{position:absolute;right:-6px;top:-6px;width:22px;height:22px;border-radius:50%;background:var(--acc);color:var(--acc-ink);font-size:11px;font-weight:700;display:grid;place-items:center}
+.lbl{position:absolute;left:0;top:0;font-size:11px;font-weight:700;letter-spacing:-.01em;padding:2px 6px;background:var(--ink);color:var(--paper);white-space:nowrap;transition:opacity .4s;pointer-events:none}
+.hint{font-size:12px;color:var(--ink2);margin-top:6px}
+
+/* обложки */
+.cv{position:relative;aspect-ratio:2/3;overflow:hidden;background:#ccc}
+.cv .gen{position:absolute;inset:0;padding:8%;display:flex;flex-direction:column;justify-content:space-between;color:#fff;font-weight:700;font-size:10px;line-height:1.05;letter-spacing:-.01em}
+.cv .gen i{font-style:normal;font-weight:400;opacity:.8}
+.cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;pointer-events:none;-webkit-user-drag:none}
+.cv img.ok{opacity:1}
+
+/* рулетка */
+.slot{position:relative;height:260px;border:1px solid var(--line);background:var(--ink);overflow:hidden}
+.reel{position:absolute;top:30px;left:0;display:flex;gap:12px;will-change:transform}
+.reel .cv{width:132px;flex:none}
+.slot::before,.slot::after{content:"";position:absolute;top:0;bottom:0;width:22%;z-index:2;pointer-events:none}
+.slot::before{left:0;background:linear-gradient(90deg,var(--ink),transparent)}.slot::after{right:0;background:linear-gradient(-90deg,var(--ink),transparent)}
+.slot .win{position:absolute;left:50%;top:22px;width:148px;height:214px;margin-left:-74px;border:2px solid var(--acc);z-index:3;pointer-events:none}
+.res{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;border-bottom:1px solid var(--line);padding:12px 0;min-height:76px}
+.res b{display:block;font-size:22px;font-weight:700;letter-spacing:-.02em;line-height:1.05}
+.res span{font-size:13px;color:var(--ink2)}
+.res p{margin:4px 0 0;font-size:13px}
+.big-btn{height:54px;width:100%;margin-top:10px;background:var(--acc);color:var(--acc-ink);font-weight:700;font-size:16px;letter-spacing:-.01em;display:flex;align-items:center;justify-content:space-between;padding:0 18px}
+.sm{height:40px;padding:0 14px;border:1px solid var(--line);font-weight:500;font-size:13px}
+.sm.pri{background:var(--ink);color:var(--paper)}
+
+/* очередь — нумерованный список: порядок важен */
+.q{list-style:none;margin:0;padding:0;counter-reset:q}
+.q li{display:grid;grid-template-columns:28px 46px 1fr auto;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.q li::before{counter-increment:q;content:counter(q,decimal-leading-zero);font-size:13px;font-weight:500;color:var(--ink3)}
+.q b{display:block;font-weight:500;line-height:1.2}
+.q span{font-size:12px;color:var(--ink2)}
+.q .go{width:34px;height:34px;border:1px solid var(--line);border-radius:50%;font-size:16px}
+.q .empty{grid-template-columns:1fr;color:var(--ink2)}
+.q .empty::before{display:none}
+
+/* цифры */
+.nums{display:grid;grid-template-columns:1fr 1fr;border-left:1px solid var(--line)}
+.nums div{border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:10px 10px 12px;min-height:118px;display:flex;flex-direction:column;justify-content:space-between}
+.nums b{font-weight:900;font-size:64px;line-height:.85;letter-spacing:-.06em}
+.nums .acc{background:var(--acc);color:var(--acc-ink)}
+.nums span{font-size:12px;font-weight:500}
+.bars{display:flex;align-items:flex-end;gap:4px;height:80px;margin-top:8px}
+.bars i{flex:1;background:var(--ink);min-height:3px;position:relative}
+.bars i::after{content:attr(data-l);position:absolute;bottom:-16px;left:0;right:0;text-align:center;font-size:9px;font-style:normal;color:var(--ink2)}
+
+/* лист */
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--paper);border-top:2px solid var(--line);transform:translateY(105%);transition:transform .5s cubic-bezier(.2,.9,.2,1);max-height:88vh;overflow:auto;padding:16px 14px calc(18px + env(safe-area-inset-bottom,0px))}
+.sheet.on{transform:none}
+.scrim{position:fixed;inset:0;z-index:55;background:rgba(10,10,10,.35);opacity:0;pointer-events:none;transition:opacity .3s}
+.scrim.on{opacity:1;pointer-events:auto}
+.sh{display:grid;grid-template-columns:110px 1fr;gap:14px;max-width:720px;margin:0 auto}
+.sh h3{margin:0;font-weight:700;font-size:26px;letter-spacing:-.03em;line-height:1}
+.sh .meta{font-size:13px;color:var(--ink2);margin-top:6px}
+.sh p{font-size:14px;margin:10px 0 0}
+.rate{display:grid;grid-template-columns:repeat(11,1fr);border-left:1px solid var(--line);border-top:1px solid var(--line);margin-top:14px;max-width:720px;margin-left:auto;margin-right:auto}
+.rate button{height:42px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-weight:700;font-size:14px}
+.rate button.on{background:var(--acc);color:var(--acc-ink)}
+.acts{display:flex;gap:6px;margin:12px auto 0;max-width:720px}
+.acts .sm{flex:1}
+.toast{position:fixed;left:14px;right:14px;top:calc(10px + env(safe-area-inset-top,0px));z-index:70;background:var(--ink);color:var(--paper);padding:12px 14px;font-weight:500;font-size:14px;transform:translateY(-130%);transition:transform .4s cubic-bezier(.2,1.2,.4,1);max-width:692px;margin:0 auto}
+.toast.on{transform:none}
+foot{display:block}
+.foot{margin-top:40px;border-top:2px solid var(--line);padding-top:8px;font-size:12px;color:var(--ink2);display:flex;justify-content:space-between}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="mast"><span>Нора · личный архив</span><span class="r" id="today"></span><span id="mLeft">Книги и кино</span><span class="r">v4</span></div>
+  <div class="word" id="word" aria-label="Нора"><span>Н</span><span>О</span><span>Р</span><span>А</span></div>
+  <div class="realm" role="tablist" aria-label="Раздел">
+    <button data-realm="books" class="on"><b>Книги</b><span id="cB"></span></button>
+    <button data-realm="films"><b>Кино</b><span id="cF"></span></button>
+  </div>
+
+  <div class="sec-h"><h2 id="tableH">Стол</h2><small>Двигай и бросай обложки</small></div>
+  <div class="modes" id="modes">
+    <button data-mode="toss" class="on">Россыпью</button><button data-mode="grid">Стопкой</button><button data-mode="country">По странам</button><button data-mode="year">По годам</button><button data-mode="rate">По оценке</button>
+  </div>
+  <div class="table" id="table"></div>
+  <div class="hint">Нажми на обложку — откроется карточка. Потащи — и брось.</div>
+
+  <div class="sec-h"><h2 id="slotH">Рулетка Тевосгинка</h2><small id="slotS">Крутим — что выпадет</small></div>
+  <div class="slot" id="slot"><div class="reel" id="reel"></div><div class="win"></div></div>
+  <div class="res" id="res"><div><b>Нажми «Крутить»</b><span>Тевосгинк выберет что-то, чего у тебя ещё нет.</span></div></div>
+  <button class="big-btn" id="spin"><span>Крутить</span><span>↻</span></button>
+
+  <div class="sec-h"><h2 id="qH">Очередь</h2><small id="qS"></small></div>
+  <ol class="q" id="q"></ol>
+
+  <div class="sec-h"><h2>Цифры</h2><small id="yr"></small></div>
+  <div class="nums" id="nums"></div>
+
+  <div class="foot"><span>Четвёртая версия — пример</span><span>Данные свои, основную Нору не трогают</span></div>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TG=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?Telegram.WebApp:null;
+if(TG){try{TG.ready();TG.expand();TG.setHeaderColor&&TG.setHeaderColor("#ECECEA");TG.setBackgroundColor&&TG.setBackgroundColor("#ECECEA")}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const haptic=t=>{try{TG&&TG.HapticFeedback.impactOccurred(t||"light")}catch(e){}};
+const toast=t=>{const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("on"),1800)};
+const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c};
+const hsh=s=>{let h=0;for(const ch of String(s))h=(h*31+ch.charCodeAt(0))>>>0;return h};
+const norm=s=>String(s||"").toLowerCase().replace(/ё/g,"е").replace(/[^a-zа-я0-9]/g,"");
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const FL=id=>"https://fantlab.ru/images/editions/big/"+id, WP=p=>"https://upload.wikimedia.org/wikipedia/en/"+p;
+
+const SAMPLE={
+ books:{read:[
+   {t:"Преступление и наказание",a:"Фёдор Достоевский",y:1866,c:"Россия",r:10,img:FL(66847)},{t:"Анна Каренина",a:"Лев Толстой",y:1877,c:"Россия",r:10,img:FL(266824)},
+   {t:"Правда о деле Гарри Квеберта",a:"Жоэль Диккер",y:2012,c:"Швейцария",r:8,img:FL(210352)},{t:"Ребекка",a:"Дафна дю Морье",y:1938,c:"Англия",r:8,img:FL(40302)},
+   {t:"Тонкая работа",a:"Сара Уотерс",y:2002,c:"Англия",r:9,img:FL(40076)},{t:"Убийство в «Восточном экспрессе»",a:"Агата Кристи",y:1933,c:"Англия",r:8,img:FL(390280)},
+   {t:"Норвежский лес",a:"Харуки Мураками",y:1987,c:"Япония",r:7,img:FL(6684)},{t:"Грозовой перевал",a:"Эмили Бронте",y:1847,c:"Англия",r:9,img:FL(136191)},
+   {t:"Джейн Эйр",a:"Шарлотта Бронте",y:1847,c:"Англия",r:9,img:FL(446413)},{t:"Кафка на пляже",a:"Харуки Мураками",y:2002,c:"Япония",r:6,img:FL(6643)}],
+  want:[{t:"Тайная история",a:"Донна Тартт",y:1992,img:FL(136461)},{t:"Сто лет одиночества",a:"Габриэль Гарсиа Маркес",y:1967,img:FL(286489)}],
+  pool:[{t:"Бархатные коготки",a:"Сара Уотерс",y:1998,img:FL(40077),w:"Ещё Уотерс — викторианский Лондон и смелая героиня."},
+   {t:"Дом, в котором…",a:"Мариам Петросян",y:2009,img:FL(40654),w:"Чтобы пропасть в другом мире на месяц."},
+   {t:"Лавр",a:"Евгений Водолазкин",y:2012,img:FL(189346),w:"Тихая большая книга о любви и вине."},
+   {t:"Маленькая жизнь",a:"Ханья Янагихара",y:2015,img:FL(188925),w:"Тяжёлая и огромная — на долгую осень."},
+   {t:"Исчезновение Стефани Мейлер",a:"Жоэль Диккер",y:2018,img:FL(263603),w:"Новая загадка от автора «Гарри Квеберта»."},
+   {t:"Мастер и Маргарита",a:"Михаил Булгаков",y:1967,img:FL(31603),w:"Чтобы перечитывать каждые пять лет."},
+   {t:"Ночь нежна",a:"Фрэнсис Скотт Фицджеральд",y:1934,img:FL(62109),w:"Красиво и грустно, как вечер на Ривьере."},
+   {t:"Вторая жизнь Уве",a:"Фредрик Бакман",y:2012,img:FL(215039),w:"Смешно и тепло — на пару вечеров."}]},
+ films:{read:[
+   {t:"Идеальные дни",a:"Вим Вендерс",y:2023,c:"Япония",r:9,img:WP("c/c9/Perfect_Days_poster.jpg")},{t:"Анатомия падения",a:"Жюстин Трие",y:2023,c:"Франция",r:8,img:WP("8/88/Anatomy_of_a_Fall_%282023%29_film_poster.jpg")},
+   {t:"Паразиты",a:"Пон Чжун Хо",y:2019,c:"Южная Корея",r:9,img:WP("5/53/Parasite_%282019_film%29.png")},{t:"Сталкер",a:"Андрей Тарковский",y:1979,c:"СССР",r:9,img:WP("d/d4/Stalker_poster.jpg")},
+   {t:"Унесённые призраками",a:"Хаяо Миядзаки",y:2001,c:"Япония",r:10,img:WP("d/db/Spirited_Away_Japanese_poster.png")},{t:"Солярис",a:"Андрей Тарковский",y:1972,c:"СССР",r:8,img:WP("5/54/Solyaris_ussr_poster.jpg")},
+   {t:"Ходячий замок",a:"Хаяо Миядзаки",y:2004,c:"Япония",r:9,img:WP("a/a0/Howls-moving-castleposter.jpg")}],
+  want:[{t:"Солнце моё",a:"Шарлотта Уэллс",y:2022,img:WP("1/11/Aftersun.jpg")}],
+  pool:[{t:"Прошлые жизни",a:"Селин Сон",y:2023,img:WP("d/da/Past_Lives_film_poster.png"),w:"Тихая история о том, что могло бы быть."},
+   {t:"Портрет девушки в огне",a:"Селин Сьямма",y:2019,img:WP("c/cb/Portrait_of_a_Lady_on_Fire.jpg"),w:"Медленно, красиво, надолго в памяти."},
+   {t:"Любовное настроение",a:"Вонг Карвай",y:2000,img:WP("4/45/In_the_Mood_for_Love_movie.jpg"),w:"Самый красивый фильм о несказанном."},
+   {t:"Опавшие листья",a:"Аки Каурисмяки",y:2023,img:WP("d/d2/Kuolleet_lehdet_Poster.jpg"),w:"В России почти не показывали — смешная грустная сказка."},
+   {t:"Сядь за руль моей машины",a:"Рюсукэ Хамагути",y:2021,img:WP("3/3d/Drive_My_Car_movie_poster.jpeg"),w:"Три часа, которые пролетают как один."},
+   {t:"Воспоминания об убийстве",a:"Пон Чжун Хо",y:2003,img:WP("0/01/Salinui-chueok-south-korean-movie-poster-md.jpg"),w:"Ранний Пон Чжун Хо — мрачно и смешно."},
+   {t:"Аритмия",a:"Борис Хлебников",y:2017,img:WP("2/29/Arrhythmia_%28film%29.jpg"),w:"Честное русское кино без пафоса."}]}
+};
+let D;try{D=JSON.parse(localStorage.getItem("nora4"))}catch(e){}
+if(!D||!D.books)D=JSON.parse(JSON.stringify(SAMPLE));
+const save=()=>{try{localStorage.setItem("nora4",JSON.stringify(D))}catch(e){}};
+let realm="books";const R=()=>D[realm],isF=()=>realm==="films";
+const T={books:{u:["книга","книги","книг"],slot:"Рулетка Тевосгинка",want:"Хочу прочитать",did:"Прочитала",q:"Очередь"},films:{u:["фильм","фильма","фильмов"],slot:"Рулетка Тевосоника",want:"Хочу посмотреть",did:"Посмотрела",q:"Касса"}};
+const GR=["#0047FF","#FF4F00","#111111","#00A86B","#B8B8B4","#FFC400","#7A3CFF"];
+function cover(x){const c=GR[hsh(x.t)%GR.length];return `<div class="cv"><div class="gen" style="background:${c}">${esc(x.t)}<i>${esc(x.a||"")}</i></div>${x.img?`<img src="${esc(x.img)}" alt="" draggable="false" referrerpolicy="no-referrer" onload="this.classList.add('ok')" onerror="this.remove()">`:""}</div>`}
+
+// ---------- шапка ----------
+$("#today").textContent=new Date().toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"});
+document.querySelectorAll("#word span").forEach((s,i)=>{s.addEventListener("pointerdown",()=>{s.classList.add("jump");haptic();setTimeout(()=>s.classList.remove("jump"),450)})});
+
+// ---------- стол с физикой ----------
+let items=[],mode="toss",W=0,H=0,CW=0;
+function cw(){return innerWidth<500?66:92}
+function buildTable(){const tb=$("#table");W=tb.clientWidth;H=tb.clientHeight;CW=cw();
+  tb.innerHTML="";items=R().read.map((x,i)=>{const el=document.createElement("div");el.className="it";el.style.setProperty("--w",CW+"px");el.innerHTML=cover(x)+(x.r!=null?`<span class="rt">${x.r}</span>`:"");tb.appendChild(el);
+    const it={el,x:0,y:0,r:0,vx:0,vy:0,vr:0,i,z:i};bind(it);return it});
+  arrange(mode,false)}
+function put(it){it.el.style.transform=`translate(${it.x}px,${it.y}px) rotate(${it.r}deg)`;it.el.style.zIndex=it.z}
+let zTop=100,labels=[];
+function clearLabels(){labels.forEach(l=>l.remove());labels=[]}
+function label(text,x,y){const l=document.createElement("div");l.className="lbl";l.textContent=text;l.style.transform=`translate(${x}px,${y}px)`;$("#table").appendChild(l);labels.push(l)}
+function arrange(m,anim=true){mode=m;clearLabels();const ch=CW*1.5,list=items.slice(),pad=12;
+  const go=(it,x,y,r)=>{it.x=x;it.y=y;it.r=r;it.vx=it.vy=it.vr=0;if(anim&&!RM){it.el.classList.add("anim");setTimeout(()=>it.el.classList.remove("anim"),950)}put(it)};
+  if(m==="toss"){const n=list.length,cols=Math.max(2,Math.round(Math.sqrt(n*W/H))),rows=Math.ceil(n/cols),cw=(W-CW-pad*2)/Math.max(1,cols-1),rh=(H-ch-pad*2)/Math.max(1,rows-1);
+    const cells=list.map((_,k)=>k).sort((a,b)=>hsh(R().read[list[a].i].t)%97-hsh(R().read[list[b].i].t)%97);
+    list.forEach((it,k)=>{const c=cells[k],s=hsh(R().read[it.i].t+"t");go(it,pad+(c%cols)*cw+((s%40)-20),pad+Math.floor(c/cols)*rh+(((s>>8)%40)-20),((s>>16)%36)-18)})}
+  else if(m==="grid"){const cols=Math.max(3,Math.floor((W-pad)/(CW+10)));list.forEach((it,k)=>go(it,pad+(k%cols)*(CW+10),pad+Math.floor(k/cols)*(ch+14),0))}
+  else{const key=m==="country"?x=>x.c||"—":m==="year"?x=>(Math.floor((x.y||0)/50)*50)+"-е":x=>x.r==null?"без оценки":x.r+" из 10";
+    const groups={};list.forEach(it=>{const k=key(R().read[it.i]);(groups[k]=groups[k]||[]).push(it)});
+    let keys=Object.keys(groups);if(m==="rate")keys.sort((a,b)=>parseInt(b)-parseInt(a));else if(m==="year")keys.sort((a,b)=>parseInt(a)-parseInt(b));else keys.sort((a,b)=>groups[b].length-groups[a].length);
+    let y=pad+18,x=pad;const rowH=ch+36;
+    keys.forEach(k=>{const g=groups[k],gw=CW+(g.length-1)*(CW*.42);if(x+gw>W-pad){x=pad;y+=rowH}label(k,x,y-18);g.forEach((it,j)=>go(it,x+j*CW*.42,y+(j%2)*4,(j-(g.length-1)/2)*4));x+=gw+22});}
+  items.forEach((it,k)=>{it.z=k+1;put(it)});document.querySelectorAll("#modes button").forEach(b=>b.classList.toggle("on",b.dataset.mode===m))}
+function bind(it){let sx,sy,ox,oy,lx,ly,lt,moved=false,id=null;
+  it.el.addEventListener("pointerdown",e=>{id=e.pointerId;it.el.setPointerCapture(id);sx=lx=e.clientX;sy=ly=e.clientY;lt=performance.now();ox=it.x;oy=it.y;moved=false;it.vx=it.vy=0;it.z=++zTop;it.el.classList.add("drag");it.el.classList.remove("anim");put(it)});
+  it.el.addEventListener("pointermove",e=>{if(e.pointerId!==id)return;const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)+Math.abs(dy)>5)moved=true;
+    const now=performance.now(),dt=Math.max(1,now-lt);it.vx=(e.clientX-lx)/dt*16;it.vy=(e.clientY-ly)/dt*16;lx=e.clientX;ly=e.clientY;lt=now;
+    it.x=ox+dx;it.y=oy+dy;it.r=Math.max(-25,Math.min(25,it.vx*1.2));put(it)});
+  const up=e=>{if(e.pointerId!==id)return;id=null;it.el.classList.remove("drag");if(!moved){openItem(it.i);return}
+    if(mode!=="toss"){mode="toss";clearLabels();document.querySelectorAll("#modes button").forEach(b=>b.classList.toggle("on",b.dataset.mode==="toss"))}
+    it.vr=it.vx*.6;fling.add(it);if(!running)run();haptic()};
+  it.el.addEventListener("pointerup",up);it.el.addEventListener("pointercancel",up)}
+const fling=new Set();let running=false;
+function run(){running=true;const ch=CW*1.5;
+  fling.forEach(it=>{it.x+=it.vx;it.y+=it.vy;it.r+=it.vr;it.vx*=.93;it.vy*=.93;it.vr*=.9;
+    if(it.x<0){it.x=0;it.vx=-it.vx*.6;haptic("rigid")}if(it.x>W-CW){it.x=W-CW;it.vx=-it.vx*.6;haptic("rigid")}
+    if(it.y<0){it.y=0;it.vy=-it.vy*.6}if(it.y>H-ch){it.y=H-ch;it.vy=-it.vy*.6}
+    it.r=Math.max(-35,Math.min(35,it.r));put(it);if(Math.abs(it.vx)+Math.abs(it.vy)<.15)fling.delete(it)});
+  if(fling.size)requestAnimationFrame(run);else running=false}
+$("#modes").addEventListener("click",e=>{const b=e.target.closest("[data-mode]");if(b){arrange(b.dataset.mode);haptic()}});
+addEventListener("resize",()=>{clearTimeout(buildTable.t);buildTable.t=setTimeout(buildTable,200)});
+
+// ---------- рулетка ----------
+function poolLeft(){const have=new Set([...R().read,...R().want].map(x=>norm(x.t)));return R().pool.filter(x=>!have.has(norm(x.t)))}
+let spinning=false,landed=null;
+function drawReel(list){$("#reel").innerHTML=list.map(cover).join("")}
+function centerOf(idx){const step=132+12;return $("#slot").clientWidth/2-66-idx*step}
+function spin(){const p=poolLeft();if(!p.length){$("#res").innerHTML=`<div><b>Всё выпало</b><span>Ты забрала всё из запаса.</span></div>`;return}
+  if(spinning)return;spinning=true;haptic("medium");
+  const target=p[Math.floor(Math.random()*p.length)],strip=[];for(let k=0;k<26;k++)strip.push(p[(k+hsh(target.t))%p.length]);strip.push(target,p[0],p[1%p.length]);
+  drawReel(strip);const reel=$("#reel");reel.style.transition="none";reel.style.transform=`translateX(${centerOf(0)}px)`;void reel.offsetWidth;
+  const idx=strip.length-3;reel.style.transition=RM?"none":"transform 3.2s cubic-bezier(.12,.75,.1,1)";reel.style.transform=`translateX(${centerOf(idx)}px)`;
+  let ticks=0;const tk=setInterval(()=>{if(++ticks<14)haptic("light");else clearInterval(tk)},200);
+  setTimeout(()=>{spinning=false;landed=target;haptic("heavy");
+    $("#res").innerHTML=`<div><b>${esc(target.t)}</b><span>${esc(target.a)}, ${target.y}</span><p>${esc(target.w)}</p></div><button class="sm pri" id="take">${T[realm].want}</button>`;
+    $("#take").onclick=()=>{R().want.push({t:target.t,a:target.a,y:target.y,img:target.img});save();drawQ();drawNums();toast(`«${target.t}» — в очереди`);$("#take").textContent="✓";$("#take").disabled=true}},RM?50:3250)}
+$("#spin").onclick=spin;
+
+// ---------- очередь ----------
+function drawQ(){const w=R().want;$("#qH").textContent=T[realm].q;$("#qS").textContent=w.length?`${w.length} ${plural(w.length,...T[realm].u)}`:"";
+  $("#q").innerHTML=w.length?w.map((x,i)=>`<li>${cover(x)}<div><b>${esc(x.t)}</b><span>${esc(x.a||"")}</span></div><button class="go" data-done="${i}" aria-label="${T[realm].did}">✓</button></li>`).join(""):`<li class="empty">Пусто — покрути рулетку.</li>`}
+$("#q").addEventListener("click",e=>{const b=e.target.closest("[data-done]");if(!b)return;const x=R().want.splice(+b.dataset.done,1)[0];R().read.unshift({...x,c:x.c||"—",r:null});save();drawQ();drawNums();buildTable();haptic("medium");toast(`«${x.t}» — на столе. Поставь оценку`);setTimeout(()=>openItem(0),500)});
+
+// ---------- цифры ----------
+function drawNums(){const r=R().read,u=T[realm].u,cs=new Set(r.map(x=>x.c)).size,avg=(r.reduce((s,x)=>s+(x.r||0),0)/Math.max(1,r.filter(x=>x.r!=null).length)).toFixed(1).replace(".",",");
+  const dist=Array.from({length:11},(_,n)=>r.filter(x=>x.r===n).length),mx=Math.max(1,...dist);
+  $("#nums").innerHTML=`<div class="acc"><b>${r.length}</b><span>${plural(r.length,...u)} в Норе</span></div><div><b>${R().want.length}</b><span>в очереди</span></div>
+   <div><b>${cs}</b><span>${plural(cs,"страна","страны","стран")}</span></div><div><b>${avg}</b><span>средняя оценка</span></div>
+   <div style="grid-column:span 2;min-height:150px"><span>Оценки</span><div class="bars">${dist.map((n,i)=>`<i style="height:${n/mx*100}%" data-l="${i}"></i>`).join("")}</div></div>`;
+  $("#yr").textContent=new Date().getFullYear();$("#cB").textContent=D.books.read.length+" "+plural(D.books.read.length,"книга","книги","книг");$("#cF").textContent=D.films.read.length+" "+plural(D.films.read.length,"фильм","фильма","фильмов")}
+
+// ---------- карточка ----------
+function openItem(i){const x=R().read[i];if(!x)return;haptic();
+  $("#sheet").innerHTML=`<div class="sh">${cover(x)}<div><h3>${esc(x.t)}</h3><div class="meta">${esc(x.a||"")}${x.y?", "+x.y:""}${x.c&&x.c!=="—"?" · "+esc(x.c):""}</div></div></div>
+   <div class="rate">${Array.from({length:11},(_,n)=>`<button data-r="${n}" class="${x.r===n?"on":""}">${n}</button>`).join("")}</div>
+   <div class="acts"><button class="sm" data-close>Закрыть</button><button class="sm" data-del="${i}">Убрать со стола</button></div>`;
+  $("#sheet").classList.add("on");$("#scrim").classList.add("on");$("#sheet")._i=i;TG&&TG.BackButton&&TG.BackButton.show()}
+function closeSheet(){$("#sheet").classList.remove("on");$("#scrim").classList.remove("on");TG&&TG.BackButton&&TG.BackButton.hide()}
+TG&&TG.BackButton&&TG.BackButton.onClick(closeSheet);
+$("#scrim").onclick=closeSheet;
+$("#sheet").addEventListener("click",e=>{const i=$("#sheet")._i;const r=e.target.closest("[data-r]");
+  if(r){R().read[i].r=+r.dataset.r;save();document.querySelectorAll("#sheet [data-r]").forEach(b=>b.classList.toggle("on",b===r));const it=items.find(t=>t.i===i);if(it){const s=it.el.querySelector(".rt");if(s)s.textContent=r.dataset.r;else it.el.insertAdjacentHTML("beforeend",`<span class="rt">${r.dataset.r}</span>`)}drawNums();haptic();return}
+  if(e.target.closest("[data-close]")){closeSheet();return}
+  if(e.target.closest("[data-del]")){R().read.splice(i,1);save();closeSheet();buildTable();drawNums();toast("Убрано")}});
+
+// ---------- переключение ----------
+document.querySelector(".realm").addEventListener("click",e=>{const b=e.target.closest("[data-realm]");if(!b||b.dataset.realm===realm)return;realm=b.dataset.realm;document.body.classList.toggle("films",isF());
+  document.querySelectorAll("[data-realm]").forEach(x=>x.classList.toggle("on",x===b));haptic("medium");render()});
+function render(){$("#slotH").textContent=T[realm].slot;$("#res").innerHTML=`<div><b>Нажми «Крутить»</b><span>${isF()?"Тевосоник выберет фильм, которого ты ещё не видела.":"Тевосгинк выберет книгу, которой у тебя ещё нет."}</span></div>`;
+  drawReel(poolLeft().concat(poolLeft()).slice(0,8));$("#reel").style.transition="none";$("#reel").style.transform=`translateX(${centerOf(1)}px)`;
+  buildTable();drawQ();drawNums()}
+render();
+</script>
+</body>
+</html>

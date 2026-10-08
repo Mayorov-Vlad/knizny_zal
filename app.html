@@ -399,6 +399,11 @@ html,body{overflow-x:hidden}
 .theme-sw:not(.dk) .sun svg,.theme-sw.dk .moon svg{stroke:#fff}
 .view.on{padding-top:max(52px,calc(44px + env(safe-area-inset-top,0px)))}
 
+.fchip .fseg{display:inline-flex;flex-direction:row;flex:none;margin-top:6px;background:var(--paper);border:1px solid var(--line);border-radius:9px;padding:2px;align-self:flex-start}
+.fseg button{border:none;background:none;font-size:12px;font-weight:700;padding:5px 9px;border-radius:7px;color:var(--muted)}
+.fseg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.fchip{align-items:flex-start}.fchip .fdel{align-self:center}
+
 /* Хочу прочитать */
 .want-head{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
 .want-head h2{font-size:26px}
@@ -1191,12 +1196,13 @@ function openAddBook(){
    <label for="bN">Заметка (необязательно)</label><textarea id="bN" placeholder="Напиши что-нибудь"></textarea></div>
    <div class="sheet-actions"><button class="btn btn-main" id="bSave" style="margin-top:0" disabled>Поставить на полку</button></div></div>`);
   const getR=bindRating(),T=$("#bT"),sv=$("#bSave");let picked=null,found=[];
-  const upd=()=>{sv.disabled=!T.value.trim()&&!found.length;$("#bOne").hidden=found.length>0;sv.textContent=found.length?`Поставить на полку · ${found.length+(T.value.trim()?1:0)}`:"Поставить на полку"};
+  const upd=()=>{sv.disabled=!T.value.trim()&&!found.length;$("#bOne").hidden=found.length>0;const n=found.length+(T.value.trim()?1:0),nw=found.filter(b=>b._w).length;sv.textContent=!found.length?"Поставить на полку":nw===0?`Поставить на полку · ${n}`:nw===n?`В «Хочу прочитать» · ${n}`:`Разложить книги · ${n}`};
   let unk=[];
   const drawUnk=()=>{const el=$("#bUnk");el.innerHTML=unk.length?`<div class="unk-k">Не нашёл в каталоге, но прочитал на фото — нажми, если это книга</div><div class="unk">${unk.map((l,i)=>`<button type="button" data-u="${i}">+ ${esc(l)}</button>`).join("")}</div>`:"";
     el.querySelectorAll("[data-u]").forEach(x=>x.onclick=()=>{const t=unk[+x.dataset.u];const nice=t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();found.push({t:nice,a:"",bg:"#6E5A44",fg:"#F7EEDD",g:"unknown"});unk.splice(+x.dataset.u,1);drawUnk();drawFound();haptic()})};
-  const drawFound=()=>{$("#bFound").innerHTML=found.length?`<div class="found-k">Нашёл на фото — лишнее убери</div>${found.map((b,i)=>`<div class="fchip">${cover(b,30)}<span><b>${esc(b.t)}</b><small>${esc(b.a)}</small></span><button type="button" data-fx="${i}" aria-label="Убрать">×</button></div>`).join("")}`:"";
-    $("#bFound").querySelectorAll("[data-fx]").forEach(x=>x.onclick=()=>{found.splice(+x.dataset.fx,1);drawFound();upd()});upd()};
+  const drawFound=()=>{$("#bFound").innerHTML=found.length?`<div class="found-k">Нашёл на фото — отметь, что уже прочитано</div>${found.map((b,i)=>`<div class="fchip">${cover(b,30)}<span><b>${esc(b.t)}</b>${b.a?`<small>${esc(b.a)}</small>`:""}<span class="fseg"><button type="button" data-fs="${i}" data-w="0" class="${b._w?"":"on"}">Прочитано</button><button type="button" data-fs="${i}" data-w="1" class="${b._w?"on":""}">Хочу прочитать</button></span></span><button type="button" class="fdel" data-fx="${i}" aria-label="Убрать">×</button></div>`).join("")}`:"";
+    $("#bFound").querySelectorAll("[data-fx]").forEach(x=>x.onclick=()=>{found.splice(+x.dataset.fx,1);drawFound();upd()});
+    $("#bFound").querySelectorAll("[data-fs]").forEach(x=>x.onclick=()=>{found[+x.dataset.fs]._w=x.dataset.w==="1";haptic();drawFound()});upd()};
   $("#bPhotoBtn").onclick=()=>$("#bPhoto").click();
   $("#bPhoto").onchange=async e=>{const files=[...e.target.files];if(!files.length)return;const box=$("#bOcr");box.hidden=false;
     const say=(t,pct)=>{box.innerHTML=`<div class="ocr-t">${t}</div><div class="ocr-bar"><i style="width:${pct||0}%"></i></div>`};
@@ -1220,10 +1226,13 @@ function openAddBook(){
     $("#bSugg").querySelectorAll("[data-s]").forEach(x=>x.onclick=()=>{const b=hits[+x.dataset.s];picked=b;T.value=b.t;$("#bA").value=b.a||"";$("#bSugg").innerHTML="";upd()})});
   sv.onclick=()=>{const list=[...found.map(b=>({t:b.t,a:b.a,picked:b}))];const t=T.value.trim();if(t)list.push({t,a:$("#bA").value.trim(),picked});if(!list.length)return;
     const single=!found.length;const added=[];
+    const toWant=found.filter(b=>b._w);const wantAdded=[];
+    toWant.forEach(b=>{if(want.some(w=>norm(w.t)===norm(b.t)))return;const src=CATMAP[b.id]||b;want.unshift({...src,id:src.id||("w"+Date.now()+wantAdded.length),when:src.when||"Нашлась на твоей полке — ждёт своего часа",from:null});wantAdded.push(src)});
+    list.splice(0,list.length,...list.filter(x=>!(x.picked&&x.picked._w)));
     list.forEach(x=>{const m=resolveMeta(x.t,x.a,x.picked);const rec=addBook({t:m.t,a:m.a,c:m.c,y:m.y,g:m.g,r:single?getR():null,n:single?$("#bN").value.trim():"",pg:m.pg,bg:m.bg,fg:m.fg,m:m.m,ann:m.ann,tags:m.tags,f:m.f||[]});added.push(rec);
       const wi=want.findIndex(w=>norm(w.t)===norm(m.t));if(wi>=0)want.splice(wi,1)});
     saveWant();renderWant();closeSheet();haptic("ok");
-    toast(added.length>1?`${added.length} ${plural(added.length,"книга","книги","книг")} на полке`:`«${added[0].t}» на полке`);
+    const parts=[];if(added.length)parts.push(added.length>1?`${added.length} ${plural(added.length,"книга","книги","книг")} на полке`:`«${added[0].t}» на полке`);if(wantAdded.length)parts.push(`${wantAdded.length} в «Хочу прочитать»`);toast(parts.join(", "));
     const unrated=added.filter(r=>r.r==null);if(unrated.length)setTimeout(()=>openRatePrompt(unrated),700)};
 }
 function openRatePrompt(list){

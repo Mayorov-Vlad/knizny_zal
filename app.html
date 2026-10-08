@@ -435,6 +435,9 @@ body.kb .wrap{padding-bottom:70vh}
 .unk{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
 .unk button{border:1px dashed var(--dash);background:var(--card);border-radius:999px;padding:7px 12px;font-size:14px;color:var(--ink)}
 
+.totop{position:fixed;left:0;right:0;top:0;height:calc(34px + env(safe-area-inset-top,0px));z-index:24;background:none;border:none;padding:0;display:none;-webkit-tap-highlight-color:transparent}
+.totop.on{display:block}
+body.kb .totop{display:none}
 .theme-sw{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));z-index:25;width:62px;height:32px;border-radius:16px;border:1px solid var(--line);background:var(--card);padding:0;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 12px -6px rgba(0,0,0,.35)}
 .theme-sw .ts-ic{width:30px;height:30px;display:grid;place-items:center;position:relative;z-index:1}
 .theme-sw svg{width:16px;height:16px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -2050,7 +2053,11 @@ var go=function(v){
   window.scrollTo({top:0});
   requestAnimationFrame(()=>fitAll());
 }
-document.querySelectorAll("nav.tabs button").forEach(btn=>btn.addEventListener("click",()=>{haptic();go(btn.dataset.v)}));
+document.querySelectorAll("nav.tabs button").forEach(btn=>btn.addEventListener("click",()=>{haptic();if(btn.classList.contains("on")&&window.scrollY>0){toTop();return}go(btn.dataset.v)}));
+function toTop(){window.scrollTo({top:0,behavior:"smooth"})}
+(function(){const z=document.createElement("button");z.className="totop";z.setAttribute("aria-label","Наверх");z.tabIndex=-1;document.body.appendChild(z);
+  z.addEventListener("click",()=>{haptic();toTop()});
+  const upd=()=>z.classList.toggle("on",window.scrollY>240&&!sheetOpen);addEventListener("scroll",upd,{passive:true});upd()})();
 document.addEventListener("click",e=>{const t=e.target.closest(".spine,.tl-row,.au-book");if(t)openBook(t.dataset.id)});
 
 // ---------- свайп между вкладками ----------

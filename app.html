@@ -403,6 +403,22 @@ body.kb .wrap{padding-bottom:70vh}
 .sugg small{color:var(--muted);font-size:12.5px}
 .sugg .cv{flex:none}
 .ask-wrap{position:relative}
+.lib-k{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:18px 2px 8px}
+.lib-k small{text-transform:none;letter-spacing:0;font-weight:500;margin-left:4px}
+.sugg .lib-k{margin:10px 2px 4px}
+.lib-list{display:grid;gap:2px}
+.lib-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.lib-row .tx{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.lib-row .tx b{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.lib-row .tx span{font-size:12.5px;color:var(--muted)}
+.lib-row .cv{flex:none}
+.lib-act{display:flex;flex-direction:column;gap:4px;flex:none}
+.lib-act button{border:1px solid var(--line);background:var(--card);border-radius:9px;padding:5px 9px;font-size:12.5px;font-weight:600;color:var(--ink)}
+.lib-act button[data-lw]{border-color:var(--gold);color:var(--gold-deep)}
+.lib-have{flex:none;font-size:12px;color:var(--muted);font-style:italic}
+.lib-more{display:block;margin:10px auto 0}
+.lib-author{display:block;width:100%;text-align:left;border:1px dashed var(--gold);background:none;border-radius:10px;padding:9px 12px;font-weight:700;color:var(--gold-deep);margin-top:6px;font-size:14px}
+.lib-author small{display:block;font-weight:500;color:var(--muted);font-size:12px}
 #askSugg{margin-top:6px}
 #askSugg .k{font-size:12px;color:var(--muted);margin:2px 2px 2px}
 .w-done{flex:none;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper);display:grid;place-items:center;align-self:center;color:var(--green)}
@@ -735,7 +751,19 @@ const GUEST=!!(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)&&(!_t
 // «Полка подруги»: ссылка вида …/#s=<код> открывает чужие полки только для просмотра
 const SEED=Object.fromEntries(BOOKS.map(b=>[b.id,b]));
 const SHARE_BASE="https://mayorov-vlad.github.io/knizny_zal/";
-const SHARED=(()=>{const m=location.hash.match(/^#s=([A-Za-z0-9_-]+)/);if(!m)return null;try{const s=m[1].replace(/-/g,"+").replace(/_/g,"/");const bin=atob(s+"===".slice((s.length+3)%4));const o=JSON.parse(new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0))));return o&&Array.isArray(o.b)?o:null}catch(e){return null}})();
+const SHARE_BOT="";// имя бота и короткое имя мини-аппа, напр. "MyBot/zal" — тогда ссылки будут вида t.me/MyBot/zal?startapp=…
+const shDec=s=>{s=s.replace(/-/g,"+").replace(/_/g,"/");const bin=atob(s+"===".slice((s.length+3)%4));return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)))};
+const u64=str=>{let bin="";new TextEncoder().encode(str).forEach(x=>bin+=String.fromCharCode(x));return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")};
+function decodeShare(code){
+  if(code[0]==="2"){const zi=code.indexOf("Z");const items=code.slice(1,zi<0?undefined:zi),extra=zi<0?{}:JSON.parse(shDec(code.slice(zi+1)));
+    const SK=Object.keys(SEED),b=[];let i=0;const rt=ch=>ch==="x"?null:parseInt(ch,36);
+    while(i<items.length){const k=items[i];if(k==="s"){const id=SK[parseInt(items.slice(i+1,i+3),36)];b.push(rt(items[i+3])==null?[id]:[id,rt(items[i+3])]);i+=4}
+      else if(k==="c"){const c=CAT[parseInt(items.slice(i+1,i+4),36)];if(c)b.push(rt(items[i+4])==null?[c.id]:[c.id,rt(items[i+4])]);i+=5}else break}
+    (extra.u||[]).forEach(x=>b.push(x));return {n:extra.n||"",b}}
+  const o=JSON.parse(shDec(code));return o&&Array.isArray(o.b)?o:null}
+const SHARED=(()=>{let code=null;const m=location.hash.match(/^#s=([A-Za-z0-9_-]+)/);if(m)code=m[1];
+  else{try{const sp=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe&&Telegram.WebApp.initDataUnsafe.start_param;if(sp&&/^2[a-z0-9]*Z?/.test(sp))code=sp}catch(e){}}
+  if(!code)return null;try{return decodeShare(code)}catch(e){return null}})();
 const VIEW=!!SHARED;
 if(GUEST||VIEW)BOOKS.length=0;
 // Каталог Тевосгинка: книги с описаниями, тегами и признанием.
@@ -1169,14 +1197,17 @@ if(VIEW){SHARED.b.forEach((x,i)=>{let b=null;
   else{const [t,a,c,y,g,r,pg]=x;if(t)b=prepUser({id:"v"+i,t:String(t),a:String(a||"Автор не указан"),c:c||NEWSHELF,y:y||null,g:GEN[g]?g:"unknown",r:r??null,pg:pg||320})}
   if(b)BOOKS.push(b)});document.documentElement.classList.add("viewing")}
 function shareCode(){
-  const byTA={};CAT.forEach(c=>byTA[norm(c.t)+"|"+norm(c.a)]=c.id);
-  const items=BOOKS.map(b=>{const ref=!b.user&&SEED[b.id]?b.id:byTA[norm(b.t)+"|"+norm(b.a)];const r=b.r!=null?[b.r]:[];
-    return ref?[ref,...r]:[b.t,b.a,b.c,b.y||0,b.g,b.r??null,b.pg||320]});
-  const name=(_tgu&&_tgu.first_name)||"";
-  const bytes=new TextEncoder().encode(JSON.stringify({n:name,b:items}));let bin="";bytes.forEach(x=>bin+=String.fromCharCode(x));
-  return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+  const SK=Object.keys(SEED),catIx={};CAT.forEach((c,i)=>catIx[norm(c.t)+"|"+norm(c.a)]=i);
+  const rc=r=>r==null?"x":Math.max(0,Math.min(10,r)).toString(36);let items="";const u=[];
+  BOOKS.forEach(b=>{const si=!b.user&&SEED[b.id]?SK.indexOf(b.id):-1,ci=catIx[norm(b.t)+"|"+norm(b.a)];
+    if(si>=0&&si<1296)items+="s"+si.toString(36).padStart(2,"0")+rc(b.r);
+    else if(ci!=null&&ci<46656)items+="c"+ci.toString(36).padStart(3,"0")+rc(b.r);
+    else u.push([b.t,b.a,b.c,b.y||0,b.g,b.r??null,b.pg||320])});
+  const name=(_tgu&&_tgu.first_name)||"";const extra={};if(name)extra.n=name;if(u.length)extra.u=u;
+  return "2"+items+(Object.keys(extra).length?"Z"+u64(JSON.stringify(extra)):"")}
+function shareLink(){const c=shareCode();return SHARE_BOT&&c.length<=500?"https://t.me/"+SHARE_BOT+"?startapp="+c:SHARE_BASE+"#s="+c}
 function openShare(){
-  const link=SHARE_BASE+"#s="+shareCode();haptic();
+  const link=shareLink();haptic();
   openSheet(`<h3 class="sheet-h">Полка для подруги</h3><p class="why">По ссылке откроются твои полки — обложки, оценки и интересные факты, только для просмотра. Заметки останутся у тебя. Ссылка — снимок: когда добавишь новые книги, отправь её заново.</p>
    <div class="share-btns"><button class="btn btn-main" id="shSend" style="margin-top:0">${TG?"Отправить в Telegram":"Поделиться"}</button><button class="btn btn-ghost btn-wide" id="shCopy">Скопировать ссылку</button></div>`);
   const copy=()=>{const done=()=>{haptic("ok");toast("Ссылка скопирована")};const old=()=>{const t=document.createElement("textarea");t.value=link;t.style.cssText="position:fixed;opacity:0";document.body.appendChild(t);t.select();try{document.execCommand("copy");done()}catch(e){toast("Не получилось скопировать")}t.remove()};
@@ -1277,6 +1308,84 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(typeof
   if($("#stats"))$("#stats").innerHTML=`<div><b>${BOOKS.length}</b>книг</div><div><b>${countries}</b>стран</div><div><b>${cents}</b>века</div><div><b>${authors}</b>авторов</div>`;
 })();
 
+// ---------- большая библиотека (Фантлаб) ----------
+const FL="https://api.fantlab.ru",flCache=new Map();
+function flGet(path){if(flCache.has(path))return flCache.get(path);
+  const ctl=typeof AbortController!=="undefined"?new AbortController():null,tm=ctl?setTimeout(()=>ctl.abort(),12000):0;
+  const p=fetch(FL+path,ctl?{signal:ctl.signal}:{}).then(r=>{clearTimeout(tm);if(!r.ok)throw new Error(r.status);return r.json()}).catch(e=>{flCache.delete(path);throw e});
+  flCache.set(path,p);return p}
+const FL_COUNTRY={"Великобритания":"Англия","СССР":"Россия","Российская империя":"Россия","Российская Федерация":"Россия","Соединённые Штаты Америки":"США"};
+const flCountry=c=>c?(FL_COUNTRY[c]||c):"";
+const FL_TYPES_RU=new Set(["роман","повесть","сборник","мемуары/автобиография","документальное произведение","пьеса","роман-эпопея","монография","дневник/путевые заметки","поэма","антология"]);
+const FL_TYPES_EN=new Set(["novel","story","collection","documental","piece","epic","poem","antology","monograph","diary"]);
+const lw=s=>String(s||"").toLowerCase().replace(/ё/g,"е");
+const wordsOfQ=s=>lw(s).split(/[^a-zа-я0-9]+/).filter(Boolean);
+function nameMatches(q,...names){const ws=wordsOfQ(q);if(!ws.length)return false;const nw=names.flatMap(n=>wordsOfQ(n));return ws.every(w=>nw.some(x=>x.startsWith(w)))}
+async function libAuthors(q){const j=await flGet("/search-autors?q="+encodeURIComponent(q));const m=(j&&j.matches)||(Array.isArray(j)?j:[]);
+  return m.filter(a=>a.markcount>0&&nameMatches(q,a.rusname,a.name,a.pseudo_names)).sort((a,b)=>b.markcount-a.markcount).map(a=>({id:a.autor_id,name:a.rusname||a.name,orig:a.name,c:flCountry(a.country),marks:a.markcount}))}
+async function libAuthorBooks(id){const j=await flGet("/autor/"+id+"?works=1");const a=j.name||j.name_short||"",c=flCountry(j.country_name);
+  const seen=new Set();
+  return (j.works||[]).filter(w=>{const tp=w.work_type||"",v=w.val_voters||0;if(!w.work_name||w.work_published===0||w.work_preparing)return false;
+      if(!(FL_TYPES_RU.has(tp)||(tp==="рассказ"&&v>=40)))return false;const k=norm(w.work_name);if(seen.has(k))return false;seen.add(k);return true})
+    .sort((x,y)=>(y.val_voters||0)-(x.val_voters||0)).map(w=>({t:w.work_name,a,c,y:w.work_year||null,pop:w.val_voters||0,kind:w.work_type,_fl:w.work_id,_fa:id}))}
+async function libWorks(q){const j=await flGet("/search-works?q="+encodeURIComponent(q)+"&page=1&onlymatches=1");const arr=Array.isArray(j)?j:(j&&j.matches)||[];
+  const nq=norm(q),seen=new Set();
+  return arr.filter(w=>{const tp=w.name_eng||"";const t=w.rusname||w.name;if(!t||!w.autor_rusname)return false;if(!(FL_TYPES_EN.has(tp)||(tp==="shortstory"&&w.markcount>=40)))return false;
+      const k=norm(t)+"|"+norm(w.autor_rusname);if(seen.has(k))return false;seen.add(k);return true})
+    .map(w=>{const t=w.rusname||w.name;const nt=norm(t);return {t,a:w.autor_rusname,y:w.year||null,pop:w.markcount||0,kind:w.name_show_im,_fl:w.work_id,_fa:w.autor_id,_r:nt===nq?0:nt.startsWith(nq)?1:2}})
+    .sort((x,y)=>x._r-y._r||y.pop-x.pop)}
+function flLabels(c,out=[]){if(!c)return out;if(Array.isArray(c)){c.forEach(x=>flLabels(x,out));return out}if(typeof c==="object"){if(c.label&&(c.percent==null||c.percent>=.3))out.push(c.label);flLabels(c.genre,out);flLabels(c.genre_group,out)}return out}
+function flGenre(labels,kind,y){const L=labels.join(" ");
+  if(/документальн|мемуар|биограф|нон-фикшн|научно-популярн/i.test(L+" "+(kind||"")))return "nonfic";
+  if(/для детей|детская литература|подростк/i.test(L))return "kids";
+  if(/фэнтези|сказка/i.test(L))return "fantasy";
+  if(/фантастик|антиутопи|постапокалип|киберпанк/i.test(L))return "scifi";
+  if(/детектив|триллер|шпион/i.test(L))return "detective";
+  return y&&y<1945?"classic":"modern"}
+async function flEnrich(b){if(!b||!b._fl||b._rich)return b;
+  try{const [w,au]=await Promise.all([flGet("/work/"+b._fl+"?extended=1"),b.c||!b._fa?Promise.resolve(null):flGet("/autor/"+b._fa).catch(()=>null)]);
+    const labels=flLabels(w.classificatory);b.g=flGenre(labels,b.kind||w.work_type,b.y||w.work_year);
+    if(!b.y&&w.work_year)b.y=w.work_year;if(au&&au.country_name)b.c=flCountry(au.country_name);
+    const d=String(w.work_description||"").replace(/\[[^\]]*\]/g,"").replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim();if(d)b.ann=d.length>240?d.slice(0,d.lastIndexOf(" ",230))+"…":d;
+    b._rich=true}catch(e){}
+  if(!b.g){const own=CAT.filter(x=>norm(x.a)===norm(b.a));b.g=own.length?own[0].g:(b.y&&b.y<1945?"classic":"modern");if(!b.c&&own.length)b.c=own[0].c}
+  return b}
+function localAuthorBooks(q){const by={};[...CAT,...BOOKS].forEach(b=>{if(b.a&&nameMatches(q,b.a)){(by[b.a]=by[b.a]||[]).push(b)}});return by}
+// уже есть у меня?
+function haveState(b){const t=norm(b.t);if(BOOKS.some(x=>norm(x.t)===t))return "read";if(want.some(x=>norm(x.t)===t))return "want";return ""}
+function libRowHTML(b,i){const st=haveState(b);
+  return `<div class="lib-row" data-li="${i}">${cover({...b,bg:b.bg||PAL[hsh(b.t+b.a)%PAL.length][0],fg:b.fg||PAL[hsh(b.t+b.a)%PAL.length][1],g:b.g||"modern"},34)}<span class="tx"><b>${esc(b.t)}</b><span>${esc(b.a)}${b.y?", "+b.y:""}</span></span>`+
+   (st?`<span class="lib-have">${st==="read"?"прочитано":"в списке"}</span>`:`<span class="lib-act"><button type="button" data-lr="${i}" aria-label="Прочитано">Прочитано</button><button type="button" data-lw="${i}" aria-label="Хочу прочитать">Хочу</button></span>`)+`</div>`}
+async function addFromLib(b,toWant){
+  if(!toWant){openAddBook("read",{...b});return}
+  if(haveState(b))return;
+  const src={...b,id:"w"+Date.now(),bg:PAL[hsh(b.t+b.a)%PAL.length][0],fg:PAL[hsh(b.t+b.a)%PAL.length][1],g:b.g||"modern",c:b.c||NEWSHELF,pg:320,when:"Ждёт своего часа",from:null};
+  delete src._r;want.unshift(src);saveWant();renderWant();haptic("ok");toast(`«${b.t}» в «Хочу прочитать»`);
+  await flEnrich(b);const w=want.find(x=>x.id===src.id);if(w){w.g=b.g||w.g;if(b.c)w.c=b.c;if(b.ann)w.ann=b.ann;if(b.y)w.y=b.y;saveWant();renderWant()}}
+// общий блок «большая библиотека» для поиска
+let libSeq=0;
+function libSection(box,q,opts={}){const my=++libSeq;const v=String(q||"").trim();if(!box)return;
+  if(norm(v).length<3){box.innerHTML="";return}
+  box.innerHTML=`<div class="lib-k">Ищу в большой библиотеке…</div>`;box._items=[];
+  const draw=(title,items,more)=>{if(my!==libSeq)return;box._items=items;const lim=box._lim||12;
+    box.innerHTML=items.length?`<div class="lib-k">${title}</div><div class="lib-list">${items.slice(0,lim).map(libRowHTML).join("")}</div>${items.length>lim?`<button type="button" class="link-btn lib-more">Показать ещё</button>`:""}`:"";
+    const mb=box.querySelector(".lib-more");if(mb)mb.onclick=()=>{box._lim=lim+20;draw(title,items)}};
+  box._lim=12;
+  clearTimeout(box._t);box._t=setTimeout(async()=>{
+    // локально — сразу
+    const loc=localAuthorBooks(v),la=Object.keys(loc).sort((x,y)=>loc[y].length-loc[x].length)[0];
+    if(la)draw(`Книги автора · ${esc(la)}`,loc[la].slice().sort((x,y)=>(y.q||0)-(x.q||0)).map(b=>({t:b.t,a:b.a,c:b.c,y:b.y,g:b.g})));
+    try{const au=await libAuthors(v);if(my!==libSeq)return;
+      if(au.length&&(wordsOfQ(v).length<=3)){const A=au[0];const list=await libAuthorBooks(A.id);if(my!==libSeq)return;
+        if(list.length){draw(`Книги автора · ${esc(list[0].a||A.name)} <small>от самых популярных</small>`,list.map(b=>({...b,c:b.c||A.c})));return}}
+      const ws=await libWorks(v);if(my!==libSeq)return;
+      if(ws.length)draw("В большой библиотеке",ws);else if(!la)box.innerHTML=opts.empty||""}
+    catch(e){if(my===libSeq&&!la)box.innerHTML=`<div class="lib-k">Большая библиотека сейчас не отвечает — попробуй позже.</div>`}
+  },350)}
+document.addEventListener("click",e=>{const r=e.target.closest("[data-lr],[data-lw]");if(!r)return;const box=r.closest("[data-libbox]");if(!box||!box._items)return;
+  const b=box._items[+(r.dataset.lr??r.dataset.lw)];if(!b)return;haptic();addFromLib(b,r.dataset.lw!=null);
+  if(r.dataset.lw!=null){const row=r.closest(".lib-row");const act=row&&row.querySelector(".lib-act");if(act)act.outerHTML=`<span class="lib-have">в списке</span>`}});
+
 // ---------- shelves ----------
 let shelfMode="read";
 function spinesHTML(list,kind){
@@ -1303,15 +1412,15 @@ function renderShelves(){
   const nm=VIEW&&SHARED.n?esc(String(SHARED.n).slice(0,40)):"";
   const addBtn=VIEW?`<div class="view-ban"><div class="k">Только просмотр</div><h2>${nm?nm+" делится своими полками":"С тобой поделились полками"}</h2></div>`:`<button class="add-book" id="addBook"><span>+</span>Поставить книгу на полку</button>`;
   const links=VIEW?"":`<div class="shelf-links">${BOOKS.length?`<button class="share-shelf" id="shareShelf">Поделиться полками</button>`:""}<button class="share-shelf" id="backupBtn">Резервная копия</button></div>`;
-  const search=BOOKS.length>3?searchBox():"";
+  const search=VIEW?(BOOKS.length>3?searchBox():""):searchBox();
   const welcome=BOOKS.length?"":`<div class="welcome"><h2>Твои полки пока пустые</h2><p>Сфотографируй книги, которые уже прочитала, или впиши их — они встанут на полки по странам и жанрам, с обложками. А Тевосгинк подскажет, что читать дальше.</p></div>`;
   const srch=shelfMode==="read"?search:"";$("#shelfRead").innerHTML=(VIEW?addBtn+srch:srch+addBtn)+welcome+`<div id="shelfAll">${spinesHTML(BOOKS.map(b=>({b})),"read")}</div>`+links;
   if(shelfQ&&shelfMode==="read")runShelfSearch();
 }
-function searchBox(){return `<div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="shelfQ" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="${shelfMode==="want"?"Найти в «Хочу прочитать»":"Найти на полках"}" value="${esc(shelfQ)}" aria-label="Поиск"><button class="clr" id="shelfClr" aria-label="Очистить"${shelfQ?"":" hidden"}>×</button></div><div class="sres" id="shelfRes"></div>`}
+function searchBox(){return `<div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="shelfQ" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="${shelfMode==="want"?"Найти в «Хочу прочитать»":"Найти на полках"}" value="${esc(shelfQ)}" aria-label="Поиск"><button class="clr" id="shelfClr" aria-label="Очистить"${shelfQ?"":" hidden"}>×</button></div><div class="sres" id="shelfRes"></div><div class="libres" id="libRes" data-libbox></div>`}
 function renderWantShelves(){
   const box=$("#wantShelves");if(!box)return;
-  box.innerHTML=(shelfMode==="want"&&want.length>3?searchBox():"")+`<button class="add-book" id="addWant"><span>+</span>Добавить в «Хочу прочитать»</button>`+
+  box.innerHTML=(shelfMode==="want"?searchBox():"")+`<button class="add-book" id="addWant"><span>+</span>Добавить в «Хочу прочитать»</button>`+
     (want.length?`<div id="shelfAll">${spinesHTML(want.map((b,i)=>({b,i})),"want")}</div>`:`<div class="empty">Список пуст. Добавь книгу или загляни к Тевосгинку — он подбросит что-нибудь.</div>`);
   if(shelfQ&&shelfMode==="want")runShelfSearch();
 }
@@ -1319,12 +1428,13 @@ document.addEventListener("click",e=>{const m=e.target.closest("[data-sm]");if(!
 document.addEventListener("click",e=>{if(e.target.closest("#addWant")){haptic();openAddBook("want")}});
 let shelfQ="";
 function runShelfSearch(){const root=shelfMode==="want"?$("#shelfWant"):$("#shelfRead");const res=root&&root.querySelector("#shelfRes"),all=root&&root.querySelector("#shelfAll");if(!res||!all)return;const q=norm(shelfQ);const clr=$("#shelfClr");if(clr)clr.hidden=!shelfQ;
+  const lb=root.querySelector("#libRes");if(lb&&!VIEW)libSection(lb,shelfQ);
   if(!q){res.innerHTML="";all.hidden=false;return}
   const hay=b=>norm([b.t,b.a||"",b.c||"",GEN[b.g]||"",b.y||"",b.y?(ROMAN[centuryOf(b.y)]||"")+"век":""].join(" "));
   const words=String(shelfQ).toLowerCase().replace(/ё/g,"е").split(/\s+/).map(norm).filter(Boolean);
   const src=shelfMode==="want"?want.map((b,i)=>({...b,_i:i})):BOOKS;const hits=src.filter(b=>{const h=hay(b);return words.every(w=>h.includes(w))}).sort((a,b)=>(norm(a.t).startsWith(q)?0:1)-(norm(b.t).startsWith(q)?0:1)||(a.y||0)-(b.y||0));
   all.hidden=true;
-  res.innerHTML=hits.length?`<div class="k">${hits.length} ${plural(hits.length,"книга","книги","книг")}</div><div class="tl" style="border-left:none;margin-left:0">${hits.map(b=>`<button class="tl-row" ${b._i!=null?`data-w="${b._i}"`:`data-id="${b.id}"`} style="padding-left:0">${cover(b,40)}<span class="tx"><b>${esc(b.t)}</b><span>${esc(b.a)} · ${esc(b.c)}${b.y?", "+b.y:""}</span></span></button>`).join("")}</div>`:`<div class="empty">На полках такого нет.</div>`}
+  res.innerHTML=hits.length?`<div class="k">${hits.length} ${plural(hits.length,"книга","книги","книг")}</div><div class="tl" style="border-left:none;margin-left:0">${hits.map(b=>`<button class="tl-row" ${b._i!=null?`data-w="${b._i}"`:`data-id="${b.id}"`} style="padding-left:0">${cover(b,40)}<span class="tx"><b>${esc(b.t)}</b><span>${esc(b.a)} · ${esc(b.c)}${b.y?", "+b.y:""}</span></span></button>`).join("")}</div>`:(shelfMode==="want"?`<div class="empty">В списке такого нет.</div>`:`<div class="empty">На полках такого нет.</div>`)}
 document.addEventListener("input",e=>{if(e.target.id==="shelfQ"){shelfQ=e.target.value;runShelfSearch()}});
 document.addEventListener("click",e=>{const w=e.target.closest(".spine[data-w],.tl-row[data-w]");if(w)openWant(+w.dataset.w)});
 document.addEventListener("click",e=>{if(e.target.closest("#shelfClr")){shelfQ="";const i=$("#shelfQ");if(i){i.value="";i.focus()}runShelfSearch()}});
@@ -1487,7 +1597,7 @@ function matchBooks(text){
   const authTok=new Set(out.flatMap(x=>toks(x.b.a||"")));
   return out.filter(x=>!toks(x.b.t).filter(w=>w.length>=3).every(w=>authTok.has(w))||toks(x.b.a||"").some(w=>toks(x.b.t).includes(w))===false&&false).sort((x,y)=>y.score-x.score).slice(0,24).map(x=>x.b);
 }
-function openAddBook(target){const toW=target==="want";
+function openAddBook(target,pre){const toW=target==="want";
   openSheet(`<div class="qform">
    <input type="file" id="bPhoto" accept="image/*" multiple hidden>
    <button type="button" class="photo-btn" id="bPhotoBtn"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span><b>Сфотографируй книгу или сразу книжный шкаф</b></span></button>
@@ -1498,7 +1608,7 @@ function openAddBook(target){const toW=target==="want";
    <div id="bOne"${toW?" hidden":""}><label>Оценка</label>${ratingPicker(null)}
    <label for="bN">Заметка (необязательно)</label><textarea id="bN" placeholder="Напиши что-нибудь"></textarea></div>
    <div class="sheet-actions"><button class="btn btn-main" id="bSave" style="margin-top:0" disabled>${toW?"В «Хочу прочитать»":"Поставить на полку"}</button></div></div>`);
-  const getR=bindRating(),T=$("#bT"),sv=$("#bSave");let picked=null,found=[];
+  const getR=bindRating(),T=$("#bT"),sv=$("#bSave");let picked=pre||null,found=[];if(pre){T.value=pre.t;$("#bA").value=pre.a||"";if(pre._fl)flEnrich(pre);setTimeout(()=>upd(),0)}
   const upd=()=>{sv.disabled=!T.value.trim()&&!found.length;$("#bOne").hidden=toW||found.length>0;const n=found.length+(T.value.trim()?1:0),nw=found.filter(b=>b._w).length+(T.value.trim()&&toW?1:0);sv.textContent=nw===0?"Поставить на полку":nw===n?"В «Хочу прочитать»":"Разложить книги"};
   let unk=[];
   const drawUnk=()=>{const el=$("#bUnk");el.innerHTML=unk.length?`<div class="unk-k">Не нашёл в каталоге, но прочитал на фото — нажми, если это книга</div><div class="unk">${unk.map((l,i)=>`<button type="button" data-u="${i}">+ ${esc(l)}</button>`).join("")}</div>`:"";
@@ -1523,10 +1633,21 @@ function openAddBook(target){const toW=target==="want";
       box.innerHTML=total?`<div class="ocr-t">Узнал ${total} ${plural(total,"книгу","книги","книг")}</div>`:`<div class="ocr-t">Не разобрал названия. Попробуй ближе и при хорошем свете — или впиши вручную.</div>`;
     }catch(err){box.innerHTML=`<div class="ocr-t">Распознавание не запустилось${location.protocol==="file:"?"":" — открой зал в Telegram"}. Впиши книгу вручную.</div>`}
     e.target.value=""};
+  let oSeq=0;const oBox=document.createElement("div");oBox.className="sugg";oBox.id="bOnline";$("#bSugg").after(oBox);
+  const pickO=b=>{picked=b;T.value=b.t;$("#bA").value=b.a||"";$("#bSugg").innerHTML="";oBox.innerHTML="";upd();flEnrich(b);haptic()};
+  const drawO=(items,label,authorBtn)=>{oBox.innerHTML=(authorBtn||"")+(items.length?`<div class="lib-k">${label}</div>`+suggHTML(items.map(b=>({...b,bg:PAL[hsh(b.t+b.a)%PAL.length][0],fg:PAL[hsh(b.t+b.a)%PAL.length][1],g:b.g||"modern"}))).replace(/data-s=/g,"data-o="):"");
+    oBox.querySelectorAll("[data-o]").forEach(x=>x.onclick=()=>pickO(items[+x.dataset.o]))};
+  const onlineSugg=(v,localHits)=>{const my=++oSeq;clearTimeout(oBox._t);if(norm(v).length<3){oBox.innerHTML="";return}
+    oBox._t=setTimeout(async()=>{try{const [au,ws]=await Promise.all([libAuthors(v).catch(()=>[]),libWorks(v).catch(()=>[])]);if(my!==oSeq)return;
+      const have=new Set([...(localHits||[]),...BOOKS].map(b=>norm(b.t)));const items=ws.filter(b=>!have.has(norm(b.t))).slice(0,6);
+      const A=au[0];const btn=A&&wordsOfQ(v).length<=3?`<button type="button" class="lib-author" id="bAuth">Все книги автора ${esc(A.name)} →<small>от самых популярных</small></button>`:"";
+      drawO(items,"Ещё в большой библиотеке",btn);
+      const ab=oBox.querySelector("#bAuth");if(ab)ab.onclick=async()=>{ab.textContent="Листаю каталог…";try{const list=(await libAuthorBooks(A.id)).map(b=>({...b,c:b.c||A.c}));if(my!==oSeq)return;$("#bSugg").innerHTML="";drawO(list.filter(b=>!BOOKS.some(x=>norm(x.t)===norm(b.t))).slice(0,40),`Книги автора · ${esc(A.name)}`)}catch(e){ab.textContent="Не получилось — попробуй ещё раз"}}
+    }catch(e){}},400)};
   T.addEventListener("focus",()=>{const sh=$("#sheet");setTimeout(()=>{const d=T.getBoundingClientRect().top-sh.getBoundingClientRect().top-70;if(d>0)sh.scrollBy({top:d,behavior:"smooth"})},300)});
   T.addEventListener("input",()=>{picked=null;upd();const v=norm(T.value);if(v.length<2){$("#bSugg").innerHTML="";return}
     const rd=new Set(BOOKS.map(b=>norm(b.t)));const hits=bookHits(T.value,[...want,...CAT].filter(b=>!rd.has(norm(b.t))),6);
-    $("#bSugg").innerHTML=suggHTML(hits);
+    $("#bSugg").innerHTML=suggHTML(hits);onlineSugg(T.value,hits);
     $("#bSugg").querySelectorAll("[data-s]").forEach(x=>x.onclick=()=>{const b=hits[+x.dataset.s];picked=b;T.value=b.t;$("#bA").value=b.a||"";$("#bSugg").innerHTML="";upd()})});
   sv.onclick=()=>{const all=[...found.map(b=>({t:b.t,a:b.a,picked:b,w:!!b._w}))];const t=T.value.trim();if(t)all.push({t,a:$("#bA").value.trim(),picked,w:toW});if(!all.length)return;
     const single=!found.length&&!toW;const added=[];const wantAdded=[];

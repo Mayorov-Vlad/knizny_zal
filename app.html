@@ -1348,6 +1348,10 @@ async function libAuthorSearch(q,pickKey){if(wordsOfQ(q).length>3&&!pickKey)retu
   const A=list[0];if(!A)return null;
   let books=A.id?await libAuthorBooks(A.id).catch(()=>null):null;
   if(!books||!books.length){const seen=new Set();books=A.works.filter(b=>{const n=norm(b.t);if(seen.has(n))return false;seen.add(n);return true}).sort((x,y)=>y.pop-x.pop)}
+  // тома и части — убираем, если есть сама книга
+  const base=books.map(b=>norm(b.t));books=books.filter(b=>{if(!/(том|часть|книга)\s/i.test(b.t))return true;const n=norm(b.t);return !base.some(x=>x.length>=5&&x!==n&&n.startsWith(x))});
+  // книги автора из нашего каталога, которых нет в выдаче
+  const have=new Set(books.map(b=>norm(b.t)));CAT.filter(c=>norm(c.a)===norm(A.name)&&!have.has(norm(c.t))).sort((x,y)=>(y.q||0)-(x.q||0)).forEach(c=>books.push({t:c.t,a:c.a,c:c.c,y:c.y,g:c.g,pop:0,ann:c.ann,tags:c.tags}));
   if(!books.length)return null;
   return {name:A.name,list:books.map(b=>({...b,a:b.a||A.name,c:b.c||A.c})),others:list.slice(1,5).map(o=>({id:o.k,name:o.name})),q}}
 function flLabels(c,out=[]){if(!c)return out;if(Array.isArray(c)){c.forEach(x=>flLabels(x,out));return out}if(typeof c==="object"){if(c.label&&(c.percent==null||c.percent>=.3))out.push(c.label);flLabels(c.genre,out);flLabels(c.genre_group,out)}return out}

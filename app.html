@@ -345,6 +345,8 @@ html,body{overflow-x:hidden}
 .w-done:active{background:var(--green-soft);border-color:var(--green)}
 #uDel.sure{color:#8E2420;border-color:#E3B9B4}
 .w-item{cursor:pointer}
+.sheet-btns{display:grid;grid-template-columns:1fr;gap:8px;margin-top:20px}
+.sheet-btns .btn{width:100%}
 
 /* Хочу прочитать */
 .want-head{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
@@ -422,7 +424,7 @@ nav.tabs button.tev.on{color:var(--gold-deep)}
   <button data-v="shelves" class="on"><svg viewBox="0 0 24 24"><path d="M4 4v16M8 6v14M12 4v16M15 7l4 13M3 20h18"/></svg>Полки</button>
   <button data-v="want"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Хочу прочитать</button>
   <button data-v="tev" class="tev"><svg viewBox="0 0 24 24"><path d="M5 20c-1-9 2-15 7-15s8 6 7 15l-2-1.5-2.5 1.5-2.5-1.5L9.5 20 7 18.5z"/><circle cx="10" cy="11" r=".8"/><circle cx="14" cy="11" r=".8"/></svg>Тевосгинк</button>
-  <button data-v="time"><svg viewBox="0 0 24 24"><path d="M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6zM6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2M9 8h6M9 12h6"/></svg>Дневник</button>
+  <button data-v="time"><svg viewBox="0 0 24 24"><path d="M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6zM6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2M9 8h6M9 12h6"/></svg>Летопись</button>
 </div></nav>
 
 <div class="scrim" id="scrim"><div class="sheet" id="sheet" role="dialog" aria-modal="true" lang="ru"></div></div>
@@ -1045,7 +1047,7 @@ document.addEventListener("click",e=>{if(e.target.closest("#addBook")){haptic();
 function renderTime(){
   const dated=BOOKS.filter(b=>b.y).sort((a,b)=>a.y-b.y);
   const byCt={};dated.forEach(b=>(byCt[centuryOf(b.y)]=byCt[centuryOf(b.y)]||[]).push(b));
-  const seg=`<h2 class="diary-h">Дневник</h2><div class="seg" role="tablist"><button data-tm="cent" class="${timeMode==="cent"?"on":""}">Лента веков</button><button data-tm="quotes" class="${timeMode==="quotes"?"on":""}">Цитаты</button><button data-tm="sum" class="${timeMode==="sum"?"on":""}">Итоги</button></div>`;
+  const seg=`<h2 class="diary-h">Летопись</h2><div class="seg" role="tablist"><button data-tm="cent" class="${timeMode==="cent"?"on":""}">Лента веков</button><button data-tm="quotes" class="${timeMode==="quotes"?"on":""}">Цитаты</button><button data-tm="sum" class="${timeMode==="sum"?"on":""}">Итоги</button></div>`;
   $("#v-time").innerHTML=seg+(timeMode==="sum"?summaryHTML():timeMode==="quotes"?`<div class="q-head"><span></span><button class="btn btn-gold" id="qAdd">Добавить цитату</button></div><div class="qlist" id="qlist">${quotesListHTML()}</div>`:Object.keys(byCt).map(ct=>`<div class="cent"><h2>${ROMAN[ct]||ct} век</h2><div class="tl">${
     byCt[ct].map(b=>`<button class="tl-row" data-id="${b.id}"><span class="yr">${b.y}</span>${cover(b,40)}<span class="tx"><b>${esc(b.t)}</b><span>${esc(b.a)} · ${esc(b.c)}</span></span></button>`).join("")
   }</div></div>`).join(""));
@@ -1108,10 +1110,9 @@ function openMarkRead(s,onDone){
 }
 function openWant(i){
   const s=want[i];if(!s)return;haptic();
-  openSheet(`<div class="bk">${cover(s,112)}<div class="bk-meta"><h3>${esc(s.t)}</h3><div class="au">${esc(s.a)}</div><div class="chips">${s.c?`<span class="chip">${esc(s.c)}</span>`:""}${s.y?`<span class="chip">${s.y}</span>`:""}<span class="chip">${GEN[s.g]||"Книга"}</span></div></div></div>
-   <div class="when">${esc(s.when)}</div>${s.ann?`<div class="ann" style="margin-top:10px">${esc(s.ann)}</div>`:""}${(s.acclaim||[]).length?`<div class="acc" style="margin-top:10px">${s.acclaim.map(a=>`<span>${esc(a)}</span>`).join("")}</div>`:""}${s.why&&s.why!==s.ann?`<div class="why">${esc(s.why)}</div>`:""}
-   <button class="btn btn-main" id="wDone">Прочитано ✓</button>
-   <div class="sheet-actions" style="margin-top:10px"><button class="btn btn-ghost" id="wNow">Читаю сейчас</button><button class="btn btn-ghost" id="wRemove">Убрать</button></div>`);
+  openSheet(`<div class="bk">${cover(s,112)}<div class="bk-meta"><h3>${esc(s.t)}</h3><div class="au">${esc(s.a)}</div><div class="chips">${s.c?`<span class="chip">${esc(s.c)}</span>`:""}${s.y?`<span class="chip">${s.y}</span>`:""}<span class="chip">${GEN[s.g]||"Книга"}</span></div>${(s.acclaim||[]).length?`<div class="acc" style="margin-top:10px">${s.acclaim.map(a=>`<span>${esc(a)}</span>`).join("")}</div>`:""}</div></div>
+   <div class="when">${esc(s.when)}</div>${s.ann?`<div class="ann" style="margin-top:10px">${esc(s.ann)}</div>`:""}${s.why&&s.why!==s.ann?`<div class="why">${esc(s.why)}</div>`:""}
+   <div class="sheet-btns"><button class="btn btn-ghost" id="wDone">Прочитано</button><button class="btn btn-ghost" id="wNow">Читаю сейчас</button><button class="btn btn-ghost" id="wRemove">Убрать</button></div>`);
   $("#wRemove").onclick=()=>{want.splice(i,1);saveWant();renderWant();closeSheet();toast("Убрано из списка")};
   $("#wDone").onclick=()=>openMarkRead(s,()=>{want.splice(want.indexOf(s),1);saveWant();renderWant()});
   $("#wNow").onclick=()=>{want.splice(want.indexOf(s),1);if(nowBook&&nowBook.id!=="now-none")want.unshift(nowBook);nowBook=s;saveNow();saveWant();renderWant();closeSheet();haptic("ok");toast(`Читаешь «${s.t}»`)};
@@ -1430,11 +1431,14 @@ $("#askInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("#askBtn").cl
 function renderWant(){
   const nb=nowBook;
   $("#now").innerHTML=nb?`${cover(nb,64)}<div class="tx"><div class="k">Сейчас читаю</div><b>${esc(nb.t)}</b><span>${esc(nb.a)}</span></div><span class="chev" aria-hidden="true">›</span>`:`<div class="tx"><div class="k">Сейчас читаю</div><b>Пока ничего</b><span>Открой книгу из списка и нажми «Читаю сейчас»</span></div>`;
-  $("#wants").innerHTML=want.length?want.map((s,i)=>`<div class="w-item" role="button" tabindex="0" data-w="${i}">${cover(s,64)}<span class="tx"><b>${esc(s.t)}</b><span class="by">${esc(s.a)}</span><span class="when" style="display:block">${esc(s.when)}</span>${s.from?`<span class="from" style="display:block">Тевосгинк · ${esc(s.from)}</span>`:""}</span><button class="w-done" data-done="${i}" aria-label="Отметить «${esc(s.t)}» прочитанной"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button></div>`).join(""):`<div class="empty">Список пуст. Загляни к Тевосгинку — он подбросит что-нибудь.</div>`;
+  $("#wants").innerHTML=want.length?want.map((s,i)=>`<div class="w-item" role="button" tabindex="0" data-w="${i}">${cover(s,64)}<span class="tx"><b>${esc(s.t)}</b><span class="by">${esc(s.a)}</span><span class="when" style="display:block">${esc(s.when)}</span>${s.from?`<span class="from" style="display:block">Тевосгинк · ${esc(s.from)}</span>`:""}</span></div>`).join(""):`<div class="empty">Список пуст. Загляни к Тевосгинку — он подбросит что-нибудь.</div>`;
 }
-$("#now").addEventListener("click",()=>{const s=nowBook;if(!s)return;haptic();openSheet(`<div class="bk">${cover(s,112)}<div class="bk-meta"><h3>${esc(s.t)}</h3><div class="au">${esc(s.a)}</div><div class="chips">${s.c?`<span class="chip">${esc(s.c)}</span>`:""}${s.y?`<span class="chip">${s.y}</span>`:""}<span class="chip">Читаю сейчас</span></div></div></div>${s.when?`<div class="when">${esc(s.when)}</div>`:""}${s.ann?`<div class="ann" style="margin-top:10px">${esc(s.ann)}</div>`:""}${(s.acclaim||[]).length?`<div class="acc" style="margin-top:10px">${s.acclaim.map(a=>`<span>${esc(a)}</span>`).join("")}</div>`:""}<button class="btn btn-main" id="nDone">Дочитала ✓</button>`);
-  $("#nDone").onclick=()=>openMarkRead(s,()=>{nowBook=null;saveNow();renderWant()})});
-$("#wants").addEventListener("click",e=>{const d=e.target.closest("[data-done]");if(d){e.stopPropagation();haptic("medium");const s=want[+d.dataset.done];openMarkRead(s,()=>{want.splice(want.indexOf(s),1);saveWant();renderWant()});return}const b=e.target.closest("[data-w]");if(b)openWant(+b.dataset.w)});
+$("#now").addEventListener("click",()=>{const s=nowBook;if(!s)return;haptic();openSheet(`<div class="bk">${cover(s,112)}<div class="bk-meta"><h3>${esc(s.t)}</h3><div class="au">${esc(s.a)}</div><div class="chips">${s.c?`<span class="chip">${esc(s.c)}</span>`:""}${s.y?`<span class="chip">${s.y}</span>`:""}${GEN[s.g]?`<span class="chip">${GEN[s.g]}</span>`:""}</div>${(s.acclaim||[]).length?`<div class="acc" style="margin-top:10px">${s.acclaim.map(a=>`<span>${esc(a)}</span>`).join("")}</div>`:""}</div></div>${s.when?`<div class="when">${esc(s.when)}</div>`:""}${s.ann?`<div class="ann" style="margin-top:10px">${esc(s.ann)}</div>`:""}
+   <div class="sheet-btns"><button class="btn btn-ghost" id="nDone">Прочитано</button><button class="btn btn-ghost" id="nBack">Вернуть в «Хочу прочитать»</button><button class="btn btn-ghost" id="nDel">Убрать</button></div>`);
+  $("#nDone").onclick=()=>openMarkRead(s,()=>{nowBook=null;saveNow();renderWant()});
+  $("#nBack").onclick=()=>{want.unshift(s);nowBook=null;saveNow();saveWant();renderWant();closeSheet();haptic();toast("Вернула в «Хочу прочитать»")};
+  $("#nDel").onclick=()=>{nowBook=null;saveNow();renderWant();closeSheet();haptic();toast("Убрано из «Сейчас читаю»")}});
+$("#wants").addEventListener("click",e=>{const b=e.target.closest("[data-w]");if(b)openWant(+b.dataset.w)});
 $("#wants").addEventListener("keydown",e=>{if(e.key==="Enter"){const b=e.target.closest("[data-w]");if(b)openWant(+b.dataset.w)}});
 
 // ---------- цитаты ----------

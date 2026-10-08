@@ -1,7 +1,7 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><script src="https://telegram.org/js/telegram-web-app.js"></script><title>Книжный зал</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora:wght@600&family=PT+Serif:wght@700&family=Prata&family=Montserrat:wght@700&family=Rubik:wght@600&family=Alegreya:wght@700&family=Yeseva+One&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Forum&family=Oswald:wght@600;700&family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..600&family=Manrope:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Forum&family=Oswald:wght@600;700&family=Literata:ital,opsz,wght@0,7..72,400..700;1,7..72,400..600&family=Manrope:wght@400;500;600;700&display=swap">
 <style>
 /* Layout: a daylight bookstore — enamel country signs over oak shelves, spines you pull out; bottom tab bar like an app. Light-only by choice. */
 :root{
@@ -60,7 +60,8 @@ html,body{overflow-x:hidden}
 .ledge{height:12px;background:linear-gradient(var(--oak),var(--oak-dark));border-radius:0 0 4px 4px;box-shadow:0 6px 10px -6px rgba(80,55,20,.45)}
 .spine{flex:none;border:none;padding:12px 6px 12px;border-radius:3px 3px 1px 1px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;transition:transform .2s ease;position:relative;box-shadow:inset -3px 0 0 rgba(0,0,0,.12),inset 2px 0 0 rgba(255,255,255,.15)}
 .spine:hover{transform:translateY(-8px) rotate(-1.5deg)}
-.spine .st{writing-mode:vertical-rl;transform:rotate(180deg);line-height:1.15;white-space:nowrap;text-align:center}
+.spine .stw{flex:1;min-height:0;width:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.spine .st{writing-mode:vertical-rl;transform:rotate(180deg);font-family:var(--serif);font-weight:600;font-size:13px;line-height:1.15;white-space:nowrap;text-align:center}
 .spine .sa{writing-mode:vertical-rl;transform:rotate(180deg);font-size:9px;letter-spacing:.08em;text-transform:uppercase;opacity:.8;white-space:nowrap;flex:none}
 .spine .band{position:absolute;left:0;right:0;height:3px;background:currentColor;opacity:.3;top:8px}
 .spine .score{position:absolute;top:-9px;right:-6px;background:var(--gold);color:#fff;font-size:10px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;padding:0 4px;font-variant-numeric:tabular-nums;box-shadow:0 1px 3px rgba(0,0,0,.2);z-index:1}
@@ -250,6 +251,14 @@ html,body{overflow-x:hidden}
 .cv.mini{display:grid;place-items:center}
 .cv.mini .cvm{position:static}
 
+.cv-c{position:absolute;inset:0;display:flex;flex-direction:column;gap:4%;z-index:2}
+.cv-c .cv-t{position:static;left:auto;right:auto;white-space:nowrap;flex:none}
+.cv-c .cv-a{position:static;left:auto;right:auto;flex:none;line-height:1.25}
+.cv-mw{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cv-mw .cvm{position:static;height:100%;width:auto;max-width:100%;aspect-ratio:1}
+.cv-band2{flex:none}
+.cvp{width:100%;height:auto;opacity:.28;stroke-width:3}
+.cv-lt{white-space:nowrap}
 /* timeline */
 .cent{margin-top:26px}
 .cent h2{font-size:24px;display:flex;align-items:baseline;gap:10px}
@@ -1065,37 +1074,56 @@ function cover(b,w){
   const box=(bg,fg,inner,extra="")=>`<div class="cover cv cv${st}${w<60?" mini":""}" style="--w:${w}px;width:${w}px;height:${h}px;background:${bg};color:${fg};${extra}">${inner}</div>`;
   const M=(cls,style)=>motifSVG(b,"cvm "+cls).replace("<svg ",`<svg style="${style}" `);
   if(w<60){const bgs=[b.bg,paper,b.bg,light,b.bg,b.bg,paper,b.bg][st],fgs=[gold,b.bg,gold,b.bg,b.fg,b.fg,b.bg,b.fg][st];return box(bgs,fgs,M("","width:78%;opacity:.85;stroke-width:4"))}
-  const u=w/100,bf=bfont(b),UPC=[0,2,5].includes(st);
-  const TS=(boxW,base,cwMul)=>{const r=typeset(b.t,boxW*.88,base,bf[2]*(UPC?1.34:1)*(cwMul||1),4,Math.max(8,w/13));return {fs:r.fs,h:r.html}};
-  let R1={fs:10,h:""};
+  const u=w/100,UPC=[0,2,5].includes(st),CW=[.62,.6,.66,.58,.5,.46,.56,.52][st];
+  const TS=(boxW,base)=>typeset(b.t,boxW*.9,base,CW*(UPC?1.25:1),4,Math.max(8,w/13));
+  const MW=(maxH,style)=>`<div class="cv-mw" style="${style||""}">${motifSVG(b,"cvm").replace("<svg ",`<svg style="max-height:${maxH}px" `)}</div>`;
+  const C=(pad,inner,extra)=>`<div class="cv-c" style="padding:${pad};${extra||""}">${inner}</div>`;
+  const TT=(cls,boxW,base,style)=>{const r=TS(boxW,base);return `<div class="cv-t ${cls}" style="font-size:${r.fs}px;${style||""}">${r.html}</div>`};
+  const afs=Math.max(5.5,w*.06*((b.a||"").length>20?.8:(b.a||"").length>14?.9:1));
+  const AA=(style)=>`<div class="cv-a" style="font-size:${afs}px;${style||""}">${A}</div>`;
   switch(st){
   case 0: // тканевый переплёт с золотом
     return box(b.bg,gold,`<span class="cv-cloth"></span><span class="cv-frame" style="inset:${6*u}px;border-color:${gold}"></span><span class="cv-frame" style="inset:${9*u}px;border-color:${gold};opacity:.6"></span>
-     <div class="cv-t serifc" style="top:17%;font-size:${(R1=TS(w*.7,w/8.5)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap;color:${gold}">${R1.h}</div>${M("","left:36%;width:28%;top:52%;opacity:.9")}<div class="cv-a" style="bottom:12%;color:${gold}">${A}</div>`);
+     ${C(`${16*u}px ${14*u}px ${15*u}px`,TT("serifc",w*.72,w/8.5,`color:${gold}`)+MW(h*.22,"opacity:.9")+AA(`color:${gold}`))}`);
   case 1: // цветные плашки
-    return box(paper,b.bg,`<span class="cv-band" style="top:0;height:31%;background:${b.bg}"></span><span class="cv-band" style="bottom:0;height:13%;background:${b.bg}"></span>
-     <div class="cv-t sansb" style="top:7%;font-size:${(R1=TS(w*.8,w/8)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap;color:${b.fg}">${R1.h}</div>${M("","left:22%;width:56%;top:37%;opacity:.9")}<div class="cv-a" style="bottom:3.5%;color:${b.fg}">${A}</div>`);
+    return box(paper,b.bg,C("0",`<div class="cv-band2" style="background:${b.bg};padding:${9*u}px ${8*u}px">${TT("sansb",w*.84,w/8,`color:${b.fg}`)}</div>${MW(h*.36,`padding:${6*u}px`)}<div class="cv-band2" style="background:${b.bg};padding:${5*u}px ${8*u}px">${AA(`color:${b.fg}`)}</div>`));
   case 2: // ар-деко
     return box(b.bg,gold,`<span class="cv-deco" style="--g:${gold}"></span><span class="cv-frame deco" style="inset:${7*u}px;border-color:${gold}"></span>
-     ${M("","left:38%;width:24%;top:13%")}<div class="cv-t deco" style="top:43%;font-size:${(R1=TS(w*.72,w/9)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap;color:${gold}">${R1.h}</div><div class="cv-a" style="bottom:13%;color:${gold};letter-spacing:.2em">${A}</div>`);
+     ${C(`${14*u}px ${13*u}px ${13*u}px`,MW(h*.16)+TT("deco",w*.74,w/9,`color:${gold}`)+AA(`color:${gold};letter-spacing:.2em`),"justify-content:space-between")}`);
   case 3: // швейцарский минимализм
-    return box(light,b.bg,`${M("","right:-28%;width:110%;top:14%;opacity:.55;stroke-width:1.6")}<div class="cv-a left" style="top:8%;color:${b.bg}">${A}</div>
-     <div class="cv-t sansb left" style="bottom:9%;top:auto;font-size:${(R1=TS(w*.76,w/7.5)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap;color:${b.bg};text-transform:lowercase">${R1.h}</div>`);
+    { const ink=lum(b.bg)>.5?(lum(b.fg)<.45?b.fg:"#2A2622"):b.bg;
+    return box(light,ink,C(`${9*u}px ${11*u}px ${10*u}px`,AA(`color:${ink};text-align:left`)+MW(h*.4,"justify-content:flex-end;opacity:.65")+TT("sansb",w*.78,w/7.5,`color:${ink};text-align:left;text-transform:lowercase`))); }
   case 4: // акварельное небо
     return box(`linear-gradient(175deg,${mix(b.bg,"#FFFFFF",.35)} 0%,${b.bg} 58%,${mix(b.bg,"#000000",.25)} 100%)`,b.fg,`<span class="cv-sun" style="background:${mix(b.fg,b.bg,.25)}"></span>
-     <div class="cv-t serifi" style="top:9%;font-size:${(R1=TS(w*.78,w/7.8)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap">${R1.h}</div>${M("","left:14%;width:72%;top:40%;opacity:.8;stroke-width:2.8")}<div class="cv-a" style="bottom:7%">${A}</div>`);
+     ${C(`${10*u}px ${10*u}px ${8*u}px`,TT("serifi",w*.8,w/7.8)+MW(h*.4,"opacity:.85")+AA())}`);
   case 5: // яркий пейпербек
     return box(b.bg,b.fg,`<span class="cv-slash" style="background:${mix(b.bg,b.fg,.22)}"></span>
-     <div class="cv-t cond" style="top:10%;font-size:${(R1=TS(w*.8,w/6.2)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap">${R1.h}</div>${M("","left:30%;width:56%;top:46%;opacity:.9;stroke-width:3")}<div class="cv-a boxed" style="bottom:7%;border-color:${b.fg}">${A}</div>`);
+     ${C(`${10*u}px ${9*u}px ${8*u}px`,TT("cond",w*.82,w/6.2)+MW(h*.3,"opacity:.9")+AA(`border:1px solid ${b.fg};padding:${3*u}px ${2*u}px;margin:0 ${7*u}px`))}`);
   case 6: // академическая серия
     return box(paper,"#2A2622",`<span class="cv-stripe" style="background:${b.bg}"></span><span class="cv-stripe two" style="background:${b.bg}"></span>
-     <div class="cv-a left" style="top:26%;left:24%;color:#5A524A">${A}</div><div class="cv-t serif left" style="top:33%;left:24%;font-size:${(R1=TS(w*.64,w/8.6)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap">${R1.h}</div>${M("","right:9%;width:26%;bottom:8%;top:auto;color:${b.bg}".replace("${b.bg}",b.bg))}`);
+     ${C(`${24*u}px ${9*u}px ${8*u}px ${24*u}px`,AA(`color:#5A524A;text-align:left`)+TT("serif",w*.66,w/8.6,`text-align:left;margin-top:${3*u}px`)+MW(h*.22,`justify-content:flex-end;align-items:flex-end;color:${b.bg}`))}`);
   default: // узорный переплёт
-    return box(b.bg,b.fg,`<div class="cv-pattern">${Array(12).fill(M("","position:static;width:100%;opacity:.28;stroke-width:3")).join("")}</div>
-     <div class="cv-label" style="background:${paper};color:${b.bg}"><div class="cv-lt" style="font-size:${(R1=TS(w*.56,w/9.5)).fs}px;font-family:${bf[0]};font-weight:${bf[1]};white-space:nowrap">${R1.h}</div><div class="cv-la">${A}</div></div>`);
+    { const r=TS(w*.58,w/9.5);
+    return box(b.bg,b.fg,`<div class="cv-pattern">${Array(12).fill(motifSVG(b,"cvp")).join("")}</div>
+     <div class="cv-label" style="background:${paper};color:${b.bg}"><div class="cv-lt" style="font-size:${r.fs}px">${r.html}</div><div class="cv-la">${A}</div></div>`); }
   }
 }
 function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("on"),2000)}
+
+// ---------- подгонка текста по реальным размерам ----------
+function fitSpine(sp){const st=sp.querySelector(".st"),box=sp.querySelector(".stw");if(!st||!box||!box.clientHeight)return false;if(sp.dataset.w0)sp.style.minWidth=sp.dataset.w0;
+  const fits=()=>st.offsetHeight<=box.clientHeight+.5&&st.offsetWidth<=box.clientWidth+.5;
+  const shrink=(min)=>{let fs=parseFloat(st.style.fontSize)||13,g=60;while(!fits()&&fs>min&&g--){fs-=.5;st.style.fontSize=fs+"px"}return fits()};
+  st.style.fontSize="13px";if(shrink(10.5))return true;
+  const alt=st.dataset.alt;if(alt){const one=st.innerHTML;st.innerHTML=alt;st.style.fontSize="12.5px";const need=st.offsetWidth+14;if(sp.offsetWidth<need)sp.style.minWidth=need+"px";if(shrink(9))return true;st.innerHTML=one;if(sp.dataset.w0)sp.style.minWidth=sp.dataset.w0}
+  st.style.fontSize="13px";shrink(7);return true}
+function fitCoverText(el){const box=el.classList.contains("cv-lt")?el.parentElement:el;if(!box.clientWidth)return false;if(el.dataset.fs0==null)el.dataset.fs0=el.style.fontSize;else el.style.fontSize=el.dataset.fs0;let fs=parseFloat(getComputedStyle(el).fontSize),g=60;
+  const over=()=>el.scrollWidth>box.clientWidth+.5||(el.classList.contains("cv-lt")&&el.scrollHeight>box.clientHeight*.75);
+  while(over()&&fs>5&&g--){fs-=.5;el.style.fontSize=fs+"px"}return true}
+function fitAll(root){(root||document).querySelectorAll(".spine:not([data-fit])").forEach(sp=>{if(fitSpine(sp))sp.dataset.fit=1});
+  (root||document).querySelectorAll(".cv-t:not([data-fit]),.cv-lt:not([data-fit])").forEach(el=>{if(fitCoverText(el))el.dataset.fit=1})}
+let _fitRaf=0;new MutationObserver(()=>{cancelAnimationFrame(_fitRaf);_fitRaf=requestAnimationFrame(()=>fitAll())}).observe(document.body,{childList:true,subtree:true});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{document.querySelectorAll("[data-fit]").forEach(e=>{e.removeAttribute("data-fit")});fitAll()});
 
 // ---------- stats ----------
 (function(){
@@ -1120,9 +1148,8 @@ function renderShelves(){
        byG[g].sort((a,b)=>(a.y||9999)-(b.y||9999)).map(b=>{
          let w=Math.min(44,Math.max(30,Math.round(24+b.pg/30)));const h=214+((b.pg*7)%30);
          const sur=b.a==="Автор не указан"?"?":b.a.split(" ").slice(-1)[0];
-         const bf=bfont(b),avail=h-64-sur.length*6.4;let ts=typeset(b.t,avail,14,bf[2],1,11);if(ts.fs<11)ts=typeset(b.t,avail,13,bf[2],3,10.5);
-         w=Math.max(w,Math.ceil(ts.n*ts.fs*1.18+16));
-         return `<button class="spine" data-id="${b.id}" style="min-width:${w}px;height:${h}px;background:${b.bg};color:${b.fg}" aria-label="${esc(b.t)}, ${esc(b.a)}"><span class="band"></span>${motifSVG(b,"sm")}<span class="st" style="font-family:${bf[0]};font-weight:${bf[1]};font-size:${ts.fs}px">${ts.html}</span><span class="sa">${esc(sur)}</span></button>`;
+         const two=splitLines(b.t,2),alt=two.length===2&&Math.min(two[0].length,two[1].length)/Math.max(two[0].length,two[1].length)>=.4?two.map(x=>esc(x).replace(/\u00a0/g,"&nbsp;")).join("<br>"):"";
+         return `<button class="spine" data-id="${b.id}" data-w0="${w}px" style="min-width:${w}px;height:${h}px;background:${b.bg};color:${b.fg}" aria-label="${esc(b.t)}, ${esc(b.a)}"><span class="band"></span>${motifSVG(b,"sm")}<span class="stw"><span class="st" data-alt="${esc(alt)}">${esc(wordsOf(b.t).join(" ")).replace(/\u00a0/g,"&nbsp;")}</span></span><span class="sa">${esc(sur)}</span></button>`;
        }).join("")}</div><div class="ledge"></div></div>`).join("")+`</div>`;
   }).join("");
 }
@@ -1152,7 +1179,7 @@ function openSheet(html){$("#sheet").innerHTML=`<div class="grab"></div>`+html;$
 function closeSheet(){$("#scrim").classList.remove("on");sheetOpen=false;syncBack()}
 function openBook(id){
   const b=BOOKS.find(x=>x.id===id);if(!b)return;haptic();
-  openSheet(`<div class="bk">${cover(b,112)}<div class="bk-meta"><h3 style="font-family:${bfont(b)[0]};font-weight:${bfont(b)[1]}">${esc(b.t)}</h3><div class="au">${esc(b.a)}</div><div class="chips"><span class="chip">${esc(b.c)}</span>${b.y?`<span class="chip">${b.y}</span>`:""}<span class="chip">${GEN[b.g]}</span></div></div></div>
+  openSheet(`<div class="bk">${cover(b,112)}<div class="bk-meta"><h3>${esc(b.t)}</h3><div class="au">${esc(b.a)}</div><div class="chips"><span class="chip">${esc(b.c)}</span>${b.y?`<span class="chip">${b.y}</span>`:""}<span class="chip">${GEN[b.g]}</span></div></div></div>
    ${b.r!=null?`<div class="rating"><b>${b.r}</b><span>/ 10</span></div>`:`<div class="rating"><span>Без оценки</span></div>`}
    ${b.n?`<div class="note">${esc(b.n)}</div>`:""}
    ${DISC[b.id]?`<button class="btn btn-disc" id="discBtn">${discLabel(b.id)}</button>`:""}
@@ -1672,6 +1699,7 @@ var go=function(v){
   document.querySelectorAll(".view").forEach(el=>el.classList.toggle("on",el.id==="v-"+v));
   
   window.scrollTo({top:0});
+  requestAnimationFrame(()=>fitAll());
 }
 document.querySelectorAll("nav.tabs button").forEach(btn=>btn.addEventListener("click",()=>{haptic();go(btn.dataset.v)}));
 document.addEventListener("click",e=>{const t=e.target.closest(".spine,.tl-row,.au-book");if(t)openBook(t.dataset.id)});

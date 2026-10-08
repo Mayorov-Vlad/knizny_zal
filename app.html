@@ -753,7 +753,7 @@ const GUEST=!!(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)&&(!_t
 // «Полка подруги»: ссылка вида …/#s=<код> открывает чужие полки только для просмотра
 const SEED=Object.fromEntries(BOOKS.map(b=>[b.id,b]));
 const SHARE_BASE="https://mayorov-vlad.github.io/knizny_zal/";
-const SHARE_BOT="";// имя бота и короткое имя мини-аппа, напр. "MyBot/zal" — тогда ссылки будут вида t.me/MyBot/zal?startapp=…
+const SHARE_BOT="Wonderbookworld_bot";// имя бота и короткое имя мини-аппа, напр. "MyBot/zal" — тогда ссылки будут вида t.me/MyBot/zal?startapp=…
 const shDec=s=>{s=s.replace(/-/g,"+").replace(/_/g,"/");const bin=atob(s+"===".slice((s.length+3)%4));return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)))};
 const u64=str=>{let bin="";new TextEncoder().encode(str).forEach(x=>bin+=String.fromCharCode(x));return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")};
 function decodeShare(code){

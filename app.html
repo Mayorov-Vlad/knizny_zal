@@ -325,6 +325,23 @@ html,body{overflow-x:hidden}
 @keyframes fi{from{transform:perspective(900px) rotateY(-90deg);opacity:.5}to{transform:none;opacity:1}}
 .slip{transform-origin:center}
 
+.add-book{width:100%;margin-top:14px;display:flex;align-items:center;justify-content:center;gap:10px;border:1.5px dashed #CDBF9F;background:transparent;border-radius:14px;padding:14px;font-weight:700;color:var(--gold-deep)}
+.add-book span{font-size:22px;line-height:1}
+.rate{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.rate button{min-width:38px;height:38px;border-radius:10px;border:1px solid var(--line);background:var(--card);font-weight:700;font-variant-numeric:tabular-nums}
+.rate button.none{padding:0 12px;font-weight:600;color:var(--muted)}
+.rate button.on{background:var(--gold);border-color:var(--gold);color:#fff}
+.two{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:10px}
+.sugg{display:grid;gap:2px;margin-top:4px}
+.sugg button{text-align:left;border:none;background:var(--gold-soft);border-radius:8px;padding:8px 10px;font-size:14px}
+.sugg small{color:var(--muted)}
+.w-done{flex:none;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper);display:grid;place-items:center;align-self:center;color:var(--green)}
+.w-done svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.35}
+.w-done:hover svg,.w-done:active svg{opacity:1}
+.w-done:active{background:var(--green-soft);border-color:var(--green)}
+#uDel.sure{color:#8E2420;border-color:#E3B9B4}
+.w-item{cursor:pointer}
+
 /* Хочу прочитать */
 .want-head{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
 .want-head h2{font-size:26px}
@@ -864,6 +881,13 @@ CAT.forEach(b=>{b.id="c"+hsh(b.t+b.a).toString(36);const p=PAL[hsh(b.t)%PAL.leng
 const CATMAP=Object.fromEntries(CAT.map(b=>[b.id,b]));
 
 const LIB={...WANT,...CATMAP};
+// Свои книги, добавленные в приложении
+const UKEY="zal.mine";
+let mine=(()=>{try{const v=localStorage.getItem(UKEY);return v?JSON.parse(v):[]}catch(e){return []}})();
+function prepUser(b){const p=PAL[hsh(b.t+b.a)%PAL.length];const o={pg:300,f:[],n:"",r:null,c:"Без страны",g:"modern",...b,bg:b.bg||p[0],fg:b.fg||p[1],user:true};if(b.m)o._m=b.m;return o}
+mine.forEach(b=>BOOKS.push(prepUser(b)));
+function cloudChunks(prefix,arr){if(!TG||!TG.CloudStorage)return;try{const str=JSON.stringify(arr),parts=[];for(let i=0;i<str.length;i+=3800)parts.push(str.slice(i,i+3800));parts.forEach((x,i)=>TG.CloudStorage.setItem(prefix+i,x));TG.CloudStorage.setItem(prefix+"n",String(parts.length))}catch(e){}}
+function cloudRead(prefix,cb){if(!TG||!TG.CloudStorage)return;try{TG.CloudStorage.getItem(prefix+"n",(e,n)=>{n=+n;if(e||!n)return;const ks=[...Array(n)].map((_,i)=>prefix+i);TG.CloudStorage.getItems(ks,(e2,v)=>{if(e2||!v)return;try{cb(JSON.parse(ks.map(k=>v[k]||"").join("")))}catch(x){}})})}catch(e){}}
 const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
 const KEY="zal.want.v2";
 const hydrate=list=>list.map(x=>typeof x==="string"?(LIB[x]?{...LIB[x],id:x}:null):x).filter(Boolean);
@@ -874,6 +898,11 @@ function saveWant(){
   const data=compact();LS.set(KEY,data);
   if(TG&&TG.CloudStorage){const ids=data.map(x=>typeof x==="string"?x:(x.id&&LIB[x.id]?x.id:null)).filter(Boolean);try{TG.CloudStorage.setItem("want",JSON.stringify(ids))}catch(e){}}
 }
+function saveMine(){LS.set(UKEY,mine);cloudChunks("m",mine)}
+let nowBook=(()=>{const v=LS.get("zal.now",null);return v==="none"?null:(v||NOW_READING)})();
+function saveNow(){LS.set("zal.now",nowBook||"none");if(TG&&TG.CloudStorage){try{TG.CloudStorage.setItem("now",JSON.stringify(nowBook||"none").slice(0,4000))}catch(e){}}}
+function rerenderAll(){renderShelves();renderTime();renderAuthors();renderWant()}
+function addBook(b){const rec={id:"u"+Date.now(),...b};mine.push(rec);BOOKS.push(prepUser(rec));READ.add(norm(rec.t));saveMine();rerenderAll();return rec}
 const haptic=(t="light")=>{try{TG&&TG.HapticFeedback&&(t==="ok"?TG.HapticFeedback.notificationOccurred("success"):TG.HapticFeedback.impactOccurred(t))}catch(e){}};
 
 const $=s=>document.querySelector(s);
@@ -949,7 +978,7 @@ const mix=(h1,h2,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));con
 const lum=h=>{const v=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255);return .2126*v[0]+.7152*v[1]+.0722*v[2]};
 const STYLE_FIX={};
 function styleOf(b){const k=b.id||b.t;if(STYLE_FIX[k]!=null)return STYLE_FIX[k];return hsh(k+"ed")%8}
-function fitFs(t,w,base,cw){const lw=Math.max(...String(t||"").split(/[\s'-]+/).map(x=>x.length));let fs=base;const L=(t||"").length;if(L>16)fs*=.9;if(L>26)fs*=.84;return Math.max(6.5,Math.min(fs,w/(lw*cw)))}
+function fitFs(t,w,base,cw){const lw=Math.max(...String(t||"").split(/[\s'-]+/).map(x=>x.length));let fs=base;const L=(t||"").length;if(L>16)fs*=.9;if(L>26)fs*=.84;return Math.max(5.5,Math.min(fs,w/(lw*cw)))}
 function cover(b,w){
   const h=Math.round(w*1.5),st=styleOf(b),T=esc(b.t).replace(/'/g,"'​"),A=esc(b.a);
   const dark=lum(b.bg)<.45,gold=dark?"#D9B56B":"#8E6326",paper="#F1EADB",light=mix(b.bg,"#FFFFFF",.72);
@@ -960,28 +989,28 @@ function cover(b,w){
   switch(st){
   case 0: // тканевый переплёт с золотом
     return box(b.bg,gold,`<span class="cv-cloth"></span><span class="cv-frame" style="inset:${6*u}px;border-color:${gold}"></span><span class="cv-frame" style="inset:${9*u}px;border-color:${gold};opacity:.6"></span>
-     <div class="cv-t serifc" style="top:17%;font-size:${fitFs(b.t,w*.7,w/8.5,.62)}px;color:${gold}">${T}</div>${M("","left:36%;width:28%;top:52%;opacity:.9")}<div class="cv-a" style="bottom:12%;color:${gold}">${A}</div>`);
+     <div class="cv-t serifc" style="top:17%;font-size:${fitFs(b.t,w*.7,w/8.5,.8)}px;color:${gold}">${T}</div>${M("","left:36%;width:28%;top:52%;opacity:.9")}<div class="cv-a" style="bottom:12%;color:${gold}">${A}</div>`);
   case 1: // цветные плашки
     return box(paper,b.bg,`<span class="cv-band" style="top:0;height:31%;background:${b.bg}"></span><span class="cv-band" style="bottom:0;height:13%;background:${b.bg}"></span>
-     <div class="cv-t sansb" style="top:7%;font-size:${fitFs(b.t,w*.82,w/8,.64)}px;color:${b.fg}">${T}</div>${M("","left:22%;width:56%;top:37%;opacity:.9")}<div class="cv-a" style="bottom:3.5%;color:${b.fg}">${A}</div>`);
+     <div class="cv-t sansb" style="top:7%;font-size:${fitFs(b.t,w*.8,w/8,.72)}px;color:${b.fg}">${T}</div>${M("","left:22%;width:56%;top:37%;opacity:.9")}<div class="cv-a" style="bottom:3.5%;color:${b.fg}">${A}</div>`);
   case 2: // ар-деко
     return box(b.bg,gold,`<span class="cv-deco" style="--g:${gold}"></span><span class="cv-frame deco" style="inset:${7*u}px;border-color:${gold}"></span>
-     ${M("","left:38%;width:24%;top:13%")}<div class="cv-t deco" style="top:43%;font-size:${fitFs(b.t,w*.72,w/9,.7)}px;color:${gold}">${T}</div><div class="cv-a" style="bottom:13%;color:${gold};letter-spacing:.2em">${A}</div>`);
+     ${M("","left:38%;width:24%;top:13%")}<div class="cv-t deco" style="top:43%;font-size:${fitFs(b.t,w*.72,w/9,.9)}px;color:${gold}">${T}</div><div class="cv-a" style="bottom:13%;color:${gold};letter-spacing:.2em">${A}</div>`);
   case 3: // швейцарский минимализм
     return box(light,b.bg,`${M("","right:-28%;width:110%;top:14%;opacity:.55;stroke-width:1.6")}<div class="cv-a left" style="top:8%;color:${b.bg}">${A}</div>
-     <div class="cv-t sansb left" style="bottom:9%;top:auto;font-size:${fitFs(b.t,w*.8,w/7.5,.64)}px;color:${b.bg};text-transform:lowercase">${T}</div>`);
+     <div class="cv-t sansb left" style="bottom:9%;top:auto;font-size:${fitFs(b.t,w*.76,w/7.5,.68)}px;color:${b.bg};text-transform:lowercase">${T}</div>`);
   case 4: // акварельное небо
     return box(`linear-gradient(175deg,${mix(b.bg,"#FFFFFF",.35)} 0%,${b.bg} 58%,${mix(b.bg,"#000000",.25)} 100%)`,b.fg,`<span class="cv-sun" style="background:${mix(b.fg,b.bg,.25)}"></span>
-     <div class="cv-t serifi" style="top:9%;font-size:${fitFs(b.t,w*.8,w/7.8,.56)}px">${T}</div>${M("","left:14%;width:72%;top:40%;opacity:.8;stroke-width:2.8")}<div class="cv-a" style="bottom:7%">${A}</div>`);
+     <div class="cv-t serifi" style="top:9%;font-size:${fitFs(b.t,w*.78,w/7.8,.6)}px">${T}</div>${M("","left:14%;width:72%;top:40%;opacity:.8;stroke-width:2.8")}<div class="cv-a" style="bottom:7%">${A}</div>`);
   case 5: // яркий пейпербек
     return box(b.bg,b.fg,`<span class="cv-slash" style="background:${mix(b.bg,b.fg,.22)}"></span>
-     <div class="cv-t cond" style="top:10%;font-size:${fitFs(b.t,w*.82,w/6.2,.5)}px">${T}</div>${M("","left:30%;width:56%;top:46%;opacity:.9;stroke-width:3")}<div class="cv-a boxed" style="bottom:7%;border-color:${b.fg}">${A}</div>`);
+     <div class="cv-t cond" style="top:10%;font-size:${fitFs(b.t,w*.8,w/6.2,.88)}px">${T}</div>${M("","left:30%;width:56%;top:46%;opacity:.9;stroke-width:3")}<div class="cv-a boxed" style="bottom:7%;border-color:${b.fg}">${A}</div>`);
   case 6: // академическая серия
     return box(paper,"#2A2622",`<span class="cv-stripe" style="background:${b.bg}"></span><span class="cv-stripe two" style="background:${b.bg}"></span>
-     <div class="cv-a left" style="top:26%;left:24%;color:#5A524A">${A}</div><div class="cv-t serif left" style="top:33%;left:24%;font-size:${fitFs(b.t,w*.66,w/8.6,.6)}px">${T}</div>${M("","right:9%;width:26%;bottom:8%;top:auto;color:${b.bg}".replace("${b.bg}",b.bg))}`);
+     <div class="cv-a left" style="top:26%;left:24%;color:#5A524A">${A}</div><div class="cv-t serif left" style="top:33%;left:24%;font-size:${fitFs(b.t,w*.64,w/8.6,.66)}px">${T}</div>${M("","right:9%;width:26%;bottom:8%;top:auto;color:${b.bg}".replace("${b.bg}",b.bg))}`);
   default: // узорный переплёт
     return box(b.bg,b.fg,`<div class="cv-pattern">${Array(12).fill(M("","position:static;width:100%;opacity:.28;stroke-width:3")).join("")}</div>
-     <div class="cv-label" style="background:${paper};color:${b.bg}"><div class="cv-lt" style="font-size:${fitFs(b.t,w*.58,w/9.5,.6)}px">${T}</div><div class="cv-la">${A}</div></div>`);
+     <div class="cv-label" style="background:${paper};color:${b.bg}"><div class="cv-lt" style="font-size:${fitFs(b.t,w*.56,w/9.5,.66)}px">${T}</div><div class="cv-la">${A}</div></div>`);
   }
 }
 function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("on"),2000)}
@@ -997,10 +1026,11 @@ function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");c
 
 // ---------- shelves ----------
 function renderShelves(){
+  const addBtn=`<button class="add-book" id="addBook"><span>+</span>Добавить прочитанную книгу</button>`;
   const order=["Россия","Англия","США","Швейцария","Япония","Неразобранное"];
   const rank=c=>{const i=order.indexOf(c);return i<0?50:i};
   const byC={};BOOKS.forEach(b=>(byC[b.c]=byC[b.c]||[]).push(b));
-  $("#v-shelves").innerHTML=Object.keys(byC).sort((a,b)=>rank(a)-rank(b)).map(c=>{
+  $("#v-shelves").innerHTML=addBtn+Object.keys(byC).sort((a,b)=>rank(a)-rank(b)).map(c=>{
     const byG={};byC[c].forEach(b=>(byG[b.g]=byG[b.g]||[]).push(b));
     return `<div class="country"><div class="sign"><h2>${esc(c)}</h2></div>`+
      Object.keys(GEN).filter(g=>byG[g]).map(g=>`<div class="genre"><span class="genre-label">${GEN[g]}</span><div class="shelf">${
@@ -1013,6 +1043,7 @@ function renderShelves(){
 }
 
 // ---------- timeline ----------
+document.addEventListener("click",e=>{if(e.target.closest("#addBook")){haptic();openAddBook()}});
 function renderTime(){
   const dated=BOOKS.filter(b=>b.y).sort((a,b)=>a.y-b.y);
   const byCt={};dated.forEach(b=>(byCt[centuryOf(b.y)]=byCt[centuryOf(b.y)]||[]).push(b));
@@ -1042,15 +1073,50 @@ function openBook(id){
    ${DISC[b.id]?`<button class="btn btn-disc" id="discBtn">${discLabel(b.id)}</button>`:""}
    ${b.c!=="Неразобранное"?`<button class="btn btn-ghost btn-wide" id="cmpBtn">Столкнуть с другой книгой</button>`:""}
    ${quotesBlock(b)}
-   ${b.f.length?`<button class="btn btn-main" id="factsBtn">Интересные факты · ${b.f.length}</button>`:`<p class="status">Автор забылся — и Тевосгинк тоже не знает, чья это книга. Если вспомнится, книга переедет на полку своей страны.</p>`}`);
-  const fb=$("#factsBtn");if(fb)fb.onclick=()=>openStories(b);const db=$("#discBtn");if(db)db.onclick=()=>{closeSheet();openDisc(b)};const cb=$("#cmpBtn");if(cb)cb.onclick=()=>openCompare(b);const qb=$("#qAddBook");if(qb)qb.onclick=()=>openQuoteForm(b.id);
+   ${b.user?`<button class="btn btn-ghost btn-wide" id="uDel">Убрать с полки</button>`:""}
+   ${b.f.length?`<button class="btn btn-main" id="factsBtn">Интересные факты · ${b.f.length}</button>`:(b.user?"":`<p class="status">Автор забылся — и Тевосгинк тоже не знает, чья это книга. Если вспомнится, книга переедет на полку своей страны.</p>`)}`);
+  const ud=$("#uDel");if(ud)ud.onclick=()=>{if(!ud.classList.contains("sure")){ud.classList.add("sure");ud.textContent="Точно убрать? Нажми ещё раз";return}mine=mine.filter(x=>x.id!==b.id);BOOKS.splice(BOOKS.indexOf(b),1);READ.delete(norm(b.t));saveMine();rerenderAll();closeSheet();toast("Убрано с полки")};const fb=$("#factsBtn");if(fb)fb.onclick=()=>openStories(b);const db=$("#discBtn");if(db)db.onclick=()=>{closeSheet();openDisc(b)};const cb=$("#cmpBtn");if(cb)cb.onclick=()=>openCompare(b);const qb=$("#qAddBook");if(qb)qb.onclick=()=>openQuoteForm(b.id);
+}
+const COUNTRIES=()=>[...new Set([...BOOKS.map(b=>b.c),...CAT.map(b=>b.c)])].filter(c=>c&&c!=="Неразобранное"&&c!=="Без страны").sort((a,b)=>a.localeCompare(b,"ru"));
+function ratingPicker(cur){return `<div class="rate" id="rate">${[...Array(11)].map((_,n)=>`<button type="button" data-r="${n}" class="${cur===n?"on":""}">${n}</button>`).join("")}<button type="button" data-r="" class="none${cur==null?" on":""}">без оценки</button></div>`}
+function bindRating(){let val=null;const box=$("#rate");box.querySelectorAll("button").forEach(x=>x.onclick=()=>{box.querySelectorAll("button").forEach(y=>y.classList.remove("on"));x.classList.add("on");val=x.dataset.r===""?null:+x.dataset.r;haptic()});box.querySelector(".on")&&(val=box.querySelector(".on").dataset.r===""?null:+box.querySelector(".on").dataset.r);return ()=>val}
+function openAddBook(){
+  openSheet(`<h3 class="sheet-h">Добавить прочитанную книгу</h3><div class="qform">
+   <label for="bT">Название</label><input id="bT" autocomplete="off" placeholder="Например, Мастер и Маргарита"><div class="sugg" id="bSugg"></div>
+   <label for="bA">Автор</label><input id="bA" autocomplete="off">
+   <div class="two"><div><label for="bC">Страна</label><input id="bC" list="bCL" autocomplete="off"><datalist id="bCL">${COUNTRIES().map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
+   <div><label for="bY">Год издания</label><input id="bY" inputmode="numeric" maxlength="4"></div></div>
+   <label for="bG">Жанр</label><select id="bG">${Object.entries(GEN).filter(([k])=>k!=="unknown").map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select>
+   <label>Оценка</label>${ratingPicker(null)}
+   <label for="bN">Заметка (необязательно)</label><textarea id="bN" placeholder="Что зацепило или нет"></textarea>
+   <div class="sheet-actions"><button class="btn btn-main" id="bSave" style="margin-top:0" disabled>Поставить на полку</button></div></div>`);
+  const getR=bindRating(),T=$("#bT"),sv=$("#bSave");let picked=null;
+  T.addEventListener("input",()=>{sv.disabled=!T.value.trim();picked=null;const v=norm(T.value);if(v.length<3){$("#bSugg").innerHTML="";return}
+    const hits=[...want,...CAT].filter(b=>norm(b.t).includes(v)).slice(0,5);
+    $("#bSugg").innerHTML=hits.map((b,i)=>`<button type="button" data-s="${i}"><b>${esc(b.t)}</b> <small>${esc(b.a)}${b.y?", "+b.y:""}</small></button>`).join("");
+    $("#bSugg").querySelectorAll("[data-s]").forEach(x=>x.onclick=()=>{const b=hits[+x.dataset.s];picked=b;T.value=b.t;$("#bA").value=b.a||"";$("#bC").value=b.c||"";$("#bY").value=b.y||"";if(GEN[b.g])$("#bG").value=b.g;$("#bSugg").innerHTML="";sv.disabled=false})});
+  sv.onclick=()=>{const t=T.value.trim();if(!t)return;const r=getR();
+    const rec=addBook({t,a:$("#bA").value.trim()||"Автор не указан",c:$("#bC").value.trim()||"Без страны",y:+$("#bY").value||null,g:$("#bG").value,r,n:$("#bN").value.trim(),pg:picked&&picked.len==="short"?200:picked&&picked.len==="long"?600:320,bg:picked&&picked.bg,fg:picked&&picked.fg,m:picked?motifOf(picked):undefined,ann:picked&&picked.ann});
+    if(picked){const wi=want.findIndex(w=>norm(w.t)===norm(picked.t));if(wi>=0){want.splice(wi,1);saveWant();renderWant()}}
+    closeSheet();haptic("ok");toast(`«${rec.t}» на полке`)};
+}
+function openMarkRead(s,onDone){
+  openSheet(`<div class="bk">${cover(s,80)}<div class="bk-meta"><h3>Как тебе «${esc(s.t)}»?</h3><div class="au">${esc(s.a)}</div></div></div><div class="qform">
+   <label>Оценка</label>${ratingPicker(null)}
+   <label for="mN">Пара слов о книге (необязательно)</label><textarea id="mN" placeholder="Что зацепило или нет"></textarea>
+   <div class="sheet-actions"><button class="btn btn-main" id="mSave" style="margin-top:0">Поставить на полку</button></div></div>`);
+  const getR=bindRating();
+  $("#mSave").onclick=()=>{addBook({t:s.t,a:s.a,c:s.c||"Без страны",y:s.y||null,g:GEN[s.g]?s.g:"modern",r:getR(),n:$("#mN").value.trim(),pg:s.len==="short"?200:s.len==="long"?600:360,bg:s.bg,fg:s.fg,m:motifOf(s),ann:s.ann});onDone();closeSheet();haptic("ok");toast(`«${s.t}» теперь на полке`)};
 }
 function openWant(i){
   const s=want[i];if(!s)return;haptic();
   openSheet(`<div class="bk">${cover(s,112)}<div class="bk-meta"><h3>${esc(s.t)}</h3><div class="au">${esc(s.a)}</div><div class="chips">${s.c?`<span class="chip">${esc(s.c)}</span>`:""}${s.y?`<span class="chip">${s.y}</span>`:""}<span class="chip">${GEN[s.g]||"Книга"}</span></div></div></div>
    <div class="when">${esc(s.when)}</div>${s.ann?`<div class="ann" style="margin-top:10px">${esc(s.ann)}</div>`:""}${(s.acclaim||[]).length?`<div class="acc" style="margin-top:10px">${s.acclaim.map(a=>`<span>${esc(a)}</span>`).join("")}</div>`:""}${s.why&&s.why!==s.ann?`<div class="why">${esc(s.why)}</div>`:""}
-   <div class="sheet-actions"><button class="btn btn-ghost" id="wRemove">Убрать из списка</button></div>`);
+   <button class="btn btn-main" id="wDone">Прочитано ✓</button>
+   <div class="sheet-actions" style="margin-top:10px"><button class="btn btn-ghost" id="wNow">Читаю сейчас</button><button class="btn btn-ghost" id="wRemove">Убрать</button></div>`);
   $("#wRemove").onclick=()=>{want.splice(i,1);saveWant();renderWant();closeSheet();toast("Убрано из списка")};
+  $("#wDone").onclick=()=>openMarkRead(s,()=>{want.splice(want.indexOf(s),1);saveWant();renderWant()});
+  $("#wNow").onclick=()=>{want.splice(want.indexOf(s),1);if(nowBook&&nowBook.id!=="now-none")want.unshift(nowBook);nowBook=s;saveNow();saveWant();renderWant();closeSheet();haptic("ok");toast(`Читаешь «${s.t}»`)};
 }
 $("#scrim").addEventListener("click",e=>{if(e.target.id==="scrim")closeSheet()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(disc)closeDisc();closeStories();closeSheet()}});
@@ -1366,15 +1432,18 @@ $("#askInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("#askBtn").cl
 
 // ---------- Хочу прочитать ----------
 function renderWant(){
-  $("#now").innerHTML=`${cover(NOW_READING,64)}<div class="tx"><div class="k">Сейчас читаю</div><b>${esc(NOW_READING.t)}</b><span>${esc(NOW_READING.a)}</span></div><span class="chev" aria-hidden="true">›</span>`;
-  $("#wants").innerHTML=want.length?want.map((s,i)=>`<button class="w-item" data-w="${i}">${cover(s,64)}<span class="tx"><b>${esc(s.t)}</b><span class="by">${esc(s.a)}</span><span class="when" style="display:block">${esc(s.when)}</span>${s.from?`<span class="from" style="display:block">Тевосгинк · ${esc(s.from)}</span>`:""}</span></button>`).join(""):`<div class="empty">Список пуст. Загляни к Тевосгинку — он подбросит что-нибудь.</div>`;
+  const nb=nowBook;
+  $("#now").innerHTML=nb?`${cover(nb,64)}<div class="tx"><div class="k">Сейчас читаю</div><b>${esc(nb.t)}</b><span>${esc(nb.a)}</span></div><span class="chev" aria-hidden="true">›</span>`:`<div class="tx"><div class="k">Сейчас читаю</div><b>Пока ничего</b><span>Открой книгу из списка и нажми «Читаю сейчас»</span></div>`;
+  $("#wants").innerHTML=want.length?want.map((s,i)=>`<div class="w-item" role="button" tabindex="0" data-w="${i}">${cover(s,64)}<span class="tx"><b>${esc(s.t)}</b><span class="by">${esc(s.a)}</span><span class="when" style="display:block">${esc(s.when)}</span>${s.from?`<span class="from" style="display:block">Тевосгинк · ${esc(s.from)}</span>`:""}</span><button class="w-done" data-done="${i}" aria-label="Отметить «${esc(s.t)}» прочитанной"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></button></div>`).join(""):`<div class="empty">Список пуст. Загляни к Тевосгинку — он подбросит что-нибудь.</div>`;
 }
-$("#now").addEventListener("click",()=>{const s=NOW_READING;haptic();openSheet(`<div class="bk">${cover(s,112)}<div class="bk-meta"><h3>${esc(s.t)}</h3><div class="au">${esc(s.a)}</div><div class="chips"><span class="chip">${esc(s.c)}</span><span class="chip">${s.y}</span><span class="chip">${GEN[s.g]}</span><span class="chip">Читаю сейчас</span></div></div></div><div class="when">${esc(s.when)}</div><div class="ann" style="margin-top:10px">${esc(s.ann)}</div><div class="acc" style="margin-top:10px">${s.acclaim.map(a=>`<span>${esc(a)}</span>`).join("")}</div>`)});
-$("#wants").addEventListener("click",e=>{const b=e.target.closest("[data-w]");if(b)openWant(+b.dataset.w)});
+$("#now").addEventListener("click",()=>{const s=nowBook;if(!s)return;haptic();openSheet(`<div class="bk">${cover(s,112)}<div class="bk-meta"><h3>${esc(s.t)}</h3><div class="au">${esc(s.a)}</div><div class="chips">${s.c?`<span class="chip">${esc(s.c)}</span>`:""}${s.y?`<span class="chip">${s.y}</span>`:""}<span class="chip">Читаю сейчас</span></div></div></div>${s.when?`<div class="when">${esc(s.when)}</div>`:""}${s.ann?`<div class="ann" style="margin-top:10px">${esc(s.ann)}</div>`:""}${(s.acclaim||[]).length?`<div class="acc" style="margin-top:10px">${s.acclaim.map(a=>`<span>${esc(a)}</span>`).join("")}</div>`:""}<button class="btn btn-main" id="nDone">Дочитала ✓</button>`);
+  $("#nDone").onclick=()=>openMarkRead(s,()=>{nowBook=null;saveNow();renderWant()})});
+$("#wants").addEventListener("click",e=>{const d=e.target.closest("[data-done]");if(d){e.stopPropagation();haptic("medium");const s=want[+d.dataset.done];openMarkRead(s,()=>{want.splice(want.indexOf(s),1);saveWant();renderWant()});return}const b=e.target.closest("[data-w]");if(b)openWant(+b.dataset.w)});
+$("#wants").addEventListener("keydown",e=>{if(e.key==="Enter"){const b=e.target.closest("[data-w]");if(b)openWant(+b.dataset.w)}});
 
 // ---------- цитаты ----------
 let quotes=LS.get("zal.quotes",[]);
-const QBOOKS=()=>[...BOOKS.filter(b=>b.c!=="Неразобранное"||true),NOW_READING,...want];
+const QBOOKS=()=>[...BOOKS,...(nowBook?[nowBook]:[]),...want];
 const findQB=id=>QBOOKS().find(b=>(b.id||b.t)===id);
 function saveQuotes(){LS.set("zal.quotes",quotes);if(TG&&TG.CloudStorage){try{const str=JSON.stringify(quotes),parts=[];for(let i=0;i<str.length;i+=3800)parts.push(str.slice(i,i+3800));parts.forEach((x,i)=>TG.CloudStorage.setItem("q"+i,x));TG.CloudStorage.setItem("qn",String(parts.length))}catch(e){}}}
 function restoreQuotes(){if(!TG||!TG.CloudStorage||quotes.length)return;try{TG.CloudStorage.getItem("qn",(e,n)=>{n=+n;if(e||!n)return;const ks=[...Array(n)].map((_,i)=>"q"+i);TG.CloudStorage.getItems(ks,(e2,v)=>{if(e2||!v)return;try{const arr=JSON.parse(ks.map(k=>v[k]||"").join(""));if(Array.isArray(arr)){quotes=arr;LS.set("zal.quotes",quotes);renderQuotes()}}catch(x){}})})}catch(e){}}
@@ -1388,7 +1457,7 @@ $("#qlist").addEventListener("click",e=>{const x=e.target.closest("[data-qx]");i
   quotes=quotes.filter(q=>String(q.ts)!==x.dataset.qx);saveQuotes();renderQuotes();toast("Цитата удалена")});
 function quotesBlock(b){const qs=quotes.filter(q=>q.book===b.id);return `<div class="bq-mini">${qs.length?`<div class="k">Твои цитаты · ${qs.length}</div>${qs.slice(-2).map(q=>`<p>«${esc(q.text)}»</p>`).join("")}`:""}<button class="btn btn-ghost btn-wide" id="qAddBook">Добавить цитату</button></div>`}
 function openQuoteForm(bookId){
-  const groups=[["Прочитано",BOOKS],["Сейчас читаю",[NOW_READING]],["Хочу прочитать",want]];
+  const groups=[["Прочитано",BOOKS],...(nowBook?[["Сейчас читаю",[nowBook]]]:[]),["Хочу прочитать",want]];
   openSheet(`<h3 class="sheet-h">Новая цитата</h3><div class="qform">
    <label for="qBook">Книга</label><select id="qBook">${groups.map(([g,l])=>`<optgroup label="${g}">${l.map(b=>`<option value="${esc(b.id||b.t)}"${(b.id||b.t)===bookId?" selected":""}>${esc(b.t)}</option>`).join("")}</optgroup>`).join("")}</select>
    <label for="qText">Цитата</label><textarea id="qText" placeholder="Фраза, которую хочется запомнить"></textarea>
@@ -1397,7 +1466,7 @@ function openQuoteForm(bookId){
   const t=$("#qText"),sv=$("#qSave");t.addEventListener("input",()=>sv.disabled=!t.value.trim());
   sv.onclick=()=>{const id=$("#qBook").value,b=findQB(id);quotes.push({ts:Date.now(),book:id,bt:b&&b.t,ba:b&&b.a,text:t.value.trim(),page:$("#qPage").value.trim()});saveQuotes();renderQuotes();closeSheet();haptic("ok");toast("Цитата сохранена")};
 }
-$("#qAdd").onclick=()=>openQuoteForm(NOW_READING.id);
+$("#qAdd").onclick=()=>openQuoteForm(nowBook?nowBook.id||nowBook.t:"");
 
 // ---------- итоги ----------
 let timeMode="cent";
@@ -1467,6 +1536,8 @@ if(TG){
 }
 
 renderShelves();renderTime();renderAuthors();shuffleMoods();renderWant();discRestore();renderQuotes();restoreQuotes();
+if(!mine.length)cloudRead("m",arr=>{if(Array.isArray(arr)&&arr.length&&!mine.length){mine=arr;mine.forEach(b=>{BOOKS.push(prepUser(b));READ.add(norm(b.t))});LS.set(UKEY,mine);rerenderAll()}});
+if(TG&&TG.CloudStorage&&!LS.get("zal.now",null)){try{TG.CloudStorage.getItem("now",(e,v)=>{if(!e&&v){try{const o=JSON.parse(v);nowBook=o==="none"?null:o;LS.set("zal.now",o);renderWant()}catch(x){}}})}catch(e){}}
 
 </script>
 </body></html>

@@ -224,9 +224,10 @@ html,body{overflow-x:hidden}
 .sum-hero .big small{font-size:18px;font-family:var(--sans);font-weight:600;opacity:.8;margin-left:6px}
 .sum-hero .pages{font-family:var(--serif);font-size:20px;margin-top:6px;opacity:.9}
 .diary-h{font-size:26px;margin:6px 0 10px}
-.sum-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:18px}
-.sum-nums div{font-size:12px;opacity:.8}
-.sum-nums b{display:block;font-family:var(--serif);font-size:26px;font-weight:600;opacity:1}
+.sum-nums{display:flex;margin-top:18px;background:rgba(255,255,255,.08);border-radius:14px;padding:10px 0}
+.sum-nums div{flex:1;text-align:center;font-size:12px;opacity:.85}
+.sum-nums div+div{border-left:1px solid rgba(244,241,232,.2)}
+.sum-nums b{display:block;font-family:var(--serif);font-size:24px;line-height:1.15;font-weight:600;opacity:1}
 .sum-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px}
 .sum-card h3{font-size:18px}
 .sum-card .k{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gold-deep)}
@@ -452,7 +453,7 @@ html,body{overflow-x:hidden}
 
 
 /* поиск, правка, копия, карта, штампы */
-.shelf-links{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 6px;margin-top:6px}
+.shelf-links{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 6px;margin:34px 0 8px;padding-top:14px;border-top:1px solid var(--line)}
 .shelf-links .share-shelf{margin:0}
 .search{position:relative;margin-top:14px}
 .search input{width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:13px 40px 13px 42px;font:inherit;font-size:16px;-webkit-appearance:none;appearance:none}
@@ -502,7 +503,7 @@ html,body{overflow-x:hidden}
 .shelf-seg .seg{margin-top:0}
 .spine.wantsp{opacity:.97}
 #shelfWant .now{margin-top:14px}
-nav.tabs .in{max-width:380px}
+
 /* Хочу прочитать */
 .want-head{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
 .want-head h2{font-size:26px}
@@ -524,8 +525,8 @@ nav.tabs .in{max-width:380px}
 
 /* nav */
 nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--nav-bg);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:flex;justify-content:center;padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
-nav.tabs .in{display:flex;justify-content:space-between;width:100%;max-width:460px;padding-inline:max(14px,env(safe-area-inset-left,0px)) max(14px,env(safe-area-inset-right,0px))}
-nav.tabs button{flex:none;white-space:nowrap;background:none;border:none;padding:5px 0;justify-content:flex-start;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;line-height:1.1;font-weight:600;color:var(--muted);text-align:center}
+nav.tabs .in{display:flex;justify-content:center;gap:clamp(6px,4vw,22px);width:100%;padding-inline:max(14px,env(safe-area-inset-left,0px)) max(14px,env(safe-area-inset-right,0px))}
+nav.tabs button{flex:none;width:86px;white-space:nowrap;background:none;border:none;padding:5px 0;justify-content:flex-start;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;line-height:1.1;font-weight:600;color:var(--muted);text-align:center}
 nav.tabs button svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
 nav.tabs button.on{color:var(--nav-on)}
 nav.tabs button.tev.on{color:var(--gold-deep)}
@@ -1279,17 +1280,18 @@ function renderShelves(){
   seg.innerHTML=VIEW?"":`<div class="shelf-seg"><div class="seg" role="tablist"><button data-sm="read" class="${shelfMode==="read"?"on":""}">Прочитано</button><button data-sm="want" class="${shelfMode==="want"?"on":""}">Хочу прочитать</button></div></div>`;
   $("#shelfRead").hidden=shelfMode!=="read";$("#shelfWant").hidden=shelfMode!=="want";
   const nm=VIEW&&SHARED.n?esc(String(SHARED.n).slice(0,40)):"";
-  const addBtn=VIEW?`<div class="view-ban"><div class="k">Только просмотр</div><h2>${nm?nm+" делится своими полками":"С тобой поделились полками"}</h2></div>`:`<button class="add-book" id="addBook"><span>+</span>Поставить книгу на полку</button><div class="shelf-links">${BOOKS.length?`<button class="share-shelf" id="shareShelf">Поделиться полками</button>`:""}<button class="share-shelf" id="backupBtn">Резервная копия</button></div>`;
+  const addBtn=VIEW?`<div class="view-ban"><div class="k">Только просмотр</div><h2>${nm?nm+" делится своими полками":"С тобой поделились полками"}</h2></div>`:`<button class="add-book" id="addBook"><span>+</span>Поставить книгу на полку</button>`;
+  const links=VIEW?"":`<div class="shelf-links">${BOOKS.length?`<button class="share-shelf" id="shareShelf">Поделиться полками</button>`:""}<button class="share-shelf" id="backupBtn">Резервная копия</button></div>`;
   const search=BOOKS.length>3?searchBox():"";
   const welcome=BOOKS.length?"":`<div class="welcome"><h2>Твои полки пока пустые</h2><p>Сфотографируй книги, которые уже прочитала, или впиши их — они встанут на полки по странам и жанрам, с обложками. А Тевосгинк подскажет, что читать дальше.</p></div>`;
-  $("#shelfRead").innerHTML=addBtn+(shelfMode==="read"?search:"")+welcome+`<div id="shelfAll">${spinesHTML(BOOKS.map(b=>({b})),"read")}</div>`;
+  $("#shelfRead").innerHTML=addBtn+(shelfMode==="read"?search:"")+welcome+`<div id="shelfAll">${spinesHTML(BOOKS.map(b=>({b})),"read")}</div>`+links;
   if(shelfQ&&shelfMode==="read")runShelfSearch();
 }
 function searchBox(){return `<div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="shelfQ" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="${shelfMode==="want"?"Найти в «Хочу прочитать»":"Найти на полках"}" value="${esc(shelfQ)}" aria-label="Поиск"><button class="clr" id="shelfClr" aria-label="Очистить"${shelfQ?"":" hidden"}>×</button></div><div class="sres" id="shelfRes"></div>`}
 function renderWantShelves(){
   const box=$("#wantShelves");if(!box)return;
   box.innerHTML=`<button class="add-book" id="addWant"><span>+</span>Добавить в «Хочу прочитать»</button>`+(shelfMode==="want"&&want.length>3?searchBox():"")+
-    (want.length?`<div id="shelfAll">${spinesHTML(want.map((b,i)=>({b,i})),"want")}</div>`:`<div class="empty">Список пуст. Добавь книгу или загляни к Тевосгинку — он подбросит что-нибудь.</div>`);
+    (want.length?`<div id="shelfAll">${spinesHTML(want.map((b,i)=>({b,i})),"want")}</div>`:`<div class="empty">Список пуст. Добавь книгу или загляни к Тевосгинку — он подбросит что-нибудь.</div>`)+`<div class="shelf-links"><button class="share-shelf" id="backupBtn">Резервная копия</button></div>`;
   if(shelfQ&&shelfMode==="want")runShelfSearch();
 }
 document.addEventListener("click",e=>{const m=e.target.closest("[data-sm]");if(!m||m.dataset.sm===shelfMode)return;shelfMode=m.dataset.sm;shelfQ="";haptic();renderShelves();renderWantShelves();window.scrollTo({top:0});requestAnimationFrame(()=>fitAll())});
@@ -1327,8 +1329,15 @@ function renderAuthors(){
 
 // ---------- sheets ----------
 let sheetOpen=false;
-function openSheet(html){$("#sheet").innerHTML=`<div class="grab"></div>`+html;$("#scrim").classList.add("on");sheetOpen=true;syncBack()}
-function closeSheet(){$("#scrim").classList.remove("on");sheetOpen=false;syncBack()}
+function openSheet(html){$("#sheet").style.transform="";$("#sheet").scrollTop=0;$("#sheet").innerHTML=`<div class="grab"></div>`+html;$("#scrim").classList.add("on");sheetOpen=true;syncBack()}
+function closeSheet(){$("#scrim").classList.remove("on");sheetOpen=false;syncBack();const sh=$("#sheet");setTimeout(()=>{if(!sheetOpen){sh.style.transform="";sh.style.transition=""}},320)}
+(function(){const sh=$("#sheet");let y0=null,dy=0,t0=0,drag=false;
+  sh.addEventListener("touchstart",e=>{if(e.touches.length!==1){y0=null;return}y0=e.touches[0].clientY;dy=0;t0=Date.now();drag=false},{passive:true});
+  sh.addEventListener("touchmove",e=>{if(y0==null)return;const d=e.touches[0].clientY-y0;if(!drag){if(d>6&&sh.scrollTop<=0&&!e.target.closest("input,textarea,.fav-row,.cov-row"))drag=true;else if(Math.abs(d)>6){y0=null;return}else return}
+    dy=Math.max(0,d);sh.style.transition="none";sh.style.transform=`translateY(${dy}px)`;if(e.cancelable)e.preventDefault()},{passive:false});
+  const end=()=>{if(y0==null)return;y0=null;if(!drag)return;drag=false;sh.style.transition="";const fast=dy>40&&dy/(Date.now()-t0)>.5;
+    if(dy>110||fast){sh.style.transform=`translateY(${sh.offsetHeight}px)`;haptic();setTimeout(closeSheet,180)}else sh.style.transform=""};
+  sh.addEventListener("touchend",end);sh.addEventListener("touchcancel",end)})();
 function openBook(id){
   const b=BOOKS.find(x=>x.id===id);if(!b)return;haptic();
   openSheet(`<div class="bk">${cover(b,112)}<div class="bk-meta"><h3>${esc(b.t)}</h3><div class="au">${esc(b.a)}</div><div class="chips"><span class="chip">${esc(b.c)}</span>${b.y?`<span class="chip">${b.y}</span>`:""}<span class="chip">${GEN[b.g]||"Книга"}</span></div>${VIEW?"":`<button class="edit-link" id="editBtn"><svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Изменить</button>`}</div></div>
@@ -2015,8 +2024,6 @@ function summaryHTML(){
    ${favs.length?`<div class="sum-card"><div class="k">Десять из десяти</div><h3>Любимые</h3><div class="fav-row">${favs.map(b=>`<button class="au-book" data-id="${b.id}" style="width:auto">${cover(b,64)}</button>`).join("")}</div></div>`:""}
    ${yearsHTML()}
    ${stampsHTML()}
-   ${mapHTML()}
-   <div class="duo">${mini(oldest,"Самая старая")}${mini(newest,"Самая новая")}${mini(longest,"Самая толстая")}${mini(shortest,"Самая короткая")}</div>
    <div class="sum-card"><div class="k">Время</div><h3>По векам</h3>${bars(cents)}</div>
    <div class="sum-card"><div class="k">Жанры</div><h3>Что читаешь</h3>${bars(genres)}</div>
    <div class="sum-card"><div class="k">Главный автор</div><h3>${esc(authors[0][0])}</h3><p class="why" style="margin:6px 0 0">${authors[0][1]} ${plural(authors[0][1],"книга","книги","книг")} на полках. Средняя оценка всех книг — ${avg}.</p></div>

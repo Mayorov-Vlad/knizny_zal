@@ -434,6 +434,13 @@ html,body{overflow-x:hidden}
 .fseg button.on{background:var(--card);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .fchip{align-items:flex-start}.fchip .fdel{align-self:center}
 
+.yrs{display:grid;gap:4px;margin-top:10px}
+.yr-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line)}
+.yr-row:first-child{border-top:none}
+.yr-n{display:flex;flex-direction:column}.yr-n b{font-family:var(--serif);font-size:22px;font-weight:600;line-height:1.1}.yr-n span{font-size:13px;color:var(--muted)}
+.yr-fav{width:auto;max-width:60%;gap:10px}.yr-fav span{display:flex;flex-direction:column;min-width:0;text-align:left}.yr-fav small{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold-deep)}.yr-fav .t{font-family:var(--serif);font-size:15px;line-height:1.2}
+.rp-box .btn-main{margin-top:6px}
+
 /* Хочу прочитать */
 .want-head{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
 .want-head h2{font-size:26px}
@@ -996,7 +1003,7 @@ function saveMine(){LS.set(UKEY,mine);cloudChunks("m",mine)}
 let nowBook=(()=>{const v=LS.get("zal.now",null);return v==="none"?null:(v||(GUEST?null:NOW_READING))})();
 function saveNow(){LS.set("zal.now",nowBook||"none");if(TG&&TG.CloudStorage){try{TG.CloudStorage.setItem("now",JSON.stringify(nowBook||"none").slice(0,4000))}catch(e){}}}
 function rerenderAll(){renderShelves();renderTime();renderWant()}
-let _uid=0;function addBook(b){const rec={id:"u"+Date.now()+"_"+(_uid++),...b};mine.push(rec);BOOKS.push(prepUser(rec));READ.add(norm(rec.t));saveMine();rerenderAll();return rec}
+let _uid=0;function addBook(b){const rec={id:"u"+Date.now()+"_"+(_uid++),rd:new Date().toISOString().slice(0,7),...b};mine.push(rec);BOOKS.push(prepUser(rec));READ.add(norm(rec.t));saveMine();rerenderAll();return rec}
 const haptic=(t="light")=>{try{TG&&TG.HapticFeedback&&(t==="ok"?TG.HapticFeedback.notificationOccurred("success"):TG.HapticFeedback.impactOccurred(t))}catch(e){}};
 
 const $=s=>document.querySelector(s);
@@ -1203,7 +1210,7 @@ function openBook(id){
   openSheet(`<div class="bk">${cover(b,112)}<div class="bk-meta"><h3>${esc(b.t)}</h3><div class="au">${esc(b.a)}</div><div class="chips"><span class="chip">${esc(b.c)}</span>${b.y?`<span class="chip">${b.y}</span>`:""}<span class="chip">${GEN[b.g]}</span></div></div></div>
    ${b.r!=null?`<div class="rating"><b>${b.r}</b><span>/ 10</span></div>`:`<div class="rating"><span>Без оценки</span></div>`}
    ${b.n?`<div class="note">${esc(b.n)}</div>`:""}
-   ${DISC[b.id]?`<button class="btn btn-disc" id="discBtn">${discLabel(b.id)}</button>`:""}
+   ${DISC[b.id]||b.user?`<button class="btn btn-disc" id="discBtn">${discLabel(b.id)}</button>`:""}
    ${!NOCOUNTRY.has(b.c)?`<button class="btn btn-ghost btn-wide" id="cmpBtn">Столкнуть с другой книгой</button>`:""}
    ${quotesBlock(b)}
    ${b.user?`<button class="btn btn-ghost btn-wide" id="uDel">Убрать с полки</button>`:""}
@@ -1301,7 +1308,7 @@ function openAddBook(){
       const wi=want.findIndex(w=>norm(w.t)===norm(m.t));if(wi>=0)want.splice(wi,1)});
     saveWant();renderWant();closeSheet();haptic("ok");
     const parts=[];if(added.length)parts.push(added.length>1?`${added.length} ${plural(added.length,"книга","книги","книг")} на полке`:`«${added[0].t}» на полке`);if(wantAdded.length)parts.push(`${wantAdded.length} в «Хочу прочитать»`);toast(parts.join(", "));
-    const unrated=added.filter(r=>r.r==null);if(unrated.length)setTimeout(()=>openRatePrompt(unrated),700)};
+    const unrated=added.filter(r=>r.r==null);if(unrated.length)setTimeout(()=>openRatePrompt(unrated),700);else if(added.length===1)setTimeout(()=>offerDisc(BOOKS.find(x=>x.id===added[0].id)),800)};
 }
 function openRatePrompt(list){
   const el=$("#ratePrompt");
@@ -1324,7 +1331,7 @@ function openMarkRead(s,onDone){
    <label for="mN">Пара слов о книге (необязательно)</label><textarea id="mN" placeholder="Напиши что-нибудь"></textarea>
    <div class="sheet-actions"><button class="btn btn-main" id="mSave" style="margin-top:0">Поставить на полку</button></div></div>`);
   const getR=bindRating();
-  $("#mSave").onclick=()=>{addBook({t:s.t,a:s.a,c:s.c||NEWSHELF,y:s.y||null,g:GEN[s.g]?s.g:"modern",r:getR(),n:$("#mN").value.trim(),pg:s.len==="short"?200:s.len==="long"?600:360,bg:s.bg,fg:s.fg,m:motifOf(s),ann:s.ann});onDone();closeSheet();haptic("ok");toast(`«${s.t}» теперь на полке`)};
+  $("#mSave").onclick=()=>{addBook({t:s.t,a:s.a,c:s.c||NEWSHELF,y:s.y||null,g:GEN[s.g]?s.g:"modern",r:getR(),n:$("#mN").value.trim(),pg:s.len==="short"?200:s.len==="long"?600:360,bg:s.bg,fg:s.fg,m:motifOf(s),ann:s.ann});const nb=BOOKS[BOOKS.length-1];onDone();closeSheet();haptic("ok");toast(`«${s.t}» теперь на полке`);setTimeout(()=>offerDisc(nb),800)};
 }
 function openWant(i){
   const s=want[i];if(!s)return;haptic();
@@ -1341,9 +1348,33 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"){if(tevScope)closeTe
 // ---------- обсуждение ----------
 const discGet=id=>LS.get("zal.disc."+id,{});
 function discSet(id,obj){LS.set("zal.disc."+id,obj);if(TG&&TG.CloudStorage){try{TG.CloudStorage.setItem("d_"+id,JSON.stringify(obj).slice(0,4000))}catch(e){}}}
-function discLabel(id){const n=Object.keys(discGet(id)).length,t=DISC[id].length;return n?(n>=t?"Обсуждение · перечитать ответы":`Продолжить обсуждение · ${n} из ${t}`):"Обсудить книгу"}
+const GQ=[
+ ["Какой момент книги ты бы пересказала подруге первым — и почему именно он застрял в голове?","То, что мы пересказываем первым, говорит больше о нас, чем о книге. Чаще всего это сцена, где герой делает выбор, на который мы сами не решились бы."],
+ ["Кто из героев поступил так, как ты не поступила бы ни за что? Что его к этому привело?","Сильные книги заставляют понять даже тех, кого не хочется оправдывать. Понять — не значит согласиться, но это первый шаг, чтобы увидеть человека, а не роль."],
+ ["Изменилось ли твоё отношение к главному герою от начала к концу? В какой момент это случилось?","Если отношение не меняется, автор, скорее всего, держит героя на расстоянии. Если меняется — значит, книга сработала: она научила смотреть иначе."],
+ ["Какой вопрос книга задаёт, но так и не отвечает на него? Как ответила бы ты?","Открытые вопросы — не недоработка, а приглашение. Многие авторы признавались, что сами не знали ответа и писали, чтобы его поискать."],
+ ["Если перенести эту историю в наше время и твой город, что в ней сломалось бы, а что осталось бы прежним?","То, что выдерживает перенос, и есть сердце книги. Обычно ломаются обстоятельства, а остаются ревность, гордость, страх и надежда."],
+ ["Какая деталь — вещь, место или фраза — кажется тебе ключом ко всей книге?","Писатели часто прячут смысл в мелочи, которую легко пролистать. Иногда одна повторяющаяся вещь объясняет больше, чем все диалоги."],
+ ["Почему книга называется именно так? Какое название дала бы ей ты?","Название — первое обещание автора читателю. Сравни: выполнил ли он его, или к финалу название стало звучать иначе, чем в начале?"],
+ ["Чего тебе не хватило? О ком или о чём хотелось узнать больше?","То, о чём автор умолчал, — тоже выбор. Иногда пустота работает сильнее подробностей: читатель достраивает её сам, и у каждого получается своё."],
+ ["Чему автор явно сочувствует, а что осуждает или высмеивает? Ты с ним согласна?","Автор и рассказчик — не одно и то же, и позиция автора часто прячется за иронией. Спорить с ним — лучший способ понять, что думаешь ты сама."],
+ ["Это книга о своём времени или о чём-то вечном? Что в ней устарело, а что нет?","Устаревают обычаи и технологии, но редко чувства. Если книгу до сих пор читают, значит, вечного в ней больше, чем кажется."],
+ ["Если бы финал был другим, книга стала бы лучше или хуже? Каким был бы твой финал?","Финал, который нельзя заменить, — признак того, что вся книга работала на него. Если же он легко меняется, возможно, автор просто остановился."],
+ ["Кому из знакомых ты бы подарила эту книгу — и что написала бы на первой странице?","Выбор адресата многое говорит о самой книге: кому она нужна, от чего лечит, о чём напоминает. Иногда мы дарим книги, которые на самом деле нужны нам."]];
+const GQG={detective:["В какой момент ты заподозрила разгадку? Была ли она честной по отношению к читателю?","В «честном» детективе все улики есть на виду. Если разгадка пришла из ниоткуда — автор сыграл нечестно; если ты её пропустила — он просто мастер."],
+ fantasy:["Какое правило этого мира ты бы перенесла в наш — и к чему бы это привело?","Хорошее фэнтези всегда говорит о нашем мире. Магия в нём — увеличительное стекло для власти, страха и любви."],
+ scifi:["Что из описанного будущего уже сбылось или вот-вот сбудется? Тебе от этого спокойнее или тревожнее?","Фантасты редко угадывают технику, но часто — то, как люди к ней привыкнут. Самое страшное в антиутопиях обычно не машины, а равнодушие."],
+ nonfic:["Какая мысль из книги изменит хоть одну твою привычку или взгляд?","Нон-фикшн ценен не фактами — их легко забыть, — а одной мыслью, которая остаётся. Если такой нет, книга была интересной, но не нужной."],
+ kids:["Что в этой книге увидит взрослый, чего не заметит ребёнок?","Лучшие детские книги пишутся на двух уровнях сразу. Взрослый читатель часто узнаёт в них то, что когда-то пропустил."],
+ classic:["Что делает эту книгу классикой — и согласна ли ты, что она этого заслуживает?","Классика — не та книга, которую все хвалят, а та, что отвечает новым читателям на их собственные вопросы. Проверь: ответила ли она на твой?"],
+ modern:["Через двадцать лет эту книгу ещё будут читать? Что поможет ей выжить, а что помешает?","Современные книги проходят проверку временем у нас на глазах. Обычно выживают те, где люди важнее моды и сюжетных трюков."]};
+function qsFor(b){if(DISC[b.id])return DISC[b.id];const h=hsh(b.id||b.t),pool=[...GQ],out=[];const g=GQG[b.g];if(g)out.push({q:g[0],v:g[1]});
+  for(let k=0;out.length<5&&pool.length;k++){const i=(h+k*7)%pool.length;const [q,v]=pool.splice(i,1)[0];out.push({q,v})}return out}
+function offerDisc(b){const el=$("#ratePrompt");el.innerHTML=`<div class="rp-box" lang="ru"><button class="rp-x" id="rpX" aria-label="Закрыть">×</button><h3>Обсудим «${esc(b.t)}»?</h3><p>Пять вопросов, чтобы додумать книгу. Сначала отвечаешь ты, потом — взгляд Тевосгинка.</p><button class="btn btn-main" id="rpGo">Обсудить</button></div>`;
+  el.classList.add("on");$("#rpX").onclick=()=>el.classList.remove("on");el.onclick=e=>{if(e.target===el)el.classList.remove("on")};$("#rpGo").onclick=()=>{el.classList.remove("on");const bk=BOOKS.find(x=>x.id===b.id)||b;openDisc(bk)}}
+function discLabel(id){const bk=BOOKS.find(x=>x.id===id)||{id};const n=Object.keys(discGet(id)).length,t=qsFor(bk).length;return n?(n>=t?"Обсуждение · перечитать ответы":`Продолжить обсуждение · ${n} из ${t}`):"Обсудить книгу"}
 let disc=null;
-function openDisc(b,ctx){ctx=ctx||{key:b.id,qs:DISC[b.id],books:[b],endTitle:"Твои мысли о книге"};const ans=discGet(ctx.key);let i=ctx.qs.findIndex((_,j)=>!ans[j]);disc={b,key:ctx.key,qs:ctx.qs,books:ctx.books,endTitle:ctx.endTitle,ans,i:i<0?ctx.qs.length:i};$("#disc").classList.add("on");drawDisc();syncBack();haptic()}
+function openDisc(b,ctx){ctx=ctx||{key:b.id,qs:qsFor(b),books:[b],endTitle:"Твои мысли о книге"};const ans=discGet(ctx.key);let i=ctx.qs.findIndex((_,j)=>!ans[j]);disc={b,key:ctx.key,qs:ctx.qs,books:ctx.books,endTitle:ctx.endTitle,ans,i:i<0?ctx.qs.length:i};$("#disc").classList.add("on");drawDisc();syncBack();haptic()}
 const pairKey=(a,b)=>[a,b].sort().join("|");
 function pairQs(A,B){
   const cur=PAIRS[A.id+"|"+B.id]||PAIRS[B.id+"|"+A.id];if(cur)return {qs:cur,curated:true};
@@ -1689,6 +1720,13 @@ function openQuoteForm(bookId){
 
 // ---------- итоги ----------
 let timeMode="cent";
+function yearsHTML(){
+  const dated=BOOKS.filter(b=>b.rd),older=BOOKS.length-dated.length;if(!dated.length)return "";
+  const by={};dated.forEach(b=>(by[b.rd.slice(0,4)]=by[b.rd.slice(0,4)]||[]).push(b));
+  const rows=Object.keys(by).sort((a,b)=>b-a).map(y=>{const bs=by[y],fav=bs.filter(b=>b.r!=null).sort((a,b)=>b.r-a.r||(b.rd>a.rd?1:-1))[0];
+    return `<div class="yr-row"><div class="yr-n"><b>${y}</b><span>${bs.length} ${plural(bs.length,"книга","книги","книг")}</span></div>${fav?`<button class="au-book yr-fav" data-id="${fav.id}">${cover(fav,34)}<span><small>Любимая</small><b class="t">${esc(fav.t)}</b></span></button>`:""}</div>`}).join("");
+  return `<div class="sum-card"><div class="k">По годам</div><h3>Год за годом</h3><div class="yrs">${rows}${older?`<div class="yr-row"><div class="yr-n"><b style="font-size:17px">До приложения</b><span>${older} ${plural(older,"книга","книги","книг")}</span></div></div>`:""}</div></div>`;
+}
 function summaryHTML(){
   if(!BOOKS.length||!BOOKS.filter(b=>b.y).length)return `<div class="empty">Итоги появятся, когда на полках будут книги. Нажми «+ Поставить книгу на полку» на вкладке «Полки».</div>`;
   const known=BOOKS.filter(b=>!NOCOUNTRY.has(b.c)),dated=known.filter(b=>b.y);
@@ -1704,6 +1742,7 @@ function summaryHTML(){
    <div class="sum-hero"><div class="k">Всего прочитано</div><div class="big">${BOOKS.length}<small>${plural(BOOKS.length,"книга","книги","книг")}</small></div><div class="pages">≈ ${BOOKS.reduce((a,b)=>a+(b.pg||0),0).toLocaleString("ru-RU")} страниц</div>
     <div class="sum-nums"><div><b>${countries.length}</b>${plural(countries.length,"страна","страны","стран")}</div><div><b>${cents.length}</b>${plural(cents.length,"век","века","веков")}</div><div><b>${authors.length}</b>${plural(authors.length,"автор","автора","авторов")}</div></div></div>
    ${favs.length?`<div class="sum-card"><div class="k">Десять из десяти</div><h3>Любимые</h3><div class="fav-row">${favs.map(b=>`<button class="au-book" data-id="${b.id}" style="width:auto">${cover(b,64)}</button>`).join("")}</div></div>`:""}
+   ${yearsHTML()}
    <div class="sum-card"><div class="k">География</div><h3>Страны на полках</h3>${bars(countries)}</div>
    <div class="duo">${mini(oldest,"Самая старая")}${mini(newest,"Самая новая")}${mini(longest,"Самая толстая")}${mini(shortest,"Самая короткая")}</div>
    <div class="sum-card"><div class="k">Время</div><h3>По векам</h3>${bars(cents)}</div>

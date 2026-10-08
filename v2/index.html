@@ -6,273 +6,405 @@
 <title>Нора — вторая версия</title>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <!--
-  ВТОРАЯ ВЕРСИЯ «НОРЫ» — отдельный пробный вид.
-  Вся версия живёт в папке v2/ и ничего не берёт из основного приложения, кроме шрифтов.
-  Если не понравится — просто удалить папку v2 целиком.
+  ВТОРАЯ ВЕРСИЯ «НОРЫ» — пробный вид.
+  Живёт только в папке v2/ и ничего не трогает в основном приложении.
+  Не понравится — удалить папку v2 целиком.
 -->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700;800&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
 <style>
-@font-face{font-family:'Forum';font-display:swap;src:url(../fonts/forum-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
-@font-face{font-family:'Forum';font-display:swap;src:url(../fonts/forum-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F}
-@font-face{font-family:'Manrope';font-weight:400;font-display:swap;src:url(../fonts/manrope-cyrillic-400-normal.woff2) format('woff2');unicode-range:U+0400-045F}
-@font-face{font-family:'Manrope';font-weight:400;font-display:swap;src:url(../fonts/manrope-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F}
-@font-face{font-family:'Manrope';font-weight:600;font-display:swap;src:url(../fonts/manrope-cyrillic-600-normal.woff2) format('woff2');unicode-range:U+0400-045F}
-@font-face{font-family:'Manrope';font-weight:600;font-display:swap;src:url(../fonts/manrope-latin-600-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F}
-@font-face{font-family:'Manrope';font-weight:700;font-display:swap;src:url(../fonts/manrope-cyrillic-700-normal.woff2) format('woff2');unicode-range:U+0400-045F}
-@font-face{font-family:'Manrope';font-weight:700;font-display:swap;src:url(../fonts/manrope-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F}
-
 :root{
-  --sky:#D7E6E3; --sky2:#EEF2E4; --grass:#5F8240; --grass2:#7FA155;
-  --top:#5A3D2C; --clay:#6E4A34; --loam:#3A281E; --deep:#22170F;
-  --lamp:#FFCB6B; --paper:#F4E9D3; --ink:#2A1D16; --ink2:#5C4636; --mute:#8C7461;
-  --moss:#7C9A55; --reel:#C2475A; --line:rgba(244,233,211,.18);
+  --bg:#F2F2F5; --surf:#FFFFFF; --surf2:#E9E9EE; --ink:#16161B; --ink2:#5D5D69; --ink3:#9A9AA6; --line:rgba(22,22,27,.08);
+  --acc:#4A3AFF; --acc-ink:#FFFFFF;
+  --w1:#FFB08A; --w2:#B9A4FF; --w3:#8FE3C5; --w4:#4A3AFF;
+  --glass:rgba(255,255,255,.72); --shadow:0 12px 32px -14px rgba(30,20,90,.28);
+  --r-xl:28px; --r-l:20px; --r-m:14px;
+}
+body.films{
+  --bg:#000000; --surf:#141417; --surf2:#1F1F24; --ink:#F5F5F7; --ink2:#A9A9B5; --ink3:#6C6C78; --line:rgba(255,255,255,.08);
+  --acc:#FF3D63; --acc-ink:#FFFFFF;
+  --w1:#FF3D63; --w2:#FFB23B; --w3:#6B3BFF; --w4:#1E1BFF;
+  --glass:rgba(24,24,28,.72); --shadow:0 14px 36px -14px rgba(0,0,0,.8);
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--deep);color:var(--paper)}
-body{font-family:'Manrope',system-ui,sans-serif;font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
-button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible{outline:2px solid var(--lamp);outline-offset:3px}
-h1,h2,h3{font-family:'Forum',Georgia,serif;font-weight:400;margin:0;letter-spacing:.01em}
+html,body{margin:0;background:var(--bg);color:var(--ink);transition:background .5s,color .5s}
+body{font-family:'Onest',system-ui,sans-serif;font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;padding:0}
+button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+img{display:block}
+.wrap{max-width:560px;margin:0 auto;padding:0 18px calc(110px + env(safe-area-inset-bottom,0px))}
+.page{display:none}.page.on{display:block;animation:pg .35s ease}
+@keyframes pg{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-/* ---------- поверхность ---------- */
-.surface{position:relative;padding:calc(28px + env(safe-area-inset-top,0px)) 22px 0;background:linear-gradient(var(--sky2),var(--sky));color:var(--ink);overflow:hidden}
-.surface h1{font-size:64px;line-height:.9}
-.surface p{margin:8px 0 0;max-width:30ch;color:var(--ink2)}
-.hole{position:relative;height:96px;margin-top:10px}
-.hole svg{position:absolute;left:0;right:0;bottom:-1px;width:100%;height:100%}
+/* верх */
+.top{display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top,0px)) 0 12px}
+.ava{width:36px;height:36px;border-radius:50%;background:conic-gradient(from 210deg,var(--w1),var(--w2),var(--w3),var(--w1));display:grid;place-items:center;font-weight:800;color:#fff;font-size:15px}
+.top h1{font-family:'Unbounded',sans-serif;font-weight:700;font-size:22px;margin:0;letter-spacing:-.01em}
+.top .sp{flex:1}
+.seg{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;background:var(--surf2);border-radius:999px;padding:3px}
+.seg button{position:relative;z-index:1;padding:7px 16px;border-radius:999px;font-weight:600;font-size:14px;color:var(--ink2);transition:color .3s}
+.seg button.on{color:var(--ink)}
+.seg i{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;background:var(--surf);box-shadow:0 2px 8px rgba(0,0,0,.12);transition:transform .45s cubic-bezier(.3,1.4,.5,1)}
+body.films .seg i{transform:translateX(100%)}
 
-/* ---------- грунт и тоннель ---------- */
-.soil{position:relative;padding:8px 0 120px;background:
-  radial-gradient(3px 3px at 12% 8%,rgba(255,255,255,.07) 50%,transparent 51%),
-  radial-gradient(2px 2px at 70% 22%,rgba(255,255,255,.06) 50%,transparent 51%),
-  radial-gradient(4px 3px at 34% 47%,rgba(0,0,0,.25) 50%,transparent 51%),
-  radial-gradient(2px 2px at 88% 63%,rgba(255,255,255,.05) 50%,transparent 51%),
-  linear-gradient(var(--top) 0,var(--clay) 18%,var(--loam) 55%,var(--deep) 100%);
-  background-size:160px 140px,190px 170px,230px 200px,150px 180px,100% 100%}
-.tunnel{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-.tunnel path{fill:none;stroke:#1B120C;stroke-width:26;stroke-linecap:round;opacity:.55}
-.tunnel path.glow{stroke:var(--lamp);stroke-width:2;stroke-dasharray:2 10;opacity:.35}
-.depth{position:absolute;right:10px;font-size:11px;color:rgba(244,233,211,.35);font-variant-numeric:tabular-nums}
+/* волна */
+.wave{position:relative;height:340px;border-radius:var(--r-xl);overflow:hidden;background:var(--surf);isolation:isolate;margin-top:4px}
+.wave canvas{position:absolute;inset:0;width:100%;height:100%;filter:blur(28px) saturate(1.15);transform:scale(1.15)}
+.wave::after{content:"";position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.09'/%3E%3C/svg%3E");mix-blend-mode:overlay;pointer-events:none}
+.wave-in{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:22px}
+.wave h2{font-family:'Unbounded',sans-serif;font-size:30px;line-height:1.05;margin:0;color:#fff;letter-spacing:-.02em;text-shadow:0 2px 20px rgba(0,0,0,.18);max-width:11ch}
+.wave .who{color:rgba(255,255,255,.85);font-weight:500;font-size:14px;margin-top:6px}
+.play{display:flex;align-items:center;gap:12px;align-self:flex-start;background:#fff;color:#111;border-radius:999px;padding:8px 20px 8px 8px;font-weight:700;font-size:15px;box-shadow:0 10px 30px -10px rgba(0,0,0,.4);transition:transform .2s}
+.play:active{transform:scale(.96)}
+.play b{width:40px;height:40px;border-radius:50%;background:#111;display:grid;place-items:center}
+.play b svg{width:16px;height:16px;fill:#fff;margin-left:2px}
+.moods{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -22px;padding:0 22px}
+.moods::-webkit-scrollbar{display:none}
+.moods button{flex:none;padding:7px 13px;border-radius:999px;background:rgba(255,255,255,.22);color:#fff;font-weight:600;font-size:13px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.28)}
+.moods button.on{background:#fff;color:#111}
 
-.room{position:relative;display:block;width:min(84%,420px);margin:34px 0;border:none;padding:22px 22px 20px;text-align:left;color:var(--paper);
-  background:radial-gradient(120% 90% at 50% 15%,rgba(255,203,107,.22),transparent 60%),#2A1C14;
-  border-radius:58% 42% 50% 50% / 38% 46% 54% 62%;box-shadow:inset 0 10px 30px rgba(0,0,0,.55),0 0 0 3px #1B120C}
-.room:nth-of-type(odd){margin-left:5%}
-.room:nth-of-type(even){margin-left:auto;margin-right:5%;border-radius:44% 56% 48% 52% / 52% 40% 60% 48%}
-.room:active{transform:scale(.985)}
-.room h2{font-size:30px;line-height:1}
-.room .sub{font-size:13px;color:rgba(244,233,211,.7);margin-top:2px}
-.lamp{position:absolute;top:10px;right:22%;width:10px;height:14px;border-radius:50% 50% 45% 45%;background:var(--lamp);box-shadow:0 0 18px 6px rgba(255,203,107,.45)}
-.lamp::before{content:"";position:absolute;left:4px;top:-22px;width:2px;height:22px;background:#140D08}
-.room.films{background:radial-gradient(120% 90% at 50% 15%,rgba(194,71,90,.28),transparent 60%),#24161A}
-.room.films .lamp{background:#FF8E8E;box-shadow:0 0 18px 6px rgba(255,120,120,.4)}
+/* находка */
+.pick{display:none;margin-top:12px;background:var(--surf);border-radius:var(--r-l);padding:14px;box-shadow:var(--shadow);gap:14px}
+.pick.on{display:flex;animation:pop .5s cubic-bezier(.2,1.3,.4,1)}
+@keyframes pop{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:none}}
+.pick .cv{width:96px;flex:none}
+.pick-t{min-width:0;display:flex;flex-direction:column}
+.pick-t small{color:var(--ink3);font-weight:600;font-size:12px}
+.pick-t h3{margin:2px 0 0;font-size:19px;line-height:1.15;font-weight:700}
+.pick-t .a{color:var(--ink2);font-size:14px}
+.pick-t p{margin:8px 0 0;font-size:13.5px;color:var(--ink2)}
+.acts{display:flex;gap:6px;margin-top:auto;padding-top:10px;flex-wrap:wrap}
+.chipb{padding:8px 12px;border-radius:999px;background:var(--surf2);font-weight:600;font-size:13px}
+.chipb.pri{background:var(--acc);color:var(--acc-ink)}
 
-/* содержимое комнат в миниатюре */
-.pile{display:flex;align-items:flex-end;gap:2px;height:58px;margin-top:14px}
-.pile i{display:block;width:12px;border-radius:2px 2px 0 0;box-shadow:inset -2px 0 0 rgba(0,0,0,.2)}
-.pile i:nth-child(5n+2){transform:rotate(-6deg);transform-origin:bottom}
-.crates{display:flex;gap:6px;margin-top:14px}
-.crates i{display:block;width:30px;height:38px;border-radius:3px;border:2px dashed rgba(244,233,211,.35)}
-.screen{margin-top:14px;height:46px;border-radius:4px 4px 30% 30%/4px 4px 10px 10px;background:linear-gradient(#EFE6D2,#C8BCA2);box-shadow:0 0 22px rgba(255,236,190,.25);display:flex;align-items:center;justify-content:center;gap:5px}
-.screen i{display:block;width:20px;height:30px;border-radius:2px}
-.tickets{display:flex;gap:6px;margin-top:14px}
-.tickets i{display:block;width:44px;height:22px;background:var(--reel);opacity:.85;clip-path:polygon(0 0,100% 0,100% 35%,94% 50%,100% 65%,100% 100%,0 100%,0 65%,6% 50%,0 35%)}
-.strata{margin-top:14px;display:grid;gap:3px}
-.strata i{display:block;height:9px;border-radius:5px}
+/* секции */
+.sec{margin-top:30px}
+.sec-h{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
+.sec-h h3{margin:0;font-size:21px;font-weight:700;letter-spacing:-.01em}
+.sec-h button{color:var(--acc);font-weight:600;font-size:14px}
+.rail{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:0 -18px;padding:4px 18px 8px}
+.rail::-webkit-scrollbar{display:none}
+.tile{flex:none;width:124px;scroll-snap-align:start;text-align:left}
+.tile .ti{margin-top:8px;font-weight:600;font-size:13.5px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.tile .ta{font-size:12.5px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* ---------- логово / раскопки ---------- */
-.den{position:relative;margin:50px 5% 0;padding:24px 18px 22px;border-radius:30px 30px 18px 18px;background:#160E09;box-shadow:inset 0 0 0 3px #0E0805}
-.den h2{font-size:34px}
-.den p{margin:4px 0 0;color:rgba(244,233,211,.7);font-size:14px;max-width:34ch}
-.dig-mode{display:inline-flex;margin-top:14px;border-radius:20px;background:#2A1C14;padding:3px}
-.dig-mode button{border:none;background:none;padding:6px 14px;border-radius:17px;font-size:13px;font-weight:700;color:rgba(244,233,211,.65)}
-.dig-mode button.on{background:var(--paper);color:var(--ink)}
-.ground{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:16px}
-.clod{aspect-ratio:1;border:none;border-radius:30% 40% 35% 45%;background:radial-gradient(circle at 35% 30%,#7A5640,#4A3122 70%);box-shadow:inset -3px -4px 0 rgba(0,0,0,.25);transition:transform .2s,opacity .35s}
-.clod:active{transform:scale(.9)}
-.clod.gone{opacity:0;transform:scale(.4) rotate(25deg);pointer-events:none}
-.eyes{position:absolute;right:22px;top:24px;display:flex;gap:6px}
-.eyes span{width:14px;height:16px;border-radius:50%;background:var(--paper);position:relative;animation:blink 5s infinite}
-.eyes span::after{content:"";position:absolute;width:6px;height:7px;border-radius:50%;background:var(--ink);left:4px;top:5px}
-@keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
-.find{margin-top:16px;border-radius:14px;background:var(--paper);color:var(--ink);padding:16px;display:none}
-.find.on{display:block;animation:rise .45s cubic-bezier(.2,1.4,.4,1)}
-@keyframes rise{from{transform:translateY(30px);opacity:0}to{transform:none;opacity:1}}
-.find .k{font-size:12px;color:var(--mute);font-weight:600}
-.find h3{font-size:26px;line-height:1.1;margin-top:4px}
-.find .who{color:var(--ink2);font-size:14px}
-.find .why{margin-top:8px;font-size:14px}
-.row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.btn{border:none;border-radius:12px;padding:11px 14px;font-weight:700;font-size:14px;background:var(--ink);color:var(--paper);flex:1}
-.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+/* обложки */
+.cv{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;background:var(--surf2);box-shadow:0 10px 24px -14px rgba(0,0,0,.55),0 0 0 1px var(--line)}
+.cv img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s}
+.cv img.ok{opacity:1}
+.cv .gen{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:10px;color:#fff;font-weight:700;font-size:13px;line-height:1.15}
+.cv .gen small{font-weight:500;opacity:.8;font-size:11px;margin-top:3px}
+.cv .rt{position:absolute;right:6px;bottom:6px;min-width:26px;height:26px;padding:0 7px;border-radius:13px;background:rgba(0,0,0,.62);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font-weight:700;font-size:13px;display:grid;place-items:center}
 
-/* ---------- открытая комната ---------- */
-.inside{position:fixed;inset:0;z-index:20;background:#1E140E;color:var(--paper);overflow-y:auto;clip-path:circle(0 at var(--cx,50%) var(--cy,50%));transition:clip-path .5s cubic-bezier(.6,0,.3,1);padding:calc(18px + env(safe-area-inset-top,0px)) 20px 60px}
-.inside.on{clip-path:circle(150% at var(--cx,50%) var(--cy,50%))}
-.inside.films{background:#1D1215}
-.back{border:none;background:none;color:var(--lamp);font-weight:700;padding:6px 0;font-size:14px}
-.inside h2{font-size:46px;line-height:1;margin-top:10px}
-.inside .sub{color:rgba(244,233,211,.65);margin-top:4px}
-.items{margin-top:20px;display:grid;gap:10px}
-.item{display:flex;gap:14px;align-items:center;border:none;width:100%;text-align:left;background:rgba(244,233,211,.06);border-radius:12px;padding:10px;color:var(--paper)}
-.item .c{flex:none;width:40px;height:58px;border-radius:3px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:5px;font-family:'Forum',serif;font-size:10px;color:rgba(255,255,255,.85)}
-.item b{display:block;font-weight:600;line-height:1.25}
-.item small{color:rgba(244,233,211,.6)}
-.item .r{margin-left:auto;font-family:'Forum',serif;font-size:24px;color:var(--lamp);flex:none}
-.add{display:flex;gap:8px;margin-top:18px}
-.add input{flex:1;min-width:0;border:none;border-radius:12px;padding:12px 14px;font:inherit;background:rgba(244,233,211,.1);color:var(--paper)}
-.add input::placeholder{color:rgba(244,233,211,.45)}
-.add button{border:none;border-radius:12px;padding:0 16px;background:var(--lamp);color:var(--ink);font-weight:700}
-.years{margin-top:22px;display:grid;gap:8px}
-.year{border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:baseline;gap:10px}
-.year b{font-family:'Forum',serif;font-size:28px;font-weight:400}
-.year span{font-size:13px;opacity:.85;text-align:right}
-.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,40px);opacity:0;background:var(--paper);color:var(--ink);padding:10px 16px;border-radius:12px;font-weight:600;font-size:14px;transition:.3s;z-index:40;max-width:86vw;text-align:center}
-.toast.on{transform:translate(-50%,0);opacity:1}
-.v2tag{position:fixed;right:10px;top:calc(10px + env(safe-area-inset-top,0px));z-index:5;font-size:11px;font-weight:700;color:var(--ink2);background:rgba(255,255,255,.55);padding:3px 8px;border-radius:8px}
+/* сейчас */
+.now{display:flex;gap:14px;align-items:center;background:var(--surf);border-radius:var(--r-l);padding:12px;width:100%;text-align:left;box-shadow:var(--shadow)}
+.now .cv{width:62px;flex:none;border-radius:8px}
+.now small{color:var(--acc);font-weight:700;font-size:12px}
+.now b{display:block;font-size:17px;line-height:1.2}
+.now span{color:var(--ink2);font-size:14px}
+
+/* бенто итогов */
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bx{background:var(--surf);border-radius:var(--r-l);padding:16px;min-height:120px;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:space-between}
+.bx.big{grid-row:span 2;background:var(--acc);color:var(--acc-ink)}
+.bx.wide{grid-column:span 2;min-height:0}
+.bx .n{font-family:'Unbounded',sans-serif;font-weight:700;font-size:44px;line-height:1;letter-spacing:-.03em}
+.bx.big .n{font-size:84px}
+.bx .l{font-size:13.5px;font-weight:600;opacity:.75}
+.bx .vv{font-size:18px;font-weight:700;line-height:1.2}
+.bars{display:grid;gap:7px;margin-top:10px}
+.bar{display:grid;grid-template-columns:92px 1fr 22px;align-items:center;gap:8px;font-size:13px}
+.bar i{display:block;height:8px;border-radius:4px;background:var(--acc)}
+.bar span:last-child{text-align:right;color:var(--ink3)}
+.covers-fan{display:flex;margin-top:10px}
+.covers-fan .cv{width:44px;margin-right:-14px;border:2px solid var(--surf)}
+
+/* коллекция */
+.filters{display:flex;gap:8px;margin:6px 0 14px;overflow-x:auto;scrollbar-width:none}
+.filters button{flex:none;padding:8px 14px;border-radius:999px;background:var(--surf);font-weight:600;font-size:14px;color:var(--ink2);box-shadow:0 0 0 1px var(--line) inset}
+.filters button.on{background:var(--ink);color:var(--bg)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px 12px}
+.grid .tile{width:auto}
+.h-big{font-family:'Unbounded',sans-serif;font-size:30px;font-weight:700;letter-spacing:-.02em;margin:8px 0 4px}
+.lead{color:var(--ink2);margin:0 0 14px}
+
+/* поиск */
+.sbox{display:flex;align-items:center;gap:10px;background:var(--surf);border-radius:var(--r-m);padding:0 14px;height:50px;box-shadow:0 0 0 1px var(--line) inset}
+.sbox svg{width:20px;height:20px;stroke:var(--ink3);fill:none;stroke-width:2;flex:none}
+.sbox input{flex:1;min-width:0;border:none;background:none;font:inherit;font-size:16px;color:var(--ink);outline:none}
+.res{margin-top:12px;display:grid;gap:6px}
+.ri{display:flex;gap:12px;align-items:center;padding:8px;border-radius:var(--r-m);width:100%;text-align:left}
+.ri:active{background:var(--surf2)}
+.ri .cv{width:46px;flex:none;border-radius:6px}
+.ri b{display:block;font-weight:600;line-height:1.25}
+.ri span{font-size:13px;color:var(--ink3)}
+.ri .add{margin-left:auto;flex:none;width:34px;height:34px;border-radius:50%;background:var(--surf2);display:grid;place-items:center;font-size:20px;font-weight:500;color:var(--acc)}
+.hint{color:var(--ink3);font-size:14px;margin-top:14px}
+
+/* таббар */
+.tabbar{position:fixed;left:50%;bottom:calc(12px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;display:flex;gap:2px;padding:6px;border-radius:999px;background:var(--glass);backdrop-filter:blur(20px) saturate(1.6);-webkit-backdrop-filter:blur(20px) saturate(1.6);box-shadow:0 10px 30px -10px rgba(0,0,0,.35),0 0 0 1px var(--line) inset}
+.tabbar button{display:flex;align-items:center;gap:7px;height:44px;padding:0 14px;border-radius:999px;color:var(--ink2);font-weight:600;font-size:14px;transition:background .3s,color .3s}
+.tabbar svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tabbar button span{display:none}
+.tabbar button.on{background:var(--ink);color:var(--bg)}
+.tabbar button.on span{display:inline}
+
+/* карточка */
+.det{position:fixed;inset:0;z-index:50;overflow-y:auto;background:var(--bg);transform:translateY(100%);transition:transform .5s cubic-bezier(.2,.9,.2,1);overscroll-behavior:contain}
+.det.on{transform:none}
+.det-bg{position:absolute;inset:0 0 auto 0;height:440px;overflow:hidden}
+.det-bg img{width:100%;height:100%;object-fit:cover;filter:blur(40px) saturate(1.4);transform:scale(1.4);opacity:.75}
+.det-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(transparent 35%,var(--bg))}
+.det-in{position:relative;padding:calc(14px + env(safe-area-inset-top,0px)) 22px 60px;max-width:560px;margin:0 auto}
+.x{width:38px;height:38px;border-radius:50%;background:var(--glass);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:grid;place-items:center}
+.x svg{width:18px;height:18px;stroke:var(--ink);stroke-width:2.2;fill:none}
+.det .cv{width:190px;margin:18px auto 0;border-radius:14px;box-shadow:0 30px 60px -20px rgba(0,0,0,.6)}
+.det h2{text-align:center;margin:22px 0 0;font-size:26px;line-height:1.15;font-weight:800;letter-spacing:-.02em}
+.det .da{text-align:center;color:var(--ink2);margin-top:4px}
+.rate{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:22px -22px 0;padding:0 22px}
+.rate::-webkit-scrollbar{display:none}
+.rate button{flex:none;width:44px;height:44px;border-radius:50%;background:var(--surf);font-weight:700;box-shadow:0 0 0 1px var(--line) inset;transition:transform .2s}
+.rate button.on{background:var(--acc);color:var(--acc-ink);transform:scale(1.08)}
+.det .lbl{font-size:13px;font-weight:600;color:var(--ink3);margin-top:22px;text-align:center}
+.det-acts{display:grid;gap:8px;margin-top:22px}
+.bigb{height:54px;border-radius:16px;font-weight:700;font-size:16px;background:var(--surf);box-shadow:0 0 0 1px var(--line) inset}
+.bigb.pri{background:var(--acc);color:var(--acc-ink);box-shadow:none}
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translate(-50%,-80px);z-index:60;background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:999px;font-weight:600;font-size:14px;transition:transform .4s cubic-bezier(.2,1.3,.4,1);white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+.toast.on{transform:translate(-50%,0)}
+.v2{font-size:11px;font-weight:700;color:var(--ink3);border:1px solid var(--line);border-radius:999px;padding:3px 8px}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<span class="v2tag">версия 2</span>
+<div class="wrap">
+  <header class="top">
+    <div class="ava" id="ava">С</div><h1>Нора</h1><span class="v2">v2</span><span class="sp"></span>
+    <div class="seg" role="tablist" aria-label="Раздел"><i></i><button data-realm="books" class="on">Книги</button><button data-realm="films">Кино</button></div>
+  </header>
 
-<header class="surface">
-  <h1>Нора</h1>
-  <p>Книги и фильмы, которые ты унесла к себе под землю.</p>
-  <div class="hole"><svg viewBox="0 0 400 96" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0 40 Q40 30 80 42 T160 38 Q190 36 200 46 Q215 70 240 46 Q260 34 300 40 T400 36 V96 H0Z" fill="var(--grass)"/>
-    <path d="M0 56 Q60 48 120 58 T240 60 T400 52 V96 H0Z" fill="var(--top)"/>
-    <ellipse cx="220" cy="62" rx="26" ry="16" fill="#1B120C"/>
-  </svg></div>
-</header>
-
-<main class="soil" id="soil">
-  <svg class="tunnel" id="tunnel" aria-hidden="true"></svg>
-  <button class="room" data-room="read"><span class="lamp"></span><h2>Читальня</h2><div class="sub" id="readSub"></div><div class="pile" id="readPile"></div></button>
-  <button class="room" data-room="wantB"><span class="lamp"></span><h2>Книжная кладовка</h2><div class="sub" id="wantBSub"></div><div class="crates" id="wantBMini"></div></button>
-  <button class="room films" data-room="seen"><span class="lamp"></span><h2>Кинозал</h2><div class="sub" id="seenSub"></div><div class="screen" id="seenMini"></div></button>
-  <button class="room films" data-room="wantF"><span class="lamp"></span><h2>Касса</h2><div class="sub" id="wantFSub"></div><div class="tickets" id="wantFMini"></div></button>
-  <button class="room" data-room="strata"><span class="lamp"></span><h2>Пласты</h2><div class="sub">Год за годом — что читала и смотрела</div><div class="strata" id="strataMini"></div></button>
-
-  <section class="den" aria-label="Логово Тевосгинка">
-    <div class="eyes" aria-hidden="true"><span></span><span></span></div>
-    <h2>Логово</h2>
-    <p>Тевосгинк зарыл здесь находки. Разгреби землю — под третьим комком что-то есть.</p>
-    <div class="dig-mode" role="tablist"><button data-dig="book" class="on">Книги</button><button data-dig="film">Кино</button></div>
-    <div class="ground" id="ground"></div>
-    <div class="find" id="find"></div>
+  <!-- Главная -->
+  <section class="page on" id="p-home">
+    <div class="wave" id="wave"><canvas id="cv"></canvas>
+      <div class="wave-in">
+        <div><h2 id="wTitle">Волна Тевосгинка</h2><div class="who" id="wSub">Подберёт книгу под настроение</div></div>
+        <div><button class="play" id="play"><b><svg viewBox="0 0 24 24"><path d="M7 4.5v15l13-7.5z"/></svg></b><span id="playT">Подобрать книгу</span></button></div>
+        <div class="moods" id="moods"></div>
+      </div>
+    </div>
+    <div class="pick" id="pick"></div>
+    <div class="sec" id="nowSec"></div>
+    <div class="sec"><div class="sec-h"><h3 id="hRecent">Недавно прочитано</h3><button data-go="col">Все</button></div><div class="rail" id="railRecent"></div></div>
+    <div class="sec"><div class="sec-h"><h3 id="hWant">Хочу прочитать</h3><button data-go="col" data-f="want">Все</button></div><div class="rail" id="railWant"></div></div>
+    <div class="sec"><div class="sec-h"><h3>Итоги года</h3><button data-go="sum">Подробнее</button></div><div class="bento" id="bentoMini"></div></div>
   </section>
-</main>
 
-<div class="inside" id="inside" role="dialog" aria-modal="true"></div>
+  <!-- Поиск -->
+  <section class="page" id="p-search">
+    <h2 class="h-big">Поиск</h2>
+    <label class="sbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="q" placeholder="Название или автор" autocomplete="off"></label>
+    <div class="res" id="res"></div>
+  </section>
+
+  <!-- Коллекция -->
+  <section class="page" id="p-col">
+    <h2 class="h-big" id="colH">Коллекция</h2>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <!-- Итоги -->
+  <section class="page" id="p-sum">
+    <h2 class="h-big">Итоги</h2>
+    <p class="lead" id="sumLead"></p>
+    <div class="bento" id="bento"></div>
+  </section>
+</div>
+
+<nav class="tabbar" id="tabbar">
+  <button data-go="home" class="on"><svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/></svg><span>Главная</span></button>
+  <button data-go="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><span>Поиск</span></button>
+  <button data-go="col"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="4" height="18" rx="1"/><rect x="10" y="3" width="4" height="18" rx="1"/><path d="M16.5 4.5l3.8 1 -4 15.5-3.8-1z"/></svg><span>Коллекция</span></button>
+  <button data-go="sum"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg><span>Итоги</span></button>
+</nav>
+
+<div class="det" id="det" role="dialog" aria-modal="true"></div>
 <div class="toast" id="toast"></div>
 
 <script>
 const TG=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?Telegram.WebApp:null;
-if(TG){try{TG.ready();TG.expand();TG.setHeaderColor&&TG.setHeaderColor("#EEF2E4");TG.setBackgroundColor&&TG.setBackgroundColor("#22170F")}catch(e){}}
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const haptic=t=>{try{TG&&TG.HapticFeedback.impactOccurred(t||"light")}catch(e){}};
-const toast=t=>{const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("on"),2000)};
-const COLORS=["#3F5D3A","#7A2E35","#2E4A63","#8A6A2C","#4C3A5E","#2F5B57","#9A5A3A","#5C2C3F","#3E4B2A"];
-const col=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return COLORS[h%COLORS.length]};
+const toast=t=>{const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("on"),1900)};
+const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c};
+const hsh=s=>{let h=0;for(const ch of String(s))h=(h*31+ch.charCodeAt(0))>>>0;return h};
+const norm=s=>String(s||"").toLowerCase().replace(/ё/g,"е").replace(/[^a-zа-я0-9]/g,"");
+if(TG){try{TG.ready();TG.expand();const u=TG.initDataUnsafe&&TG.initDataUnsafe.user;if(u&&u.first_name)$("#ava").textContent=u.first_name[0]}catch(e){}}
 
-// ---------- пример данных (отдельно от основного приложения) ----------
+// ---------- пример данных ----------
+const FL=id=>"https://fantlab.ru/images/editions/big/"+id, WP=p=>"https://upload.wikimedia.org/wikipedia/en/"+p;
 const SAMPLE={
-  read:[{t:"Анна Каренина",a:"Лев Толстой",y:2024,r:10},{t:"Грозовой перевал",a:"Эмили Бронте",y:2024,r:9},{t:"Тонкая работа",a:"Сара Уотерс",y:2025,r:9},
-        {t:"Норвежский лес",a:"Харуки Мураками",y:2025,r:7},{t:"Убийство в «Восточном экспрессе»",a:"Агата Кристи",y:2025,r:8},{t:"Правда о деле Гарри Квеберта",a:"Жоэль Диккер",y:2026,r:8},
-        {t:"Преступление и наказание",a:"Фёдор Достоевский",y:2026,r:10},{t:"Ребекка",a:"Дафна дю Морье",y:2026,r:8}],
-  wantB:[{t:"Тайная история",a:"Донна Тартт"},{t:"Сто лет одиночества",a:"Габриэль Гарсиа Маркес"},{t:"Маленькая жизнь",a:"Ханья Янагихара"}],
-  seen:[{t:"Унесённые призраками",a:"Хаяо Миядзаки",y:2024,r:10},{t:"Паразиты",a:"Пон Чжун Хо",y:2025,r:9},{t:"Сталкер",a:"Андрей Тарковский",y:2025,r:9},
-        {t:"Идеальные дни",a:"Вим Вендерс",y:2026,r:8},{t:"Анатомия падения",a:"Жюстин Трие",y:2026,r:8}],
-  wantF:[{t:"Солнце моё",a:"Шарлотта Уэллс"},{t:"Прошлые жизни",a:"Селин Сон"}]
+ books:{
+  read:[
+   {t:"Преступление и наказание",a:"Фёдор Достоевский",y:1866,c:"Россия",g:"Классика",r:10,d:"2026-09",img:FL(66847)},
+   {t:"Правда о деле Гарри Квеберта",a:"Жоэль Диккер",y:2012,c:"Швейцария",g:"Детектив",r:8,d:"2026-08",img:FL(210352)},
+   {t:"Ребекка",a:"Дафна дю Морье",y:1938,c:"Англия",g:"Классика",r:8,d:"2026-06",img:FL(40302)},
+   {t:"Тонкая работа",a:"Сара Уотерс",y:2002,c:"Англия",g:"Современная проза",r:9,d:"2026-04",img:FL(40076)},
+   {t:"Убийство в «Восточном экспрессе»",a:"Агата Кристи",y:1933,c:"Англия",g:"Детектив",r:8,d:"2026-03",img:FL(390280)},
+   {t:"Норвежский лес",a:"Харуки Мураками",y:1987,c:"Япония",g:"Современная проза",r:7,d:"2026-02",img:FL(6684)},
+   {t:"Грозовой перевал",a:"Эмили Бронте",y:1847,c:"Англия",g:"Классика",r:9,d:"2026-01",img:FL(136191)},
+   {t:"Анна Каренина",a:"Лев Толстой",y:1877,c:"Россия",g:"Классика",r:10,d:"2025-11",img:FL(266824)}],
+  want:[
+   {t:"Тайная история",a:"Донна Тартт",y:1992,img:FL(136461)},{t:"Сто лет одиночества",a:"Габриэль Гарсиа Маркес",y:1967,img:FL(286489)},
+   {t:"Маленькая жизнь",a:"Ханья Янагихара",y:2015,img:FL(188925)},{t:"Мастер и Маргарита",a:"Михаил Булгаков",y:1967,img:FL(31603)}],
+  now:{t:"Джейн Эйр",a:"Шарлотта Бронте",y:1847,img:FL(446413)}
+ },
+ films:{
+  read:[
+   {t:"Идеальные дни",a:"Вим Вендерс",y:2023,c:"Япония",g:"Драма",r:9,d:"2026-09",img:WP("c/c9/Perfect_Days_poster.jpg")},
+   {t:"Анатомия падения",a:"Жюстин Трие",y:2023,c:"Франция",g:"Драма",r:8,d:"2026-07",img:WP("8/88/Anatomy_of_a_Fall_%282023%29_film_poster.jpg")},
+   {t:"Паразиты",a:"Пон Чжун Хо",y:2019,c:"Южная Корея",g:"Триллер",r:9,d:"2026-05",img:WP("5/53/Parasite_%282019_film%29.png")},
+   {t:"Сталкер",a:"Андрей Тарковский",y:1979,c:"СССР",g:"Фантастика",r:9,d:"2026-02",img:WP("d/d4/Stalker_poster.jpg")},
+   {t:"Унесённые призраками",a:"Хаяо Миядзаки",y:2001,c:"Япония",g:"Мультфильм",r:10,d:"2025-12",img:WP("d/db/Spirited_Away_Japanese_poster.png")}],
+  want:[
+   {t:"Солнце моё",a:"Шарлотта Уэллс",y:2022,img:WP("1/11/Aftersun.jpg")},{t:"Прошлые жизни",a:"Селин Сон",y:2023,img:WP("d/da/Past_Lives_film_poster.png")},
+   {t:"Сядь за руль моей машины",a:"Рюсукэ Хамагути",y:2021,img:WP("3/3d/Drive_My_Car_movie_poster.jpeg")}],
+  now:null
+ }
 };
 const POOL={
-  book:[{t:"Дом, в котором…",a:"Мариам Петросян",w:"Если хочется пропасть в другом мире на месяц."},{t:"Ночь нежна",a:"Фрэнсис Скотт Фицджеральд",w:"Красиво и грустно, как вечер на Ривьере."},
-        {t:"Лавр",a:"Евгений Водолазкин",w:"Тихая большая книга о любви и вине."},{t:"Джейн Эйр",a:"Шарлотта Бронте",w:"Раз «Грозовой перевал» на десятку — сестра не подведёт."},
-        {t:"Бархатные коготки",a:"Сара Уотерс",w:"Ещё Уотерс: викторианский Лондон и смелая героиня."},{t:"Кафка на пляже",a:"Харуки Мураками",w:"Мураками постраннее «Норвежского леса»."},
-        {t:"Исчезновение Стефани Мейлер",a:"Жоэль Диккер",w:"Новая загадка от автора «Гарри Квеберта»."},{t:"Мастер и Маргарита",a:"Михаил Булгаков",w:"Чтобы перечитывать каждые пять лет."}],
-  film:[{t:"Ходячий замок",a:"Хаяо Миядзаки",w:"Ещё один вечер у Миядзаки."},{t:"Воспоминания о убийстве",a:"Пон Чжун Хо",w:"Ранний Пон Чжун Хо — мрачный и смешной."},
-        {t:"Солярис",a:"Андрей Тарковский",w:"Раз «Сталкер» зашёл — следующий шаг."},{t:"Аритмия",a:"Борис Хлебников",w:"Честное русское кино без пафоса."},
-        {t:"Дрянь в рубашке",a:"Се Сунь",w:"В России не выходил — тайваньская комедия о взрослении."},{t:"Портрет девушки в огне",a:"Селин Сьямма",w:"Медленно, красиво, на долгую память."}]
+ books:[
+  {t:"Бархатные коготки",a:"Сара Уотерс",y:1998,img:FL(40077),m:["уютное","любовь"],w:"Ещё Уотерс — викторианский Лондон и смелая героиня."},
+  {t:"Дом, в котором…",a:"Мариам Петросян",y:2009,img:FL(40654),m:["надолго","странное"],w:"Чтобы пропасть в другом мире на месяц."},
+  {t:"Лавр",a:"Евгений Водолазкин",y:2012,img:FL(189346),m:["надолго","тихое"],w:"Тихая большая книга о любви и вине."},
+  {t:"Кафка на пляже",a:"Харуки Мураками",y:2002,img:FL(6643),m:["странное"],w:"Мураками постраннее «Норвежского леса»."},
+  {t:"Ночь нежна",a:"Фрэнсис Скотт Фицджеральд",y:1934,img:FL(62109),m:["любовь","тихое"],w:"Красиво и грустно, как вечер на Ривьере."},
+  {t:"Исчезновение Стефани Мейлер",a:"Жоэль Диккер",y:2018,img:FL(263603),m:["захватывающее"],w:"Новая загадка от автора «Гарри Квеберта»."},
+  {t:"Вторая жизнь Уве",a:"Фредрик Бакман",y:2012,img:FL(215039),m:["уютное"],w:"Смешно и тепло — на пару вечеров."}],
+ films:[
+  {t:"Ходячий замок",a:"Хаяо Миядзаки",y:2004,img:WP("a/a0/Howls-moving-castleposter.jpg"),m:["уютное"],w:"Ещё один вечер у Миядзаки."},
+  {t:"Воспоминания об убийстве",a:"Пон Чжун Хо",y:2003,img:WP("0/01/Salinui-chueok-south-korean-movie-poster-md.jpg"),m:["захватывающее"],w:"Ранний Пон Чжун Хо — мрачно и смешно."},
+  {t:"Солярис",a:"Андрей Тарковский",y:1972,img:WP("5/54/Solyaris_ussr_poster.jpg"),m:["тихое","странное"],w:"После «Сталкера» — следующий шаг."},
+  {t:"Аритмия",a:"Борис Хлебников",y:2017,img:WP("2/29/Arrhythmia_%28film%29.jpg"),m:["тихое"],w:"Честное русское кино без пафоса."},
+  {t:"Портрет девушки в огне",a:"Селин Сьямма",y:2019,img:WP("c/cb/Portrait_of_a_Lady_on_Fire.jpg"),m:["любовь"],w:"Медленно, красиво, надолго в памяти."},
+  {t:"Любовное настроение",a:"Вонг Карвай",y:2000,img:WP("4/45/In_the_Mood_for_Love_movie.jpg"),m:["любовь","тихое"],w:"Самый красивый фильм о несказанном."},
+  {t:"Опавшие листья",a:"Аки Каурисмяки",y:2023,img:WP("d/d2/Kuolleet_lehdet_Poster.jpg"),m:["уютное","тихое"],w:"Не выходил в широкий прокат в России — смешная грустная сказка."}]
 };
-let D;try{D=JSON.parse(localStorage.getItem("nora2"))}catch(e){}
-if(!D||!D.read)D=JSON.parse(JSON.stringify(SAMPLE));
-const save=()=>{try{localStorage.setItem("nora2",JSON.stringify(D))}catch(e){}};
+const MOODS=["всё равно","уютное","захватывающее","любовь","тихое","странное","надолго"];
+let D;try{D=JSON.parse(localStorage.getItem("nora2b"))}catch(e){}
+if(!D||!D.books)D=JSON.parse(JSON.stringify(SAMPLE));
+const save=()=>{try{localStorage.setItem("nora2b",JSON.stringify(D))}catch(e){}};
+let realm="books",mood=0,colF="read";
+const R=()=>D[realm],isF=()=>realm==="films";
+const W={books:{read:"прочитано",want:"Хочу прочитать",recent:"Недавно прочитано",wave:"Подберёт книгу под настроение",play:"Подобрать книгу",have:"Уже читала",unit:["книга","книги","книг"]},
+         films:{read:"посмотрено",want:"Хочу посмотреть",recent:"Недавно посмотрено",wave:"Подберёт фильм под настроение",play:"Подобрать фильм",have:"Уже смотрела",unit:["фильм","фильма","фильмов"]}};
 
-// ---------- миниатюры комнат ----------
-const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c};
-function draw(){
-  $("#readSub").textContent=D.read.length+" "+plural(D.read.length,"книга","книги","книг")+" прочитано";
-  $("#readPile").innerHTML=D.read.map(b=>`<i style="height:${34+((b.t.length*7)%24)}px;background:${col(b.t)}"></i>`).join("");
-  $("#wantBSub").textContent=D.wantB.length?D.wantB.length+" "+plural(D.wantB.length,"книга ждёт","книги ждут","книг ждут"):"Пусто — загляни в логово";
-  $("#wantBMini").innerHTML=D.wantB.slice(0,6).map(b=>`<i style="border-color:${col(b.t)}"></i>`).join("");
-  $("#seenSub").textContent=D.seen.length+" "+plural(D.seen.length,"фильм","фильма","фильмов")+" на экране";
-  $("#seenMini").innerHTML=D.seen.slice(0,6).map(f=>`<i style="background:${col(f.t)}"></i>`).join("");
-  $("#wantFSub").textContent=D.wantF.length?D.wantF.length+" "+plural(D.wantF.length,"билет","билета","билетов")+" на будущее":"Билетов пока нет";
-  $("#wantFMini").innerHTML=D.wantF.slice(0,5).map(()=>`<i></i>`).join("");
-  const ys=years();$("#strataMini").innerHTML=ys.map((y,i)=>`<i style="background:${["#8A6A4A","#6E5139","#57402E","#43311F"][i%4]};width:${30+Math.min(70,(y.b.length+y.f.length)*9)}%"></i>`).join("");
-  requestAnimationFrame(tunnel);
-}
-function years(){const m={};D.read.forEach(b=>{(m[b.y]=m[b.y]||{y:b.y,b:[],f:[]}).b.push(b)});D.seen.forEach(f=>{(m[f.y]=m[f.y]||{y:f.y,b:[],f:[]}).f.push(f)});return Object.values(m).sort((a,b)=>b.y-a.y)}
+// ---------- обложки ----------
+const GRADS=[["#2B2D6E","#E86A92"],["#0F4C5C","#E3B04B"],["#3A0CA3","#4CC9F0"],["#1B4332","#95D5B2"],["#6A040F","#FFBA08"],["#22223B","#C9ADA7"],["#003049","#F77F00"]];
+function cover(x,opt={}){const [a,b]=GRADS[hsh(x.t)%GRADS.length];
+  return `<div class="cv"${opt.st?` style="${opt.st}"`:""}><div class="gen" style="background:linear-gradient(160deg,${a},${b})">${esc(x.t)}<small>${esc(x.a||"")}</small></div>${x.img?`<img src="${esc(x.img)}" alt="" loading="lazy" referrerpolicy="no-referrer" onload="this.classList.add('ok')" onerror="this.remove()">`:""}${opt.r&&x.r!=null?`<span class="rt">${x.r}</span>`:""}</div>`}
+const tile=(x,k,i)=>`<button class="tile" data-open="${k}:${i}">${cover(x,{r:k==="read"})}<div class="ti">${esc(x.t)}</div><div class="ta">${esc(x.a||"")}</div></button>`;
 
-// тоннель, соединяющий комнаты
-function tunnel(){const soil=$("#soil"),svg=$("#tunnel"),r0=soil.getBoundingClientRect();
-  const pts=[[r0.width*.55,0],...[...document.querySelectorAll(".room,.den")].map(el=>{const r=el.getBoundingClientRect();return [r.left-r0.left+r.width/2,r.top-r0.top+r.height/2]})];
-  let d=`M${pts[0][0]} ${pts[0][1]}`;for(let i=1;i<pts.length;i++){const [x0,y0]=pts[i-1],[x1,y1]=pts[i],my=(y0+y1)/2;d+=` C${x0} ${my},${x1} ${my},${x1} ${y1}`}
-  svg.setAttribute("viewBox",`0 0 ${r0.width} ${r0.height}`);svg.innerHTML=`<path d="${d}"/><path class="glow" d="${d}"/>`;
-  [...soil.querySelectorAll(".depth")].forEach(x=>x.remove());
-  document.querySelectorAll(".room,.den").forEach((el,i)=>{const s=document.createElement("span");s.className="depth";s.style.top=(el.offsetTop+8)+"px";s.textContent=`−${(i+1)*3} м`;soil.appendChild(s)})}
-addEventListener("resize",()=>requestAnimationFrame(tunnel));
+// ---------- волна ----------
+const cv=$("#cv"),ctx=cv.getContext("2d");let speed=1,tt=0;
+function cols(){const s=getComputedStyle(document.body);return ["--w1","--w2","--w3","--w4"].map(k=>s.getPropertyValue(k).trim())}
+let C=cols();
+function frame(){const w=cv.width=cv.clientWidth/2,h=cv.height=cv.clientHeight/2;tt+=.004*speed;
+  ctx.fillStyle=C[3];ctx.fillRect(0,0,w,h);
+  for(let i=0;i<5;i++){const a=tt*(1+i*.3)+i*1.7,x=w*(.5+.38*Math.sin(a*1.1+i)),y=h*(.45+.38*Math.cos(a*.9+i*2)),r=Math.max(w,h)*(.38+.12*Math.sin(a*1.7+mood));
+    const g=ctx.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,C[(i+mood)%3]);g.addColorStop(1,"transparent");ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,7);ctx.fill()}
+  speed+= (1-speed)*.03;if(!matchMedia("(prefers-reduced-motion: reduce)").matches)requestAnimationFrame(frame)}
+requestAnimationFrame(frame);
 
-// ---------- комнаты изнутри ----------
-const ROOMS={
-  read:{h:"Читальня",sub:"Всё, что прочитано",films:false,list:"read",ph:"Название прочитанной книги"},
-  wantB:{h:"Книжная кладовка",sub:"Что прочитать дальше",films:false,list:"wantB",ph:"Какую книгу отложить"},
-  seen:{h:"Кинозал",sub:"Всё, что посмотрено",films:true,list:"seen",ph:"Название фильма"},
-  wantF:{h:"Касса",sub:"Билеты на фильмы, которые хочется посмотреть",films:true,list:"wantF",ph:"Какой фильм отложить"},
-  strata:{h:"Пласты",sub:"Чем глубже — тем раньше",films:false}
-};
-let openRoom=null;
-function itemHTML(x,i,key){return `<button class="item" data-i="${i}" data-l="${key}"><span class="c" style="background:${col(x.t)}">${esc(x.t.slice(0,1))}</span><span><b>${esc(x.t)}</b><small>${esc(x.a||"")}</small></span>${x.r!=null?`<span class="r">${x.r}</span>`:""}</button>`}
-function roomHTML(key){const R=ROOMS[key];
-  if(key==="strata")return `<button class="back" data-close>← Наверх</button><h2>${R.h}</h2><div class="sub">${R.sub}</div><div class="years">${years().map((y,i)=>`<div class="year" style="background:${["#6E5139","#57402E","#43311F","#33251A"][i%4]}"><b>${y.y}</b><span>${y.b.length} ${plural(y.b.length,"книга","книги","книг")}, ${y.f.length} ${plural(y.f.length,"фильм","фильма","фильмов")}</span></div>`).join("")}</div>`;
-  const L=D[R.list];
-  return `<button class="back" data-close>← Наверх</button><h2>${R.h}</h2><div class="sub">${R.sub}</div>
-    <form class="add" data-add="${key}"><input placeholder="${R.ph}" aria-label="${R.ph}"><button>Добавить</button></form>
-    <p class="sub" style="font-size:13px;margin-top:14px">${R.list==="read"||R.list==="seen"?"Нажми на строку, чтобы поменять оценку.":"Нажми на строку, когда прочитаешь или посмотришь — она переедет в соседнюю комнату."}</p><div class="items">${L.map((x,i)=>itemHTML(x,i,R.list)).join("")||`<p class="sub">Здесь пока пусто. Добавь первое или раскопай что-нибудь в логове.</p>`}</div>`}
-function openR(key,from){const el=$("#inside"),R=ROOMS[key];openRoom=key;
-  if(from){const r=from.getBoundingClientRect();el.style.setProperty("--cx",(r.left+r.width/2)+"px");el.style.setProperty("--cy",(r.top+r.height/2)+"px")}
-  el.classList.toggle("films",!!R.films);el.innerHTML=roomHTML(key);el.scrollTop=0;requestAnimationFrame(()=>el.classList.add("on"));document.body.style.overflow="hidden";haptic();
-  if(TG&&TG.BackButton){TG.BackButton.show()}}
-function closeR(){const el=$("#inside");el.classList.remove("on");openRoom=null;document.body.style.overflow="";if(TG&&TG.BackButton)TG.BackButton.hide()}
-if(TG&&TG.BackButton)TG.BackButton.onClick(closeR);
-document.addEventListener("click",e=>{const r=e.target.closest(".room");if(r){openR(r.dataset.room,r);return}
-  if(e.target.closest("[data-close]")){closeR();return}
-  const it=e.target.closest(".item");if(it){const L=D[it.dataset.l],x=L[+it.dataset.i];
-    if(it.dataset.l==="wantB"||it.dataset.l==="wantF"){const to=it.dataset.l==="wantB"?"read":"seen";const r=prompt?null:null;
-      L.splice(+it.dataset.i,1);D[to].unshift({...x,y:new Date().getFullYear(),r:null});save();draw();$("#inside").innerHTML=roomHTML(openRoom);toast(`«${x.t}» — ${to==="read"?"прочитано":"посмотрено"}`);haptic("medium")}
-    else{const n=x.r==null?8:(x.r+1)%11;x.r=n;save();draw();$("#inside").innerHTML=roomHTML(openRoom);haptic()}}});
-document.addEventListener("submit",e=>{const f=e.target.closest("[data-add]");if(!f)return;e.preventDefault();const v=f.querySelector("input").value.trim();if(!v)return;
-  const R=ROOMS[f.dataset.add];const x={t:v.charAt(0).toUpperCase()+v.slice(1),a:""};if(R.list==="read"||R.list==="seen"){x.y=new Date().getFullYear();x.r=null}
-  D[R.list].unshift(x);save();draw();$("#inside").innerHTML=roomHTML(openRoom);toast("Добавлено");haptic("medium")});
+function drawMoods(){$("#moods").innerHTML=MOODS.map((m,i)=>`<button data-mood="${i}" class="${i===mood?"on":""}">${m[0].toUpperCase()+m.slice(1)}</button>`).join("")}
+function pickOne(){const have=new Set([...R().read,...R().want,R().now||{}].map(x=>norm(x.t)));const m=MOODS[mood];
+  let p=POOL[realm].filter(x=>!have.has(norm(x.t))&&(mood===0||x.m.includes(m)));if(!p.length)p=POOL[realm].filter(x=>!have.has(norm(x.t)));
+  return p.length?p[Math.floor(Math.random()*p.length)]:null}
+let cur=null;
+function showPick(){speed=9;haptic("medium");const el=$("#pick");el.classList.remove("on");
+  setTimeout(()=>{cur=pickOne();if(!cur){el.innerHTML=`<div class="pick-t"><h3>Всё уже найдено</h3><p>Тевосгинк перебрал весь запас для этого настроения.</p></div>`;el.classList.add("on");return}
+    el.innerHTML=`${cover(cur)}<div class="pick-t"><small>${isF()?"Фильм":"Книга"} · ${cur.y}</small><h3>${esc(cur.t)}</h3><div class="a">${esc(cur.a)}</div><p>${esc(cur.w)}</p>
+      <div class="acts"><button class="chipb pri" data-pk="want">${isF()?"Хочу посмотреть":"Хочу прочитать"}</button><button class="chipb" data-pk="next">Другое</button><button class="chipb" data-pk="have">${W[realm].have}</button></div></div>`;
+    el.classList.add("on")},420)}
 
-// ---------- раскопки ----------
-let digKind="book",dug=0,target=0;
-function ground(){dug=0;target=2+Math.floor(Math.random()*3);$("#find").classList.remove("on");$("#ground").innerHTML=Array.from({length:15},(_,i)=>`<button class="clod" data-c="${i}" aria-label="Разгрести"></button>`).join("")}
-function pick(){const have=new Set([...D.read,...D.wantB,...D.seen,...D.wantF].map(x=>x.t));const p=POOL[digKind].filter(x=>!have.has(x.t));return p.length?p[Math.floor(Math.random()*p.length)]:null}
-document.addEventListener("click",e=>{const c=e.target.closest(".clod");if(!c)return;c.classList.add("gone");haptic("rigid");dug++;
-  if(dug===target){const x=pick(),f=$("#find");
-    f.innerHTML=x?`<div class="k">${digKind==="book"?"Книга":"Фильм"} из-под земли</div><h3>${esc(x.t)}</h3><div class="who">${esc(x.a)}</div><div class="why">${esc(x.w)}</div>
-      <div class="row"><button class="btn" data-keep>${digKind==="book"?"В кладовку":"Взять билет"}</button><button class="btn ghost" data-bury>Закопать обратно</button></div>`
-      :`<h3>Всё уже раскопано</h3><div class="why">Ты забрала все находки этого раздела.</div>`;
-    f.classList.add("on");f._x=x;haptic("heavy")}});
-document.addEventListener("click",e=>{const f=$("#find");
-  if(e.target.closest("[data-keep]")){const x=f._x;(digKind==="book"?D.wantB:D.wantF).unshift({t:x.t,a:x.a});save();draw();toast(`«${x.t}» ${digKind==="book"?"в кладовке":"— билет взят"}`);ground()}
-  if(e.target.closest("[data-bury]")){toast("Закопано. Копай дальше");ground()}
-  const m=e.target.closest("[data-dig]");if(m){digKind=m.dataset.dig;document.querySelectorAll("[data-dig]").forEach(b=>b.classList.toggle("on",b===m));ground()}});
+// ---------- отрисовка ----------
+function render(){const r=R(),w=W[realm];
+  $("#wSub").textContent=w.wave;$("#playT").textContent=w.play;$("#wTitle").textContent=isF()?"Волна Тевосоника":"Волна Тевосгинка";
+  $("#hRecent").textContent=w.recent;$("#hWant").textContent=w.want;
+  $("#nowSec").innerHTML=r.now?`<button class="now" data-open="now:0">${cover(r.now)}<div><small>Сейчас читаю</small><b>${esc(r.now.t)}</b><span>${esc(r.now.a)}</span></div></button>`:"";
+  $("#nowSec").style.display=r.now?"":"none";
+  $("#railRecent").innerHTML=r.read.map((x,i)=>tile(x,"read",i)).join("");
+  $("#railWant").innerHTML=r.want.length?r.want.map((x,i)=>tile(x,"want",i)).join(""):`<p class="hint">Пусто — нажми на волну.</p>`;
+  $("#bentoMini").innerHTML=bento(true);$("#bento").innerHTML=bento(false);
+  $("#sumLead").textContent=`${r.read.length} ${plural(r.read.length,...w.unit)} ${w.read} — вот как это выглядит.`;
+  drawCol();drawMoods()}
+function bento(mini){const r=R(),y=new Date().getFullYear(),thisY=r.read.filter(x=>String(x.d).startsWith(y)),u=W[realm].unit;
+  const by=k=>{const m={};r.read.forEach(x=>{m[x[k]]=(m[x[k]]||0)+1});return Object.entries(m).sort((a,b)=>b[1]-a[1])};
+  const top=r.read.slice().sort((a,b)=>(b.r||0)-(a.r||0))[0],avg=(r.read.reduce((s,x)=>s+(x.r||0),0)/Math.max(1,r.read.length)).toFixed(1).replace(".",",");
+  const cs=by("c"),gs=by("g"),mx=Math.max(1,...gs.map(x=>x[1]));
+  let h=`<div class="bx big"><div class="l">${y}</div><div><div class="n">${thisY.length}</div><div class="vv">${plural(thisY.length,...u)} ${W[realm].read}</div></div></div>
+   <div class="bx"><div class="l">Средняя оценка</div><div class="n">${avg}</div></div>
+   <div class="bx"><div class="l">${cs.length} ${plural(cs.length,"страна","страны","стран")}</div><div class="vv">${esc(cs.slice(0,3).map(x=>x[0]).join(", "))}</div></div>`;
+  if(!mini)h+=`<div class="bx wide"><div class="l">Жанры</div><div class="bars">${gs.map(([g,n])=>`<div class="bar"><span>${esc(g)}</span><i style="width:${n/mx*100}%"></i><span>${n}</span></div>`).join("")}</div></div>
+   <div class="bx wide"><div class="l">Десять из десяти</div><div class="covers-fan">${r.read.filter(x=>x.r===10).map(x=>cover(x)).join("")||'<span class="hint">Пока нет</span>'}</div></div>`;
+  return h}
+function drawCol(){const w=W[realm];$("#colH").textContent=isF()?"Фильмотека":"Библиотека";
+  $("#filters").innerHTML=[["read",w.read[0].toUpperCase()+w.read.slice(1)],["want",w.want],["top","10 из 10"]].map(([k,l])=>`<button data-f="${k}" class="${colF===k?"on":""}">${l}</button>`).join("");
+  const list=colF==="want"?R().want.map((x,i)=>[x,"want",i]):R().read.map((x,i)=>[x,"read",i]).filter(([x])=>colF!=="top"||x.r===10);
+  $("#grid").innerHTML=list.map(([x,k,i])=>tile(x,k,i)).join("")||`<p class="hint">Здесь пока пусто.</p>`}
 
-draw();ground();
-document.fonts&&document.fonts.ready.then(()=>requestAnimationFrame(tunnel));
+// ---------- карточка ----------
+let detKey=null;
+function openDet(key){const [k,i]=key.split(":"),r=R(),x=k==="now"?r.now:r[k][+i];if(!x)return;detKey=key;haptic();
+  const el=$("#det");
+  el.innerHTML=`<div class="det-bg">${x.img?`<img src="${esc(x.img)}" alt="" referrerpolicy="no-referrer">`:""}</div><div class="det-in">
+    <button class="x" data-close aria-label="Закрыть"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    ${cover(x)}<h2>${esc(x.t)}</h2><div class="da">${esc(x.a||"")}${x.y?", "+x.y:""}</div>
+    ${k==="read"?`<div class="lbl">Моя оценка</div><div class="rate">${Array.from({length:11},(_,n)=>`<button data-rate="${n}" class="${x.r===n?"on":""}">${n}</button>`).join("")}</div>`:""}
+    <div class="det-acts">${k==="read"?`<button class="bigb" data-del>Убрать</button>`:`<button class="bigb pri" data-done>${isF()?"Посмотрела":"Прочитала"}</button><button class="bigb" data-del>Убрать из списка</button>`}</div></div>`;
+  el.scrollTop=0;requestAnimationFrame(()=>el.classList.add("on"));if(TG&&TG.BackButton)TG.BackButton.show()}
+function closeDet(){$("#det").classList.remove("on");detKey=null;if(TG&&TG.BackButton)TG.BackButton.hide()}
+if(TG&&TG.BackButton)TG.BackButton.onClick(closeDet);
+// закрыть свайпом вниз
+(function(){const el=$("#det");let y0=null,dy=0;el.addEventListener("touchstart",e=>{y0=el.scrollTop<=0?e.touches[0].clientY:null;dy=0},{passive:true});
+  el.addEventListener("touchmove",e=>{if(y0==null)return;dy=e.touches[0].clientY-y0;if(dy>0){el.style.transition="none";el.style.transform=`translateY(${dy}px)`}},{passive:true});
+  el.addEventListener("touchend",()=>{if(y0==null)return;el.style.transition="";el.style.transform="";if(dy>120)closeDet();y0=null})})();
+
+// ---------- поиск: свои + каталог (книги — Фантлаб, кино — Википедия) ----------
+let sT=0,sSeq=0;
+async function online(q){if(!isF()){const s=await (await fetch("https://api.fantlab.ru/search-works?q="+encodeURIComponent(q)+"&page=1&onlymatches=1")).json();
+    return (Array.isArray(s)?s:[]).filter(w=>["novel","story","collection","documental"].includes(w.name_eng)&&w.autor_rusname).sort((a,b)=>b.markcount-a.markcount).slice(0,12)
+      .map(w=>({t:w.rusname||w.name,a:w.autor_rusname,y:w.year,img:(w.pic_edition_id||w.pic_edition_id_auto)?FL(w.pic_edition_id||w.pic_edition_id_auto):""}))}
+  const u="https://ru.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=12&gsrsearch="+encodeURIComponent(q+" фильм")+"&prop=pageimages|pageprops&piprop=thumbnail&pithumbsize=400&pilicense=any";
+  const j=await (await fetch(u)).json();return Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index).filter(p=>/фильм|мультфильм/i.test(p.title)||p.thumbnail)
+    .map(p=>{const m=p.title.match(/^(.*?)\s*\((?:фильм|мультфильм)(?:,\s*(\d{4}))?\)$/);return {t:m?m[1]:p.title,a:"",y:m&&m[2]?+m[2]:null,img:p.thumbnail?p.thumbnail.source:""}})}
+function drawRes(list,loading){const q=$("#q").value.trim();
+  $("#res").innerHTML=list.map((x,i)=>`<div class="ri">${cover(x)}<div style="min-width:0"><b>${esc(x.t)}</b><span>${esc([x.a,x.y].filter(Boolean).join(", "))}</span></div><button class="add" data-addr="${i}" aria-label="Добавить">+</button></div>`).join("")+(loading?`<p class="hint">Ищу в каталоге…</p>`:(!list.length&&q?`<p class="hint">Ничего не нашлось.</p>`:""));$("#res")._l=list}
+$("#q").addEventListener("input",()=>{const q=$("#q").value.trim(),my=++sSeq;clearTimeout(sT);if(norm(q).length<2){$("#res").innerHTML=`<p class="hint">${isF()?"Найди фильм — даже тот, что не выходил в России.":"Найди книгу по названию или автору."}</p>`;return}
+  const mine=[...R().read,...R().want].filter(x=>norm(x.t+x.a).includes(norm(q)));drawRes(mine,true);
+  sT=setTimeout(async()=>{try{const o=await online(q);if(my!==sSeq)return;drawRes([...mine,...o.filter(x=>!mine.some(m=>norm(m.t)===norm(x.t)))],false)}catch(e){if(my===sSeq)drawRes(mine,false)}},350)});
+
+// ---------- события ----------
+function go(p){document.querySelectorAll(".page").forEach(x=>x.classList.toggle("on",x.id==="p-"+p));document.querySelectorAll(".tabbar button").forEach(b=>b.classList.toggle("on",b.dataset.go===p));scrollTo({top:0});if(p==="search")setTimeout(()=>$("#q").dispatchEvent(new Event("input")),0)}
+document.addEventListener("click",e=>{const t=e.target;
+  const rl=t.closest("[data-realm]");if(rl&&rl.dataset.realm!==realm){realm=rl.dataset.realm;document.body.classList.toggle("films",isF());document.querySelectorAll("[data-realm]").forEach(b=>b.classList.toggle("on",b===rl));C=cols();$("#pick").classList.remove("on");colF="read";render();haptic("medium");if($("#p-search").classList.contains("on"))$("#q").dispatchEvent(new Event("input"));return}
+  const g=t.closest("[data-go]");if(g){if(g.dataset.f)colF=g.dataset.f;go(g.dataset.go);drawCol();haptic();return}
+  const m=t.closest("[data-mood]");if(m){mood=+m.dataset.mood;drawMoods();speed=5;haptic();return}
+  if(t.closest("#play")){showPick();return}
+  const pk=t.closest("[data-pk]");if(pk&&cur){const a=pk.dataset.pk;
+    if(a==="want"){R().want.unshift({t:cur.t,a:cur.a,y:cur.y,img:cur.img});save();render();toast(`«${cur.t}» — ${W[realm].want.toLowerCase()}`);$("#pick").classList.remove("on")}
+    else if(a==="have"){R().read.unshift({t:cur.t,a:cur.a,y:cur.y,img:cur.img,r:null,c:"",g:"Другое",d:new Date().toISOString().slice(0,7)});save();render();openDet("read:0")}
+    else showPick();return}
+  const o=t.closest("[data-open]");if(o){openDet(o.dataset.open);return}
+  const f=t.closest("[data-f]");if(f&&f.closest("#filters")){colF=f.dataset.f;drawCol();haptic();return}
+  if(t.closest("[data-close]")){closeDet();return}
+  const rt=t.closest("[data-rate]");if(rt&&detKey){const [k,i]=detKey.split(":");R()[k][+i].r=+rt.dataset.rate;save();render();document.querySelectorAll("[data-rate]").forEach(b=>b.classList.toggle("on",b===rt));haptic();return}
+  if(t.closest("[data-done]")&&detKey){const [k,i]=detKey.split(":");const x=k==="now"?R().now:R()[k].splice(+i,1)[0];if(k==="now")R().now=null;R().read.unshift({...x,r:null,c:x.c||"",g:x.g||"Другое",d:new Date().toISOString().slice(0,7)});save();render();openDet("read:0");toast("Поставь оценку");return}
+  if(t.closest("[data-del]")&&detKey){const [k,i]=detKey.split(":");if(k==="now")R().now=null;else R()[k].splice(+i,1);save();render();closeDet();toast("Убрано");return}
+  const ad=t.closest("[data-addr]");if(ad){const x=$("#res")._l[+ad.dataset.addr];if(!x)return;if([...R().read,...R().want].some(y=>norm(y.t)===norm(x.t))){toast("Уже в коллекции");return}
+    R().want.unshift({t:x.t,a:x.a,y:x.y,img:x.img});save();render();toast(`«${x.t}» — ${W[realm].want.toLowerCase()}`);ad.textContent="✓";haptic("medium")}
+});
+render();
 </script>
 </body>
 </html>

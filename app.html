@@ -1324,7 +1324,7 @@ const lw=s=>String(s||"").toLowerCase().replace(/ё/g,"е");
 const wordsOfQ=s=>lw(s).split(/[^a-zа-я0-9]+/).filter(Boolean);
 function nameMatches(q,...names){const ws=wordsOfQ(q);if(!ws.length)return false;const nw=names.flatMap(n=>wordsOfQ(n));return ws.every(w=>nw.some(x=>x.startsWith(w)))}
 async function libAuthors(q){const j=await flGet("/search-autors?q="+encodeURIComponent(q));const m=(j&&j.matches)||(Array.isArray(j)?j:[]);
-  return m.filter(a=>a.markcount>0&&nameMatches(q,a.rusname,a.name,a.pseudo_names)).sort((a,b)=>b.markcount-a.markcount).map(a=>({id:a.autor_id,name:a.rusname||a.name,orig:a.name,c:flCountry(a.country),marks:a.markcount}))}
+  return m.filter(a=>a.markcount>0&&nameMatches(q,a.rusname,a.name)).sort((a,b)=>b.markcount-a.markcount).map(a=>({id:a.autor_id,name:a.rusname||a.name,orig:a.name,c:flCountry(a.country),marks:a.markcount}))}
 async function libAuthorBooks(id){const j=await flGet("/autor/"+id+"?works=1");const a=j.name||j.name_short||"",c=flCountry(j.country_name);
   const seen=new Set();
   return (j.works||[]).filter(w=>{const tp=w.work_type||"",v=w.val_voters||0;if(!w.work_name||w.work_published===0||w.work_preparing)return false;
@@ -1336,21 +1336,20 @@ async function libWorks(q,page=1){const j=await flGet("/search-works?q="+encodeU
       const k=norm(t)+"|"+norm(w.autor_rusname);if(seen.has(k))return false;seen.add(k);return true})
     .map(w=>{const t=w.rusname||w.name;const nt=norm(t);return {t,a:w.autor_rusname,y:w.year||null,pop:w.markcount||0,kind:w.name_show_im,_fl:w.work_id,_fa:w.autor_id,_r:nt===nq?0:nt.startsWith(nq)?1:2}})
     .sort((x,y)=>x._r-y._r||y.pop-x.pop)}
-// автор без своей страницы на Фантлабе — собираем его книги из поиска
-async function libByAuthorName(q){const pages=await Promise.all([1,2,3].map(p=>libWorks(q,p).catch(()=>[])));const by={};
-  pages.flat().filter(b=>nameMatches(q,b.a)).forEach(b=>{const k=b._fa||b.a;(by[k]=by[k]||[]).push(b)});
-  const k=Object.keys(by).sort((x,y)=>by[y].reduce((s,b)=>s+b.pop,0)-by[x].reduce((s,b)=>s+b.pop,0))[0];if(!k)return null;
-  const seen=new Set();const list=by[k].filter(b=>{const n=norm(b.t);if(seen.has(n))return false;seen.add(n);return true}).sort((x,y)=>y.pop-x.pop);
-  let full=null;if(list[0]._fa)full=await libAuthorBooks(list[0]._fa).catch(()=>null);
-  return {name:list[0].a,list:full&&full.length?full:list}}
-// главный вход: книги автора по запросу (или null)
-async function libAuthorSearch(q,pickId){if(wordsOfQ(q).length>3&&!pickId)return null;let au=await libAuthors(q).catch(()=>[]);
-  // однофамильцы: впереди тот, кого больше в нашем каталоге и на полках
-  const loc={};[...CAT,...BOOKS].forEach(b=>{const k=norm(b.a||"");loc[k]=(loc[k]||0)+1});
-  au=au.map((a,i)=>({...a,_s:(loc[norm(a.name)]||0)*1000+a.marks/1e6-i})).sort((x,y)=>y._s-x._s);
-  if(pickId)au.sort((x,y)=>(y.id===pickId)-(x.id===pickId));
-  if(au[0]){const list=await libAuthorBooks(au[0].id).catch(()=>null);if(list&&list.length)return {name:list[0].a||au[0].name,list:list.map(b=>({...b,c:b.c||au[0].c})),others:au.slice(1,5),q}}
-  return libByAuthorName(q)}
+// книги автора по запросу: кандидаты из поиска авторов и из поиска книг, однофамильцы — кнопками
+async function libAuthorSearch(q,pickKey){if(wordsOfQ(q).length>3&&!pickKey)return null;
+  const [au,pages]=await Promise.all([libAuthors(q).catch(()=>[]),Promise.all([1,2,3].map(p=>libWorks(q,p).catch(()=>[])))]);
+  const cand={};const key=n=>norm(n);
+  au.forEach(a=>{const k=key(a.name);cand[k]={name:a.name,id:a.id,c:a.c,marks:a.marks,works:[]}});
+  pages.flat().filter(b=>nameMatches(q,b.a)).forEach(b=>{const k=key(b.a);const c=cand[k]=cand[k]||{name:b.a,id:b._fa,marks:0,works:[]};c.works.push(b);if(!c.id)c.id=b._fa;if(!au.length||!au.some(a=>key(a.name)===k))c.marks+=b.pop});
+  const loc={};[...CAT,...BOOKS].forEach(b=>{const k=key(b.a||"");loc[k]=(loc[k]||0)+1});
+  let list=Object.entries(cand).map(([k,c])=>({...c,k,_s:(loc[k]||0)*1e6+c.marks})).filter(c=>c.marks>0||loc[c.k]).sort((x,y)=>y._s-x._s);
+  if(pickKey)list.sort((x,y)=>(y.k===pickKey)-(x.k===pickKey));
+  const A=list[0];if(!A)return null;
+  let books=A.id?await libAuthorBooks(A.id).catch(()=>null):null;
+  if(!books||!books.length){const seen=new Set();books=A.works.filter(b=>{const n=norm(b.t);if(seen.has(n))return false;seen.add(n);return true}).sort((x,y)=>y.pop-x.pop)}
+  if(!books.length)return null;
+  return {name:A.name,list:books.map(b=>({...b,a:b.a||A.name,c:b.c||A.c})),others:list.slice(1,5).map(o=>({id:o.k,name:o.name})),q}}
 function flLabels(c,out=[]){if(!c)return out;if(Array.isArray(c)){c.forEach(x=>flLabels(x,out));return out}if(typeof c==="object"){if(c.label&&(c.percent==null||c.percent>=.3))out.push(c.label);flLabels(c.genre,out);flLabels(c.genre_group,out)}return out}
 function flGenre(labels,kind,y){const L=labels.join(" ");
   if(/документальн|мемуар|биограф|нон-фикшн|научно-популярн/i.test(L+" "+(kind||"")))return "nonfic";
@@ -1395,7 +1394,7 @@ function libSection(box,q,opts={}){let my=++libSeq;const v=String(q||"").trim();
     try{const A=await libAuthorSearch(v);if(my!==libSeq)return;
       if(A&&A.list.length){const show=A=>{draw(`Книги автора · ${esc(A.name)} <small>от самых популярных</small>`,A.list);
           if(A.others&&A.others.length){const ch=document.createElement("div");ch.className="lib-others";ch.innerHTML=`<span>Другие авторы:</span>`+A.others.map(o=>`<button type="button" data-ao="${o.id}">${esc(o.name)}</button>`).join("");box.prepend(ch);
-            ch.querySelectorAll("[data-ao]").forEach(x=>x.onclick=async()=>{haptic();x.disabled=true;const my2=++libSeq;const B=await libAuthorSearch(A.q,+x.dataset.ao).catch(()=>null);if(my2!==libSeq||!B)return;my=my2;box._lim=12;show(B)})}};
+            ch.querySelectorAll("[data-ao]").forEach(x=>x.onclick=async()=>{haptic();x.disabled=true;const my2=++libSeq;const B=await libAuthorSearch(A.q,x.dataset.ao).catch(()=>null);if(my2!==libSeq||!B)return;my=my2;box._lim=12;show(B)})}};
         show(A);return}
       const ws=await libWorks(v);if(my!==libSeq)return;
       if(ws.length)draw("В большой библиотеке",ws);else if(!la)box.innerHTML=opts.empty||""}

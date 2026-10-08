@@ -402,8 +402,8 @@ mark{background:none;color:inherit}
 <div class="rm" id="rm"><div class="rm-in"><div id="rmCv"></div><b id="rmT"></b><span id="rmA"></span><p>Как тебе?</p><div class="rm-st" id="rmSt"></div><button class="rm-x" id="rmX" hidden></button></div></div>
 <div class="coach" id="coach" role="dialog" aria-label="Подсказка">
   <div class="cz l"><div class="trail"><i></i></div><div class="ic gl"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></div><b>Не предлагать</b><small>смахни влево</small></div>
-  <div class="cz r"><div class="trail"><i></i></div><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><b>Хочу</b><small>смахни вправо</small></div>
-  <div class="cundo" id="cUndo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/></svg>передумала? верну последние три</div>
+  <div class="cz r"><div class="trail"><i></i></div><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><b>Добавить</b><small>смахни вправо</small></div>
+  <div class="cundo" id="cUndo"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/></svg>отменить действие</div>
   <div class="ctap">нажми, чтобы начать</div></div>
 
 <script>
@@ -541,7 +541,7 @@ function ambient(src){if(!src||src===ambSrc)return;ambSrc=src;const a=$("#ambA")
 let slides=[],cur=-1,acts=[],refilling=false;
 const fresh=x=>{const r=R(),k=norm(x.t);return ![...r.read,...r.want].some(y=>norm(y.t)===k)&&!(r.skip||[]).some(t=>norm(t)===k)};
 const IC={x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',u:'<svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.2-5.3"/><path d="M4.5 4.5v4h4"/></svg>',v:'<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>'};
-function slideHTML(x,j){return `<article class="slide" data-j="${j}"><div class="wrap"><div class="fly gl"><div class="bg">${x.img?`<img src="${esc(x.img)}" alt="" referrerpolicy="no-referrer">`:""}</div><div class="lean r"><i>${IC.v}</i><b>Хочу</b></div><div class="lean l"><i>${IC.x}</i><b>Не предлагать</b></div><div class="obj">${cover(x)}</div><div class="info"><h2>${esc(x.t)}</h2><div class="meta">${esc([x.a,x.y,x.s?"сериал":""].filter(Boolean).join(", "))}</div>${x.w||descOf(x)?`<p>${esc(x.w||descOf(x))}</p>`:""}
+function slideHTML(x,j){return `<article class="slide" data-j="${j}"><div class="wrap"><div class="fly gl"><div class="bg">${x.img?`<img src="${esc(x.img)}" alt="" referrerpolicy="no-referrer">`:""}</div><div class="lean r"><i>${IC.v}</i><b>Добавить</b></div><div class="lean l"><i>${IC.x}</i><b>Не предлагать</b></div><div class="obj">${cover(x)}</div><div class="info"><h2>${esc(x.t)}</h2><div class="meta">${esc([x.a,x.y,x.s?"сериал":""].filter(Boolean).join(", "))}</div>${x.w||descOf(x)?`<p>${esc(x.w||descOf(x))}</p>`:""}
   <div class="acts3"><button class="rb gl press" data-skip="${j}" aria-label="Не показывать">${IC.x}</button><button class="rb sm gl press" data-undo aria-label="Отменить">${IC.u}</button><button class="rb w press" data-want="${j}" aria-label="${T[realm].want}">${IC.v}</button></div><div class="st"></div></div></div></div></article>`}
 function endInner(){return refilling?`<h2>Ищу ещё…</h2><p>${T[realm].tev} листает каталог по твоим любимым авторам.</p>`:`<h2>Пока всё</h2><p>${T[realm].tev} подберёт новое чуть позже. А пока можно найти самой.</p><div class="acts"><button class="btn w" data-find>Найти через поиск</button></div>`}
 function updEnd(){const e=$("#feed [data-end] .card");if(e)e.innerHTML=endInner()}
@@ -643,7 +643,7 @@ function layoutFlow(first){const L=flowList(),n=L.length;if($("#flow").children.
     else{c.style.transform=tf;c.style.opacity=op}
     c.style.zIndex=50-a;c.style.pointerEvents=a>2?"none":"";c.style.filter=o===0?"none":`brightness(${1-a*.25})`;c.classList.toggle("mid",o===0)});
   const x=L[fi],cap=$("#flowCap");
-  cap.innerHTML=x?`${colF==="want"?"":`<span class="fm" style="margin:0 0 6px">Может заинтересовать</span>`}<b>${esc(x.t)}</b><span class="fm">${esc(x.a||"")}</span><p>${esc(descOf(x))}</p>`:`<span class="fm">Здесь пока пусто — найди что-нибудь через лупу вверху.</span>`;
+  cap.innerHTML=x?`<b>${esc(x.t)}</b><span class="fm">${esc(x.a||"")}</span><p>${esc(descOf(x))}</p>`:`<span class="fm">Здесь пока пусто — найди что-нибудь через лупу вверху.</span>`;
   if(!first){cap.classList.remove("sw");void cap.offsetWidth;cap.classList.add("sw")}
   if(x)ambient(x.img)}
 function stepFlow(d){const n=flowList().length;if(n<2)return;fi=((fi+d)%n+n)%n;layoutFlow()}

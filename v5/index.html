@@ -116,8 +116,8 @@ body.films .seg i{transform:translateX(100%)}
 .scroll{position:absolute;inset:0;overflow-y:auto;scrollbar-width:none;padding:calc(64px + env(safe-area-inset-top,0px)) 0 calc(120px + env(safe-area-inset-bottom,0px))}
 .scroll::-webkit-scrollbar{display:none}
 .h1{font-family:var(--serif);font-size:clamp(60px,18vw,100px);font-weight:600;letter-spacing:-.02em;line-height:.9;margin:8px 20px 0}
-.flow{position:relative;height:350px;margin-top:4px;overflow-x:clip;overflow-y:visible;touch-action:pan-y}
-.flow .cv{position:absolute;left:50%;top:34px;width:172px;margin-left:-86px;border-radius:9px;transform-origin:50% 60%;cursor:pointer;
+.flow{position:relative;height:330px;margin-top:4px;overflow-x:clip;overflow-y:visible;touch-action:pan-y}
+.flow .cv{position:absolute;left:50%;top:30px;width:176px;margin-left:-88px;border-radius:9px;transform-origin:50% 50%;cursor:pointer;transition:transform .9s cubic-bezier(.25,.8,.25,1),opacity .6s,filter .9s;box-shadow:0 30px 50px -20px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.08)}
   transition:transform .9s cubic-bezier(.2,.8,.2,1),opacity .6s,filter .9s;box-shadow:0 30px 50px -20px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.08)}
 .flow .cv.mid{box-shadow:0 40px 70px -24px rgba(0,0,0,.95),0 0 0 1px rgba(255,255,255,.16)}
 .flow-cap{text-align:left;padding:0 22px;margin-top:6px;min-height:118px}
@@ -166,6 +166,19 @@ body.films .seg i{transform:translateX(100%)}
 .sc .l{font-size:13px;color:var(--ink2);font-weight:500}
 .sc h3{margin:0;font-family:var(--serif);font-size:30px;font-weight:600;line-height:1}
 .nums{display:flex;flex-wrap:wrap;gap:12px 34px}
+.s1{padding:22px 22px 18px}
+.big{display:flex;align-items:flex-end;gap:14px}
+.big b{font-family:var(--serif);font-size:100px;font-weight:600;line-height:.76;letter-spacing:-.02em}
+.big span{font-size:15px;line-height:1.3;color:var(--ink2);padding-bottom:4px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr)}
+.s1 .row3{margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1)}
+.row3>div{padding:0 0 0 14px;border-left:1px solid rgba(255,255,255,.1);min-width:0}
+.row3>div:first-child{padding-left:0;border-left:0}
+.row3 b{display:flex;align-items:baseline;gap:4px;font-family:var(--serif);font-size:34px;font-weight:600;line-height:1}
+.row3 b small{font-family:var(--f);font-size:14px;color:#FFD66B}
+.row3 span{display:block;margin-top:5px;font-size:12.5px;line-height:1.25;color:var(--ink2)}
+.s2{padding:18px 22px}
+.s2 .chips{margin-top:14px}
 .nums b{display:block;font-family:var(--serif);font-size:44px;font-weight:600;line-height:.9}
 .nums span{display:block;font-size:13px;color:var(--ink2);margin-top:4px}
 .sbars{margin-top:12px;display:grid;gap:9px}
@@ -199,7 +212,7 @@ body.films .seg i{transform:translateX(100%)}
 .bottom{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:30;display:flex;justify-content:center;align-items:center;gap:10px;pointer-events:none}
 .bottom > *{pointer-events:auto}
 .dock{display:flex;gap:4px;padding:6px;border-radius:32px}
-.dock button{position:relative;z-index:1;width:62px;height:48px;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;font-weight:500;letter-spacing:-.01em;color:var(--ink2);transition:color .35s}
+.dock button{position:relative;z-index:1;min-width:62px;padding:0 13px;height:48px;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;font-weight:500;letter-spacing:-.01em;color:var(--ink2);transition:color .35s}
 .dock svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 .dock button.on{color:#fff}
 .lens{position:absolute;top:6px;left:0;height:48px;border-radius:25px;z-index:0;transition:transform .6s cubic-bezier(.3,1.3,.5,1),width .4s,scale .35s cubic-bezier(.3,1.6,.5,1)}
@@ -302,18 +315,41 @@ body.sum #srchB{opacity:0;pointer-events:none}
 .dt h2{margin:16px 0 0;font-family:var(--serif);font-size:36px;font-weight:600;letter-spacing:-.01em;line-height:1.1}
 .dt .meta{color:var(--ink2);font-size:14px;margin-top:4px}
 .dt .dd{text-align:left;margin:16px 2px 0;font-size:15px;line-height:1.5;color:rgba(255,255,255,.82)}
+.dt .one{display:flex;justify-content:center;margin-top:20px}
+.dt .one .btn{flex:none;min-width:240px}
 .dt .dd + .dd{margin-top:8px;font-family:var(--serif);font-style:italic;font-size:19px;line-height:1.3;color:#fff}
 .dt .stars{margin-top:16px}
 .sbar{display:flex;align-items:center;gap:10px;height:50px;border-radius:25px;padding:0 16px}
 .sbar svg{width:19px;height:19px;flex:none;fill:none;stroke:var(--ink2);stroke-width:2;stroke-linecap:round}
 .sbar input{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;font:inherit;font-size:16px}
 .sbar input::placeholder{color:var(--ink3)}
-.fr{display:grid;grid-template-columns:54px 1fr;gap:4px 14px;padding:12px 2px;border-top:1px solid rgba(255,255,255,.08)}
+.sx-tabs{display:flex;gap:6px;margin:12px 0 2px}
+.sx-tabs button{padding:7px 13px;border-radius:999px;font-size:13px;font-weight:600;color:var(--ink2);background:rgba(255,255,255,.07)}
+.sx-tabs button.on{background:#F5F5F7;color:#0B0B10}
+.sx-h{margin:18px 2px 4px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3)}
+.sx-rec{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.sx-rec button{padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.07);font-size:13px;color:var(--ink2)}
+.sx-au{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-top:6px}
+.sx-au button{flex:none;display:flex;align-items:center;gap:8px;padding:7px 12px 7px 7px;border-radius:999px;background:rgba(255,255,255,.07);font-size:13.5px}
+.sx-au i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.12);font-style:normal;font-family:var(--serif);font-size:15px}
+.fr{display:grid;grid-template-columns:48px 1fr auto;gap:0 12px;align-items:center;padding:10px 2px;border-top:1px solid rgba(255,255,255,.07)}
+.fr .tx{min-width:0}
+.fr .ac{display:flex;gap:6px}
+.ib{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1)}
+.ib svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ib.w{background:#F5F5F7}.ib.w svg{stroke:#0B0B10}
+.fr em{font-style:normal;font-size:12px;color:var(--ink2);padding:5px 9px;border-radius:999px;background:rgba(255,255,255,.07);white-space:nowrap}
+mark{background:none;color:inherit}
+.fr mark,.sx-au mark{background:none;color:#fff;text-decoration:underline;text-decoration-color:rgba(255,255,255,.4);text-underline-offset:3px}
+.sk{height:58px;margin-top:10px;border-radius:12px;background:linear-gradient(90deg,rgba(255,255,255,.04),rgba(255,255,255,.09),rgba(255,255,255,.04));background-size:200% 100%;animation:shim 1.2s linear infinite}
+@keyframes shim{to{background-position:-200% 0}}
+.sx-clear{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.14);flex:none}
+.sx-clear svg{width:12px!important;height:12px!important;stroke:#fff!important}
 .fr:first-child{border-top:0;margin-top:6px}
-.fr .cv{grid-row:span 2;border-radius:6px}
-.fr b{display:block;font-family:var(--serif);font-size:21px;font-weight:600;line-height:1.05}
-.fr span{font-size:13px;color:var(--ink2)}
-.fr .bt{display:flex;gap:6px;align-self:end}
+.fr .cv{border-radius:5px}
+.fr b{display:block;font-family:var(--serif);font-size:19px;font-weight:600;line-height:1.08;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.fr span{display:block;margin-top:2px;font-size:12.5px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
 .hint{color:var(--ink3);font-size:13.5px;text-align:center;margin:22px 0 4px}
 @supports (animation-timeline:view()){
   .slide{view-timeline:--sl block}
@@ -334,7 +370,7 @@ body.sum #srchB{opacity:0;pointer-events:none}
 
 <section class="screen" id="s-feed"><div class="feed" id="feed"></div><div class="dots" id="dots"></div></section>
 <section class="screen on" id="s-col"><div class="scroll" id="colScroll"><div class="flow" id="flow"></div><div class="flow-cap" id="flowCap"></div><div class="pills" id="pills"></div><div class="grid" id="grid"></div></div></section>
-<section class="screen" id="s-sum"><div class="scroll" id="sumScroll"><div class="h1" id="sumH">Статистика</div><div class="bento" id="bento"></div><div id="sumMore"></div></div></section>
+<section class="screen" id="s-sum"><div class="scroll" id="sumScroll"><div class="bento" id="bento"></div><div id="sumMore"></div></div></section>
 
 <div class="bottom"><nav class="dock gl" aria-label="Разделы"><i class="lens lensy" id="lens"></i>
   
@@ -546,7 +582,7 @@ async function refill(){if(refilling)return;const r=D.books;refilling=true;if(!i
           x.w=fav.r!=null?`Раз «${fav.t}» у тебя на ${fav.r} из 5 — ещё одна книга того же автора.`:`Ты собираешься читать «${fav.t}» — у этого автора есть и такая книга.`;
           try{const wd=await flj("/work/"+w.work_id+"?extended=1");const d=flClean(wd.work_description);if(d)x.d=d}catch(e){}
           r.pool.push(x);added.push(x);k++}}catch(e){}}}
-  finally{refilling=false;save()}
+  finally{refilling=false;save();if($("#s-col").classList.contains("on")&&colF==="read"&&!$("#sheet").classList.contains("on"))drawFlow()}
   if(!isF()&&added.length&&$("#feed")){const base=slides.length;added.forEach(x=>slides.push(x));
     $("#feed [data-end]").insertAdjacentHTML("beforebegin",added.map((x,i)=>slideHTML(x,base+i)).join(""));drawDots();updUndo();resolveImgs(added,"feed",base)}
   if(!isF())updEnd()}
@@ -588,12 +624,12 @@ function gridList(){return colF==="want"?R().want:R().read}
 function drawFlow(){const L=flowList();fi=L.length?((fi%L.length)+L.length)%L.length:0;
   $("#flow").innerHTML=L.map((x,i)=>cover(x)).join("");resolveImgs(L,"flow");[...$("#flow").children].forEach((c,i)=>{c.dataset.i=i});layoutFlow(true)}
 // веер: центральная обложка прямо и крупнее, соседние разложены по дуге; список закольцован
-function layoutFlow(first){const L=flowList(),n=L.length;
+function layoutFlow(first){const L=flowList(),n=L.length;if($("#flow").children.length!==n){drawFlow();return}
   [...$("#flow").children].forEach((c,i)=>{let o=((i-fi)%n+n)%n;if(o>n/2)o-=n;const a=Math.abs(o),prev=c.dataset.o==null?null:+c.dataset.o;c.dataset.o=o;
-    const tf=`translateX(${o*60}px) translateY(${a*14}px) rotate(${o*7}deg) scale(${o===0?1.04:1-a*.06})`,op=a>2?0:1;
+    const tf=`translateX(${o*150}px) scale(${o===0?1:.8})`,op=a>2?0:1;
     if(prev!=null&&Math.abs(prev-o)>1){c.style.transition="none";c.style.opacity=0;c.style.transform=tf;void c.offsetWidth;c.style.transition="";requestAnimationFrame(()=>{c.style.opacity=op})}
     else{c.style.transform=tf;c.style.opacity=op}
-    c.style.zIndex=50-a;c.style.pointerEvents=a>2?"none":"";c.style.filter=o===0?"none":`brightness(${1-a*.15})`;c.classList.toggle("mid",o===0)});
+    c.style.zIndex=50-a;c.style.pointerEvents=a>2?"none":"";c.style.filter=o===0?"none":`brightness(${1-a*.25})`;c.classList.toggle("mid",o===0)});
   const x=L[fi],cap=$("#flowCap");
   cap.innerHTML=x?`${colF==="want"?"":`<span class="fm" style="margin:0 0 6px">Может заинтересовать</span>`}<b>${esc(x.t)}</b><span class="fm">${esc(x.a||"")}</span><p>${esc(descOf(x))}</p>`:`<span class="fm">Здесь пока пусто — найди что-нибудь через лупу вверху.</span>`;
   if(!first){cap.classList.remove("sw");void cap.offsetWidth;cap.classList.add("sw")}
@@ -603,7 +639,7 @@ let flowHold=0;
 (function(){const el=$("#flow");let x0=null,moved=0;el.addEventListener("pointerdown",e=>{x0=e.clientX;moved=0;flowHold=Date.now()});
   el.addEventListener("pointermove",e=>{if(x0==null)return;const d=e.clientX-x0;if(Math.abs(d)>40){stepFlow(d<0?1:-1);x0=e.clientX;moved++;flowHold=Date.now();haptic()}});
   addEventListener("pointerup",()=>{x0=null});
-  el.addEventListener("click",e=>{const c=e.target.closest(".cv");if(c&&!moved){flowHold=Date.now();const i=+c.dataset.i;if(i!==fi){fi=i;layoutFlow()}openItem(flowList()[i],colF==="want"?"want":"rec")}})})();
+  el.addEventListener("click",e=>{const c=e.target.closest(".cv");if(c&&!moved){flowHold=Date.now();const i=+c.dataset.i;if(i!==fi){fi=i;layoutFlow()}openItem(flowList()[i],colF==="want"?"top":"rec")}})})();
 // сама листается слева направо каждые пару секунд; замирает, пока трогаешь или открыта карточка
 (function tick(){if(!(document.hidden||!$("#s-col").classList.contains("on")||$("#sheet").classList.contains("on")||Date.now()-flowHold<6000))stepFlow(-1);setTimeout(tick,colF==="want"?5600:3600)})();
 function drawCol(){  $("#pills").innerHTML=[["want",T[realm].want],["read",T[realm].read]].map(([k,l])=>`<button class="gl ${colF===k?"on":""}" data-f="${k}">${l}</button>`).join("");
@@ -637,11 +673,10 @@ function drawSum(){const F=isF(),r=R().read,u=T[realm].u,known=r.filter(x=>x.c&&
   const C=2*Math.PI*44,frac=avg/5,cs=cntBy(known,x=>x.c),au=cntBy(r,x=>x.a),dated=r.filter(x=>x.y);
   const eras=F?cntBy(dated,x=>Math.floor(x.y/10)*10+"-е"):cntBy(dated,x=>(ROMAN[Math.ceil(x.y/100)]||Math.ceil(x.y/100))+" век");
   const gens=cntBy(r,x=>GEN[x.g]);const vol=F?Math.round(r.reduce((a,x)=>a+(x.min||0),0)/60):r.reduce((a,x)=>a+(x.pg||0),0);const wn=R().want.length;
-  if(!r.length){$("#bento").innerHTML=`<div class="bx hero gl"><div class="l">Статистика появится, когда на полке будет что-то ${F?"просмотренное":"прочитанное"}.</div></div>`;$("#sumMore").innerHTML="";return}
-  $("#bento").innerHTML=`<div class="bx hero gl"><div class="n">${r.length}</div><div class="l">${plural(r.length,...u)}<br>${F?"посмотрено":"прочитано"}</div></div>
-   <div class="bx met gl"><div class="l">${F?"Часов в кино":"Страниц прочитано"}</div><div class="n">${vol.toLocaleString("ru-RU")}</div></div>
-   <div class="bx rt gl"><div class="l">Средняя оценка</div><svg class="ring" viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" stroke="rgba(255,255,255,.15)" stroke-width="8" fill="none"/><circle cx="50" cy="50" r="44" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-dasharray="${C*frac} ${C}" transform="rotate(-90 50 50)"/><text x="50" y="61" text-anchor="middle" fill="#fff" font-size="34" font-weight="600" font-family="Cormorant Garamond,Georgia,serif" style="font-variant-numeric:lining-nums">${rated.length?avg.toFixed(1).replace(".",","):"—"}</text></svg></div>
-   <div class="bx wantb gl"><div class="n">${wn}</div><div class="l">${plural(wn,...u)}<br>в списке «${T[realm].want}»</div></div>`;
+  if(!r.length){$("#bento").innerHTML="";$("#sumMore").innerHTML=`<div class="sc gl"><p style="margin:0;color:var(--ink2)">Статистика появится, когда на полке будет что-то ${F?"просмотренное":"прочитанное"}.</p></div>`;return}
+  $("#bento").innerHTML="";const avgS=rated.length?avg.toFixed(1).replace(".",","):"—";
+  const head=`<div class="sc gl s1"><div class="big"><b>${r.length}</b><span>${plural(r.length,...u)}<br>${F?"посмотрено":"прочитано"}</span></div>
+     <div class="row3"><div><b>${vol.toLocaleString("ru-RU")}</b><span>${F?plural(vol,"час","часа","часов")+" просмотра":plural(vol,"страница","страницы","страниц")}</span></div><div><b>${avgS}<small>★</small></b><span>средняя оценка</span></div><div><b>${wn}</b><span>в избранном</span></div></div></div>`;
   const yNow=new Date().getFullYear(),maxA=au.length?au[0][1]:0,yearMax=Math.max(0,...cntBy(r.filter(x=>x.rd),x=>x.rd.slice(0,4)).map(x=>x[1])),g=Object.fromEntries(cntBy(r,x=>x.g));
   const ST=F?[["Первый фильм","первый фильм на полке","eye",r.length,1],["Десять фильмов","10 фильмов на полке","masks",r.length,10],["Пять стран","фильмы из 5 стран","compass",cs.length,5],
      ["Три десятилетия","фильмы трёх разных десятилетий","hourglass",eras.length,3],["Азия","фильм из Азии","cherry",known.some(x=>ASIA.has(x.c))?1:0,1],["Любимый режиссёр","3 фильма одного режиссёра","crown",maxA,3],
@@ -654,8 +689,8 @@ function drawSum(){const F=isF(),r=R().read,u=T[realm].u,known=r.filter(x=>x.c&&
   const byY={};r.filter(x=>x.rd).forEach(x=>(byY[x.rd.slice(0,4)]=byY[x.rd.slice(0,4)]||[]).push(x));
   const yrs=Object.keys(byY).sort((a,b)=>b-a).map(y=>{const bs=byY[y],fav=bs.filter(x=>x.r!=null).sort((a,b)=>b.r-a.r)[0];
     return `<div class="yr"><div><b>${y}</b><small>${bs.length} ${plural(bs.length,...u)}</small></div>${fav?`<div class="fav"><div><span>Любим${F?"ый":"ая"}</span><em>${esc(fav.t)}</em></div>${cover(fav)}</div>`:""}</div>`}).join("");
-  $("#sumMore").innerHTML=`
-   <div class="sc gl"><div class="nums"><div><b>${cs.length}</b><span>${plural(cs.length,"страна","страны","стран")}</span></div><div><b>${eras.length}</b><span>${F?plural(eras.length,"десятилетие","десятилетия","десятилетий"):plural(eras.length,"век","века","веков")}</span></div><div><b>${au.length}</b><span>${F?plural(au.length,"режиссёр","режиссёра","режиссёров"):plural(au.length,"автор","автора","авторов")}</span></div></div><div class="chips">${cs.map(([c])=>`<span>${esc(c)}</span>`).join("")}</div></div>
+  $("#sumMore").innerHTML=`${head}
+   <div class="sc gl s2"><div class="row3"><div><b>${cs.length}</b><span>${plural(cs.length,"страна","страны","стран")}</span></div><div><b>${eras.length}</b><span>${F?plural(eras.length,"десятилетие","десятилетия","десятилетий"):plural(eras.length,"век","века","веков")}</span></div><div><b>${au.length}</b><span>${F?plural(au.length,"режиссёр","режиссёра","режиссёров"):plural(au.length,"автор","автора","авторов")}</span></div></div><div class="chips">${cs.map(([c])=>`<span>${esc(c)}</span>`).join("")}</div></div>
    ${best.length?`<div class="sc gl"><h3>Любимые</h3><div class="mini">${best.map(cover).join("")}</div></div>`:""}
    ${yrs?`<div class="sc gl"><h3>Год за годом</h3><div class="yrs">${yrs}</div></div>`:""}
    <div class="sc gl"><div class="hd"><h3>${F?"Паспорт зрителя":"Читательский паспорт"}</h3><span>${got.length} из ${sts.length}</span></div><div class="stamps">${shown.map(st=>`<div class="stp${st.ok?"":" off"}">${stampSVG(st)}<b>${esc(st.t)}</b><small>${esc(st.h)}</small>${st.ok?"":`<i>${st.cur} из ${st.need}</i>`}</div>`).join("")}</div></div>
@@ -668,22 +703,23 @@ let onbK="books",onbPick={};
 const STAR='<svg viewBox="0 0 24 24"><path d="M12 3.2l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/></svg>';
 function onbDraw(){const F=onbK==="films",list=POP[onbK].map(a=>popItem(onbK,a));onbPick={};
   $("#onbStep").textContent=F?"2 из 2":"1 из 2";$("#onbH").textContent=F?"Выбери хотя бы два просмотренных фильма или сериала":"Выбери хотя бы две прочитанные книги";
-  $("#onbP").textContent=F?"Нажми на постер и поставь оценку.":"Нажми на обложку и поставь оценку.";$("#rmX").textContent=F?"Не смотрела":"Не читала";
+  $("#onbP").textContent=F?"Нажми на постер и поставь оценку.":"Нажми на обложку и поставь оценку.";
   $("#onbSkip").hidden=!F;$("#onbGrid").scrollTop=0;
   $("#onbGrid").innerHTML=list.map((x,i)=>`<div class="op${i===0?" nudge":""}" data-i="${i}">${cover(x)}${i===0?`<span class="tip">Нажми</span>`:""}<span class="badge"></span><small>${esc(x.t)}${x.s?" · сериал":""}</small></div>`).join("");
   $("#onbGrid")._l=list;onbBtn();
   list.forEach(async(x,i)=>{const u=await findImg(x,F);if(!u)return;x.img=u;const el=$(`#onbGrid .op[data-i="${i}"] .cv`);if(el)el.outerHTML=cover(x)})}
 function onbBtn(){const n=Object.keys(onbPick).length,b=$("#onbNext"),F=onbK==="films";b.disabled=n<2;b.textContent=n>=2?`Дальше · ${n}`:n?(F?"Выбери ещё один":"Выбери ещё одну"):(F?"Выбери хотя бы два":"Выбери хотя бы две")}
-let rmI=-1;
-function rmOpen(i){rmI=i;const x=$("#onbGrid")._l[i];$("#rmCv").innerHTML=cover(x);$("#rmT").textContent=x.t;$("#rmA").textContent=[x.a,x.s?"сериал":""].filter(Boolean).join(" · ");
-  $("#rmSt").innerHTML=[1,2,3,4,5].map(n=>`<button data-st="${n}" class="${onbPick[i]>=n?"on":""}" aria-label="${n} из 5">${STAR}</button>`).join("");$("#rm").classList.add("on");haptic("soft")}
-function rmClose(){$("#rm").classList.remove("on");rmI=-1}
-$("#onbGrid").addEventListener("click",e=>{const op=e.target.closest(".op");if(!op)return;document.querySelectorAll("#onbGrid .nudge").forEach(o=>{o.classList.remove("nudge");const t=o.querySelector(".tip");t&&t.remove()});rmOpen(+op.dataset.i)});
-$("#rmSt").addEventListener("click",e=>{const b=e.target.closest("[data-st]");if(!b||rmI<0)return;const n=+b.dataset.st,i=rmI,op=$(`#onbGrid .op[data-i="${i}"]`);onbPick[i]=n;
-  $("#rmSt").querySelectorAll("button").forEach(x=>x.classList.toggle("on",+x.dataset.st<=n));b.classList.add("pop");haptic("medium");
-  op.classList.add("rated");op.querySelector(".badge").textContent="★ "+n;onbBtn();setTimeout(rmClose,380)});
-$("#rmX").onclick=()=>{if(rmI>=0){delete onbPick[rmI];const op=$(`#onbGrid .op[data-i="${rmI}"]`);op.classList.remove("rated");onbBtn()}rmClose()};
+let rmCb=null;
+function rmAsk(x,curR,onPick,noLabel,onNo){rmCb={onPick,onNo};$("#rmCv").innerHTML=cover(x);$("#rmT").textContent=x.t;$("#rmA").textContent=[x.a,x.s?"сериал":""].filter(Boolean).join(" · ");$("#rmX").textContent=noLabel;
+  $("#rmSt").innerHTML=[1,2,3,4,5].map(n=>`<button data-st="${n}" class="${curR>=n?"on":""}" aria-label="${n} из 5">${STAR}</button>`).join("");$("#rm").classList.add("on");haptic("soft")}
+function rmClose(){$("#rm").classList.remove("on");rmCb=null}
+$("#rmSt").addEventListener("click",e=>{const b=e.target.closest("[data-st]");if(!b||!rmCb)return;const n=+b.dataset.st,cb=rmCb;
+  $("#rmSt").querySelectorAll("button").forEach(x=>x.classList.toggle("on",+x.dataset.st<=n));b.classList.add("pop");haptic("medium");cb.onPick(n);setTimeout(rmClose,380)});
+$("#rmX").onclick=()=>{const cb=rmCb;rmClose();cb&&cb.onNo&&cb.onNo()};
 $("#rm").addEventListener("click",e=>{if(e.target.id==="rm")rmClose()});
+$("#onbGrid").addEventListener("click",e=>{const op=e.target.closest(".op");if(!op)return;document.querySelectorAll("#onbGrid .nudge").forEach(o=>{o.classList.remove("nudge");const t=o.querySelector(".tip");t&&t.remove()});
+  const i=+op.dataset.i,F=onbK==="films";
+  rmAsk($("#onbGrid")._l[i],onbPick[i],n=>{onbPick[i]=n;op.classList.add("rated");op.querySelector(".badge").textContent="★ "+n;onbBtn()},F?"Не смотрела":"Не читала",()=>{delete onbPick[i];op.classList.remove("rated");onbBtn()})});
 function introShow(){const L=POP.books.slice(0,5).map(a=>popItem("books",a));$("#introFan").innerHTML=L.map(cover).join("");
   [...$("#introFan").children].forEach((c,i)=>{const o=i-2;c.style.transform=`translateX(${o*58}px) translateY(${Math.abs(o)*12}px) rotate(${o*8}deg)`;c.style.zIndex=10-Math.abs(o);c.style.animationDelay=(.1+i*.08)+"s"});
   L.forEach(async(x,i)=>{const u=await findImg(x,false);if(!u)return;x.img=u;const c=$("#introFan").children[i];if(c){const im=document.createElement("img");im.src=u;im.referrerPolicy="no-referrer";im.onload=()=>im.classList.add("ok");c.appendChild(im)}});
@@ -706,41 +742,88 @@ document.querySelector(".seg").addEventListener("click",e=>{const b=e.target.clo
 let shDirty=false;
 function openSheet(html,tall){$("#shBody").innerHTML=html;const sh=$("#sheet");sh.classList.toggle("tall",!!tall);sh.classList.add("on");$("#sh").scrollTop=0;haptic("medium");TG&&TG.BackButton&&TG.BackButton.show()}
 function closeSheet(){$("#sheet").classList.remove("on");document.activeElement&&document.activeElement.blur();TG&&TG.BackButton&&TG.BackButton.hide();
-  if(shDirty){shDirty=false;const on=document.querySelector(".screen.on").id.slice(2);if(on==="feed")buildFeed();else show(on)}}
+  if(shDirty){shDirty=false;setTimeout(()=>{const on=document.querySelector(".screen.on").id.slice(2);if(on==="feed")buildFeed();else show(on)},520)}}
 $("#sheet").addEventListener("click",e=>{if(e.target.closest("[data-close]"))closeSheet()});
 TG&&TG.BackButton&&TG.BackButton.onClick(closeSheet);
 // смахнуть лист вниз
-(function(){const el=$("#sh");let y0=null,dy=0;el.addEventListener("touchstart",e=>{if(el.scrollTop>0)return;y0=e.touches[0].clientY;dy=0},{passive:true});
+(function(){const el=$("#sh");let y0=null,dy=0;el.addEventListener("touchstart",e=>{if(el.scrollTop>0||e.target.closest("input,.sx-au"))return;y0=e.touches[0].clientY;dy=0},{passive:true});
   el.addEventListener("touchmove",e=>{if(y0==null)return;dy=Math.max(0,e.touches[0].clientY-y0);el.style.transition="none";el.style.transform=`translateY(${dy}px)`},{passive:true});
-  el.addEventListener("touchend",()=>{if(y0==null)return;el.style.transition="";el.style.transform="";if(dy>90)closeSheet();y0=null})})();
+  el.addEventListener("touchend",()=>{if(y0==null)return;y0=null;
+    if(dy>90){el.style.transition="transform .26s cubic-bezier(.4,0,1,1)";el.style.transform="translateY(110%)";setTimeout(()=>{el.style.transition="none";closeSheet();requestAnimationFrame(()=>{el.style.transform="";requestAnimationFrame(()=>{el.style.transition=""})})},250)}
+    else{el.style.transition="transform .35s cubic-bezier(.2,1.2,.4,1)";el.style.transform="";setTimeout(()=>{el.style.transition=""},360)}})})();
 let cardX=null,cardL=null;
 function itemHTML(){const x=cardX,L=cardL;return `<div class="dt">${cover(x)}<h2>${esc(x.t)}</h2><div class="meta">${esc([x.a,x.y,x.c&&x.c!=="—"?x.c:"",x.s?"сериал":""].filter(Boolean).join(", "))}</div>
   ${descOf(x)?`<p class="dd">${esc(descOf(x))}</p>`:""}${x.w&&x.d?`<p class="dd">${esc(x.w)}</p>`:""}
   ${L==="read"?`<div class="stars">${Array.from({length:6},(_,n)=>`<button data-cr="${n}" class="${x.r===n?"on":""}">${n}</button>`).join("")}</div>`:""}
-  <div class="acts">${L==="rec"?`<button class="btn" data-cskip>Не предлагать</button><button class="btn w" data-cwant>Хочу</button>`:`${L==="want"?`<button class="btn w" data-cmv>${T[realm].did}</button>`:""}<button class="btn" data-crm>Убрать с полки</button>`}</div></div>`}
+  ${L==="rec"?`<div class="one"><button class="btn w" data-cwant>Добавить в избранное</button></div>`:L==="top"?`<div class="one"><button class="btn" data-crm>Убрать из избранного</button></div>`:`<div class="acts">${L==="want"?`<button class="btn w" data-cmv>${T[realm].did}</button>`:""}<button class="btn" data-crm>Убрать с полки</button></div>`}</div>`}
 function openItem(x,L){if(!x)return;cardX=x;cardL=L;ambient(x.img);openSheet(itemHTML())}
 $("#shBody").addEventListener("click",e=>{const t=e.target;
   const cr=t.closest("[data-cr]");if(cr){cardX.r=+cr.dataset.cr;save();cr.parentElement.querySelectorAll("button").forEach(b=>b.classList.toggle("on",b===cr));layoutFlow();shDirty=true;haptic();return}
   if(t.closest("[data-cmv]")){R().want=R().want.filter(y=>y!==cardX);cardX.r=null;cardX.rd=new Date().toISOString().slice(0,7);R().read.unshift(cardX);save();cardL="read";$("#shBody").innerHTML=itemHTML();shDirty=true;toast("Поставь оценку");return}
-  if(t.closest("[data-cwant]")){const x=cardX;R().want.unshift({t:x.t,a:x.a,y:x.y,img:x.img,w:x.w,d:x.d,c:x.c,g:x.g,s:x.s});save();shDirty=true;toast(`Добавила в «${T[realm].want}»`);closeSheet();return}
+  if(t.closest("[data-cwant]")){const x=cardX;R().want.unshift({t:x.t,a:x.a,y:x.y,img:x.img,w:x.w,d:x.d,c:x.c,g:x.g,s:x.s});save();shDirty=true;toast("Добавила в избранное");closeSheet();return}
   if(t.closest("[data-cskip]")){(R().skip=R().skip||[]).push(cardX.t);save();shDirty=true;toast("Больше не предложу");closeSheet();return}
-  if(t.closest("[data-crm]")){R()[cardL]=R()[cardL].filter(y=>y!==cardX);save();shDirty=true;toast(`«${cardX.t}» — убрано с полки`);closeSheet();return}
-  const fa=t.closest("[data-fadd]");if(fa){const x=$("#fres")._l[+fa.dataset.i],L=fa.dataset.fadd,r=R();
-    if([...r.read,...r.want].some(y=>norm(y.t)===norm(x.t))){toast("Уже на полке");return}
-    r[L].unshift(L==="read"?{...x,r:null,rd:new Date().toISOString().slice(0,7)}:{...x});save();shDirty=true;haptic("medium");fa.parentElement.innerHTML=`<span>✓ ${L==="read"?T[realm].read:T[realm].want}</span>`}});
-// поиск: книги — Фантлаб, фильмы — Википедия
-let fT=0,fSeq=0;
-async function onlineFind(q){if(!isF()){const s=await (await fetch("https://api.fantlab.ru/search-works?q="+encodeURIComponent(q)+"&page=1&onlymatches=1")).json();
-   return (Array.isArray(s)?s:[]).filter(w=>["novel","story","collection","documental"].includes(w.name_eng)&&w.autor_rusname).sort((a,b)=>b.markcount-a.markcount).slice(0,12).map(w=>({t:w.rusname||w.name,a:w.autor_rusname,y:w.year,img:(w.pic_edition_id||w.pic_edition_id_auto)?FL(w.pic_edition_id||w.pic_edition_id_auto):""}))}
-  const j=await (await fetch("https://ru.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=12&gsrsearch="+encodeURIComponent(q+" фильм")+"&prop=pageimages&piprop=thumbnail&pithumbsize=400&pilicense=any")).json();
-  return Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index).filter(p=>/фильм|мультфильм/i.test(p.title)).map(p=>{const m=p.title.match(/^(.*?)\s*\((?:фильм|мультфильм)(?:,\s*(\d{4}))?\)$/);return {t:m?m[1]:p.title,a:"",y:m&&m[2]?+m[2]:null,img:p.thumbnail?p.thumbnail.source:""}})}
-function drawFind(list,msg){$("#fres")._l=list;
-  $("#fres").innerHTML=list.map((x,i)=>`<div class="fr">${cover(x)}<div><b>${esc(x.t)}</b><span>${esc([x.a,x.y].filter(Boolean).join(", "))}</span></div><div class="bt"><button class="btn w sm" data-fadd="read" data-i="${i}">${T[realm].did}</button><button class="btn sm" data-fadd="want" data-i="${i}">Хочу</button></div></div>`).join("")+(msg?`<p class="hint">${msg}</p>`:"")}
-$("#srchB").onclick=()=>{openSheet(`<div class="sbar gl"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="fq" type="text" enterkeyhint="search" autocomplete="off" placeholder="${isF()?"Название фильма":"Книга или автор"}"></div><div id="fres"></div>`,true);
-  drawFind([],isF()?"Любой фильм — даже тот, что не выходил в России.":"Найди книгу и поставь на полку.");
-  $("#fq").addEventListener("input",()=>{const q=$("#fq").value.trim(),my=++fSeq;clearTimeout(fT);if(norm(q).length<2){drawFind([],"");return}drawFind([],"Ищу…");
-    fT=setTimeout(async()=>{try{const o=await onlineFind(q);if(my===fSeq)drawFind(o,o.length?"":"Ничего не нашлось.")}catch(e){if(my===fSeq)drawFind([],"Каталог не ответил — проверь интернет.")}},350)});
-  setTimeout(()=>$("#fq").focus(),80)};
+  if(t.closest("[data-crm]")){const LL=cardL==="top"?"want":cardL;R()[LL]=R()[LL].filter(y=>y!==cardX);save();shDirty=true;toast(`«${cardX.t}» — убрано с полки`);closeSheet();return}
+});
+// ---------- поиск: как в хороших каталогах — мгновенно, с подсветкой, авторами и недавними ----------
+const SX={k:"books",q:"",seq:0,t:0,list:[],authors:[],mode:"q",au:null};
+const PLUS='<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+const recentGet=()=>{try{return JSON.parse(localStorage.getItem("nora5.recent")||"[]")}catch(e){return []}};
+function recentAdd(q){q=q.trim();if(norm(q).length<2)return;const r=[q,...recentGet().filter(x=>norm(x)!==norm(q))].slice(0,8);try{localStorage.setItem("nora5.recent",JSON.stringify(r))}catch(e){}}
+const stOf=(k,x)=>{const r=D[k],n=norm(x.t);return r.read.some(y=>norm(y.t)===n)?"read":r.want.some(y=>norm(y.t)===n)?"want":""};
+function hl(t,q){const s=String(t||""),nq=String(q||"").trim().toLowerCase().replace(/ё/g,"е");if(nq.length<2)return esc(s);const i=s.toLowerCase().replace(/ё/g,"е").indexOf(nq);
+  return i<0?esc(s):esc(s.slice(0,i))+"<mark>"+esc(s.slice(i,i+nq.length))+"</mark>"+esc(s.slice(i+nq.length))}
+function sxRow(x,i){const k=SX.k,st=stOf(k,x),F=k==="films";
+  return `<div class="fr" data-i="${i}">${cover(x)}<div class="tx"><b>${hl(x.t,SX.q)}</b><span>${hl([x.a,x.y,x.s?"сериал":""].filter(Boolean).join(" · "),SX.q)}</span></div><div class="ac">${st?`<em>${st==="read"?(F?"Смотрела":"Читала"):"В избранном"}</em>`:`<button class="ib" data-sx="want" aria-label="В избранное">${PLUS}</button><button class="ib w" data-sx="read" aria-label="${F?"Смотрела":"Читала"}">${IC.v}</button>`}</div></div>`}
+function localFind(q){const nq=norm(q),k=SX.k,seen=new Set(),out=[];
+  [...D[k].read,...D[k].want,...D[k].pool,...POP[k].map(a=>popItem(k,a))].forEach(x=>{const n=norm(x.t);if(seen.has(n))return;if(n.includes(nq)||norm(x.a).includes(nq)){seen.add(n);out.push({...x})}});
+  return out.sort((a,b)=>(norm(b.t).startsWith(nq)?1:0)-(norm(a.t).startsWith(nq)?1:0)).slice(0,5)}
+async function onlineBooks(q){const [w,a]=await Promise.all([flj("/search-works?q="+encodeURIComponent(q)+"&page=1&onlymatches=1").catch(()=>[]),flj("/search-autors?q="+encodeURIComponent(q)).catch(()=>null)]);
+  const works=(Array.isArray(w)?w:[]).filter(w=>["novel","story","collection","documental","cycle"].includes(w.name_eng)&&w.autor_rusname&&(w.rusname||w.name)).sort((a,b)=>(b.markcount||0)-(a.markcount||0)).slice(0,14)
+    .map(w=>({t:w.rusname||w.name,a:w.autor_rusname,y:w.year||null,img:(w.pic_edition_id||w.pic_edition_id_auto)?FL(w.pic_edition_id||w.pic_edition_id_auto):"",_fl:w.work_id}));
+  const au=((a&&a.matches)||(Array.isArray(a)?a:[])).filter(x=>(x.markcount||0)>50).sort((x,y)=>y.markcount-x.markcount).slice(0,4).map(x=>({id:x.autor_id,name:x.rusname||x.name}));
+  return {works,au}}
+async function onlineFilms(q){const one=async suf=>{const j=await (await fetch("https://ru.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=10&gsrsearch="+encodeURIComponent(q+" "+suf)+"&prop=pageimages&piprop=thumbnail&pithumbsize=400&pilicense=any")).json();return Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index)};
+  const [a,b]=await Promise.all([one("фильм").catch(()=>[]),one("сериал").catch(()=>[])]),seen=new Set(),out=[];
+  [...a,...b].forEach(p=>{const m=p.title.match(/^(.*?)\s*\((мини-сериал|телесериал|сериал|фильм|мультфильм|мультсериал|аниме)(?:,\s*(\d{4}))?[^)]*\)$/i);if(!m)return;const t=m[1],k=norm(t)+(m[3]||"");if(seen.has(k))return;seen.add(k);
+    out.push({t,a:"",y:m[3]?+m[3]:null,s:/сериал/i.test(m[2])?1:undefined,img:p.thumbnail?p.thumbnail.source:""})});
+  return {works:out.slice(0,14),au:[]}}
+function sxDraw(state){const box=$("#fres");if(!box)return;const q=SX.q,F=SX.k==="films";let h="";
+  if(SX.mode==="au"){h=`<div class="sx-h">${esc(SX.au.name)} — по популярности</div>`+(state==="load"?'<div class="sk"></div><div class="sk"></div><div class="sk"></div>':SX.list.map(sxRow).join("")||'<p class="hint">У автора не нашлось книг.</p>');box.innerHTML=h;box._l=SX.list;return}
+  if(norm(q).length<2){const rec=recentGet(),pop=POP[SX.k].map(a=>popItem(SX.k,a)).filter(x=>!stOf(SX.k,x)).slice(0,8);SX.list=pop;
+    h=(rec.length?`<div class="sx-h">Недавние</div><div class="sx-rec">${rec.map(r=>`<button data-rq="${esc(r)}">${esc(r)}</button>`).join("")}</div>`:"")+
+      `<div class="sx-h">${F?"Популярные фильмы и сериалы":"Популярные книги"}</div>`+pop.map(sxRow).join("");box.innerHTML=h;box._l=pop;resolveRows(pop);return}
+  if(SX.authors.length)h+=`<div class="sx-h">Авторы</div><div class="sx-au">${SX.authors.map((a,i)=>`<button data-au="${i}"><i>${esc(a.name[0]||"?")}</i>${hl(a.name,q)}</button>`).join("")}</div>`;
+  h+=SX.list.length?`<div class="sx-h">${F?"Фильмы и сериалы":"Книги"}</div>`+SX.list.map(sxRow).join(""):"";
+  if(state==="load")h+='<div class="sk"></div><div class="sk"></div><div class="sk"></div>';
+  if(state==="done"&&!SX.list.length&&!SX.authors.length)h+=`<p class="hint">Ничего не нашлось. Попробуй часть названия${F?"":" или фамилию автора"}.</p>`;
+  if(state==="err")h+='<p class="hint">Каталог не ответил — проверь интернет.</p>';
+  box.innerHTML=h;box._l=SX.list}
+function resolveRows(list){list.forEach(async(x,i)=>{if(x.img||x._noimg)return;const u=await findImg(x,SX.k==="films");if(!u){x._noimg=1;return}x.img=u;const r=$(`#fres .fr[data-i="${i}"] .cv`);if(r&&$("#fres")._l===list)r.outerHTML=cover(x)})}
+function sxRun(){const q=$("#fq").value,my=++SX.seq;SX.q=q;SX.mode="q";clearTimeout(SX.t);$(".sx-clear").hidden=!q;
+  if(norm(q).length<2){SX.authors=[];sxDraw();return}
+  SX.list=localFind(q);SX.authors=[];sxDraw("load");
+  SX.t=setTimeout(async()=>{try{const o=await (SX.k==="films"?onlineFilms(q):onlineBooks(q));if(my!==SX.seq)return;const seen=new Set(SX.list.map(x=>norm(x.t)));
+      SX.list=[...SX.list,...o.works.filter(x=>{const n=norm(x.t);if(seen.has(n))return false;seen.add(n);return true})];SX.authors=o.au;sxDraw("done");resolveRows(SX.list)}
+    catch(e){if(my===SX.seq)sxDraw("err")}},260)}
+async function sxAuthor(a){SX.mode="au";SX.au=a;SX.list=[];sxDraw("load");const my=++SX.seq;
+  try{const j=await flj("/autor/"+a.id+"?works=1");if(my!==SX.seq)return;const seen=new Set();
+    SX.list=(j.works||[]).filter(w=>{if(!w.work_name||w.work_published===0||w.work_preparing)return false;if(!["роман","повесть","сборник","роман-эпопея","документальное произведение","пьеса"].includes(w.work_type))return false;const k=norm(w.work_name);if(seen.has(k))return false;seen.add(k);return true})
+      .sort((x,y)=>(y.val_voters||0)-(x.val_voters||0)).slice(0,30).map(w=>({t:w.work_name,a:a.name,y:w.work_year||null}));sxDraw("done");resolveRows(SX.list.slice(0,12))}catch(e){sxDraw("err")}}
+$("#srchB").onclick=()=>{SX.k=realm;SX.q="";SX.mode="q";
+  openSheet(`<div class="sbar gl"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="fq" type="text" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false"><button class="sx-clear" hidden aria-label="Очистить"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+   <div class="sx-tabs"><button data-sk="books">Книги</button><button data-sk="films">Фильмы и сериалы</button></div><div id="fres"></div>`,true);
+  const upd=()=>{document.querySelectorAll("[data-sk]").forEach(b=>b.classList.toggle("on",b.dataset.sk===SX.k));$("#fq").placeholder=SX.k==="films"?"Фильм или сериал":"Название или автор"};upd();
+  $("#fq").addEventListener("input",sxRun);$("#fq").addEventListener("keydown",e=>{if(e.key==="Enter"){recentAdd($("#fq").value);$("#fq").blur()}});
+  $(".sx-clear").onclick=()=>{$("#fq").value="";sxRun();$("#fq").focus()};
+  document.querySelector(".sx-tabs").onclick=e=>{const b=e.target.closest("[data-sk]");if(!b||b.dataset.sk===SX.k)return;SX.k=b.dataset.sk;upd();sxRun();haptic()};
+  sxDraw();setTimeout(()=>$("#fq").focus(),80)};
+$("#shBody").addEventListener("click",e=>{const t=e.target;if(!$("#fres"))return;
+  const rq=t.closest("[data-rq]");if(rq){$("#fq").value=rq.dataset.rq;sxRun();return}
+  const au=t.closest("[data-au]");if(au){recentAdd($("#fq").value);sxAuthor(SX.authors[+au.dataset.au]);haptic();return}
+  const b=t.closest("[data-sx]");if(!b)return;const row=b.closest(".fr"),x=$("#fres")._l[+row.dataset.i],k=SX.k,F=k==="films",r=D[k];if(!x||stOf(k,x))return;recentAdd($("#fq").value);
+  const done=()=>{save();shDirty=true;row.querySelector(".ac").innerHTML=`<em>${stOf(k,x)==="read"?(F?"Смотрела":"Читала"):"В избранном"}</em>`};
+  if(b.dataset.sx==="want"){r.want.unshift({...x});done();toast("Добавила в избранное");haptic("medium");return}
+  rmAsk(x,null,n=>{r.read.unshift({...x,r:n,rd:new Date().toISOString().slice(0,7)});done();toast(F?"Отмечено как просмотренное":"Отмечено как прочитанное")},"Без оценки",()=>{r.read.unshift({...x,r:null,rd:new Date().toISOString().slice(0,7)});done()})});
 // двойной тап по обложке находки — «хочу» с сердечком
 let lastTap=0;
 $("#feed").addEventListener("pointerup",e=>{const o=e.target.closest(".obj");if(!o)return;const now=Date.now();if(now-lastTap>320){lastTap=now;return}lastTap=0;

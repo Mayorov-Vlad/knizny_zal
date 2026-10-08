@@ -120,12 +120,12 @@ body.films .seg i{transform:translateX(100%)}
 .flow .cv{position:absolute;left:50%;top:30px;width:176px;margin-left:-88px;border-radius:9px;transform-origin:50% 50%;cursor:pointer;transition:transform .9s cubic-bezier(.25,.8,.25,1),opacity .6s,filter .9s;box-shadow:0 30px 50px -20px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.08)}
   transition:transform .9s cubic-bezier(.2,.8,.2,1),opacity .6s,filter .9s;box-shadow:0 30px 50px -20px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.08)}
 .flow .cv.mid{box-shadow:0 40px 70px -24px rgba(0,0,0,.95),0 0 0 1px rgba(255,255,255,.16)}
-.flow-cap{text-align:left;padding:0 22px;margin-top:6px;min-height:118px}
-.flow-cap b{display:block;font-family:var(--serif);font-size:38px;font-weight:600;line-height:.98;letter-spacing:-.01em}
+.flow-cap{text-align:left;padding:0 22px;margin-top:6px;height:172px;overflow:hidden}
+.flow-cap b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-family:var(--serif);font-size:36px;font-weight:600;line-height:1;letter-spacing:-.01em}
 .flow-cap .fm{display:block;color:var(--ink3);font-size:13px;margin-top:8px}
 .flow-cap p{margin:8px 0 0;color:var(--ink2);font-size:14px;line-height:1.45;max-width:46ch;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.flow-cap.sw{animation:capIn .7s cubic-bezier(.2,.8,.2,1)}
-@keyframes capIn{from{opacity:0;transform:translateY(10px)}}
+.flow-cap.sw{animation:capIn .6s ease}
+@keyframes capIn{from{opacity:0}}
 .grain{position:fixed;inset:-50%;z-index:15;pointer-events:none;opacity:.07;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");animation:gr 1s steps(4) infinite}
 @keyframes gr{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}}
 .pills{display:flex;gap:6px;margin:22px 20px 0;overflow-x:auto;scrollbar-width:none}
@@ -275,8 +275,20 @@ body.sum #srchB{opacity:0;pointer-events:none}
 .rm-x{margin-top:26px;font-size:14px;color:var(--ink3);padding:8px 14px}
 .intro{position:fixed;inset:0;z-index:85;display:none;flex-direction:column;justify-content:flex-end;padding:0 24px calc(28px + env(safe-area-inset-bottom,0px));background:#07070b;overflow:hidden}
 .intro.on{display:flex}
-.intro .fan{position:absolute;left:50%;top:22%;width:0;height:0}
-.intro .fan .cv{position:absolute;width:120px;margin-left:-60px;border-radius:8px;transform-origin:50% 140%;box-shadow:0 30px 50px -20px rgba(0,0,0,.9);animation:fanIn 1s cubic-bezier(.2,.9,.3,1) both}
+.reel{position:absolute;left:-8%;right:-8%;top:-6%;height:82%;overflow:hidden;align-content:start;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;transform:scale(1.25) rotate(-4deg);animation:reelIn 3.4s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes reelIn{to{transform:scale(1.02) rotate(-4deg)}}
+.reel .cv{border-radius:6px;box-shadow:none}
+.reel .cv .gen{font-size:15px}
+.intro::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(7,7,11,.1) 0%,rgba(7,7,11,.35) 35%,rgba(7,7,11,.92) 58%,#07070b 66%)}
+.intro h1,.intro p,.intro .btn{z-index:2}
+.flash{z-index:3}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.flash.on{animation:fl .5s ease-out}
+@keyframes fl{0%{opacity:.35}100%{opacity:0}}
+.intro h1,.intro p,.intro .btn{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+.intro.ready h1,.intro.ready p,.intro.ready .btn{opacity:1;transform:none}
+.intro.ready p{transition-delay:.12s}.intro.ready .btn{transition-delay:.24s}
+
 @keyframes fanIn{from{opacity:0;transform:translateY(40px) rotate(0deg)}}
 .intro h1{position:relative;margin:0;font-family:var(--serif);font-size:44px;font-weight:600;line-height:.95}
 .intro p{position:relative;margin:14px 0 0;font-size:15.5px;line-height:1.5;color:rgba(255,255,255,.8)}
@@ -381,7 +393,7 @@ mark{background:none;color:inherit}
 </nav></div>
 <div class="sheet" id="sheet"><div class="sh-bg" data-close></div><div class="sh gl" id="sh"><div class="grab"></div><div id="shBody"></div></div></div>
 <div class="toast gl" id="toast"></div>
-<div class="intro" id="intro"><div class="fan" id="introFan"></div>
+<div class="intro" id="intro"><div class="reel" id="reel"></div><div class="flash" id="flash"></div>
   <h1>Добро пожаловать в&nbsp;Нору</h1>
   <p>Прежде чем войти, отметь несколько книг и фильмов, которые ты уже знаешь. По ним я подберу первые рекомендации, а твои полки сразу будут заполнены.</p>
   <button class="btn w" id="introGo">Начать</button></div>
@@ -516,8 +528,8 @@ EXTRA[k].pool.forEach(x=>{if(!has(x.t))r.pool.push({...x})});
   [...r.read,...r.want].forEach(x=>{const m=META[x.t];if(m)for(const f in m)if(x[f]==null)x[f]=m[f];if(x.r>5)x.r=Math.round(x.r/2)})});
 const save=()=>{try{localStorage.setItem("nora5b",JSON.stringify(D))}catch(e){}};
 let realm="books";const R=()=>D[realm],isF=()=>realm==="films";
-const T={books:{did2:"читала",tev:"Тевосгинк",what:"эту книгу",now:"Сейчас читаю",find:"Находка Тевосгинка",read:"Прочитано",want:"Хочу прочитать",did:"Прочитала",u:["книга","книги","книг"],col:"Полка"},
-         films:{did2:"смотрела",tev:"Тевосоник",what:"этот фильм",now:"Сейчас смотрю",find:"Находка Тевосоника",read:"Посмотрено",want:"Хочу посмотреть",did:"Посмотрела",u:["фильм","фильма","фильмов"],col:"Фильмотека"}};
+const T={books:{did2:"читала",tev:"Шуршуня",what:"эту книгу",now:"Сейчас читаю",find:"Находка Шуршуни",read:"Прочитано",want:"Хочу прочитать",did:"Прочитала",u:["книга","книги","книг"],col:"Полка"},
+         films:{did2:"смотрела",tev:"Шуршуня",what:"этот фильм",now:"Сейчас смотрю",find:"Находка Шуршуни",read:"Посмотрено",want:"Хочу посмотреть",did:"Посмотрела",u:["фильм","фильма","фильмов"],col:"Фильмотека"}};
 const GR=[["#3A2BFF","#FF5DA2"],["#00A6A6","#2B2D6E"],["#FF8A3D","#7A1F3D"],["#1F8A5B","#0B2A3A"],["#8C6CFF","#1E1E3F"]];
 function cover(x){const [a,b]=GR[hsh(x.t)%GR.length];return `<div class="cv"><div class="gen" style="background:linear-gradient(160deg,${a},${b})">${esc(x.t)}<small>${esc(x.a||"")}</small></div>${x.img?`<img src="${esc(x.img)}" alt="" referrerpolicy="no-referrer" onload="this.classList.add('ok')" onerror="this.remove()">`:""}</div>`}
 
@@ -569,7 +581,7 @@ function leanTo(fl,dx){const r=fl.querySelector(".lean.r"),l=fl.querySelector(".
   f.addEventListener("touchmove",e=>{const t=e.touches[0];move(t.clientX,t.clientY,e)},{passive:false});
   f.addEventListener("touchend",end);f.addEventListener("touchcancel",end);
   f.addEventListener("mousedown",e=>start(e.clientX,e.clientY,e.target));addEventListener("mousemove",e=>{if(g)move(e.clientX,e.clientY,null)});addEventListener("mouseup",end)})();
-// Тевосгинк подбирает ещё: другие книги любимых авторов (Фантлаб)
+// Шуршуня подбирает ещё: другие книги любимых авторов (Фантлаб)
 async function flj(path){const r=await fetch("https://api.fantlab.ru"+path);if(!r.ok)throw new Error(r.status);return r.json()}
 const flClean=d=>{d=String(d||"").replace(/\[[^\]]*\]/g,"").replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim();return d.length>260?d.slice(0,d.lastIndexOf(" ",250))+"…":d};
 async function refill(){if(refilling)return;const r=D.books;refilling=true;if(!isF())updEnd();const added=[];
@@ -636,9 +648,14 @@ function layoutFlow(first){const L=flowList(),n=L.length;if($("#flow").children.
   if(x)ambient(x.img)}
 function stepFlow(d){const n=flowList().length;if(n<2)return;fi=((fi+d)%n+n)%n;layoutFlow()}
 let flowHold=0;
-(function(){const el=$("#flow");let x0=null,moved=0;el.addEventListener("pointerdown",e=>{x0=e.clientX;moved=0;flowHold=Date.now()});
-  el.addEventListener("pointermove",e=>{if(x0==null)return;const d=e.clientX-x0;if(Math.abs(d)>40){stepFlow(d<0?1:-1);x0=e.clientX;moved++;flowHold=Date.now();haptic()}});
-  addEventListener("pointerup",()=>{x0=null});
+(function(){const el=$("#flow");let x0=null,y0=null,mode=null,moved=0;
+  const down=(x,y)=>{x0=x;y0=y;mode=null;moved=0;flowHold=Date.now()};
+  const mv=(x,y,e)=>{if(x0==null)return;const dx=x-x0,dy=y-y0;if(!mode){if(Math.abs(dx)<8&&Math.abs(dy)<8)return;mode=Math.abs(dx)>Math.abs(dy)?"h":"v"}
+    if(mode!=="h")return;if(e&&e.cancelable)e.preventDefault();if(Math.abs(dx)>44){stepFlow(dx<0?1:-1);x0=x;moved++;flowHold=Date.now();haptic()}};
+  el.addEventListener("touchstart",e=>{const t=e.touches[0];down(t.clientX,t.clientY)},{passive:true});
+  el.addEventListener("touchmove",e=>{const t=e.touches[0];mv(t.clientX,t.clientY,e)},{passive:false});
+  el.addEventListener("touchend",()=>{x0=null});
+  el.addEventListener("mousedown",e=>down(e.clientX,e.clientY));addEventListener("mousemove",e=>mv(e.clientX,e.clientY,null));addEventListener("mouseup",()=>{x0=null});
   el.addEventListener("click",e=>{const c=e.target.closest(".cv");if(c&&!moved){flowHold=Date.now();const i=+c.dataset.i;if(i!==fi){fi=i;layoutFlow()}openItem(flowList()[i],colF==="want"?"top":"rec")}})})();
 // сама листается слева направо каждые пару секунд; замирает, пока трогаешь или открыта карточка
 (function tick(){if(!(document.hidden||!$("#s-col").classList.contains("on")||$("#sheet").classList.contains("on")||Date.now()-flowHold<6000))stepFlow(-1);setTimeout(tick,colF==="want"?5600:3600)})();
@@ -708,7 +725,7 @@ function onbDraw(){const F=onbK==="films",list=POP[onbK].map(a=>popItem(onbK,a))
   $("#onbGrid").innerHTML=list.map((x,i)=>`<div class="op${i===0?" nudge":""}" data-i="${i}">${cover(x)}${i===0?`<span class="tip">Нажми</span>`:""}<span class="badge"></span><small>${esc(x.t)}${x.s?" · сериал":""}</small></div>`).join("");
   $("#onbGrid")._l=list;onbBtn();
   list.forEach(async(x,i)=>{const u=await findImg(x,F);if(!u)return;x.img=u;const el=$(`#onbGrid .op[data-i="${i}"] .cv`);if(el)el.outerHTML=cover(x)})}
-function onbBtn(){const n=Object.keys(onbPick).length,b=$("#onbNext"),F=onbK==="films";b.disabled=n<2;b.textContent=n>=2?`Дальше · ${n}`:n?(F?"Выбери ещё один":"Выбери ещё одну"):(F?"Выбери хотя бы два":"Выбери хотя бы две")}
+function onbBtn(){const n=Object.keys(onbPick).length,b=$("#onbNext"),F=onbK==="films";b.disabled=n<2;b.textContent=n>=2?"Дальше":n?(F?"Выбери ещё один":"Выбери ещё одну"):(F?"Выбери хотя бы два":"Выбери хотя бы две")}
 let rmCb=null;
 function rmAsk(x,curR,onPick,noLabel,onNo){rmCb={onPick,onNo};$("#rmCv").innerHTML=cover(x);$("#rmT").textContent=x.t;$("#rmA").textContent=[x.a,x.s?"сериал":""].filter(Boolean).join(" · ");$("#rmX").textContent=noLabel||"";$("#rmX").hidden=!noLabel;
   $("#rmSt").innerHTML=[1,2,3,4,5].map(n=>`<button data-st="${n}" class="${curR>=n?"on":""}" aria-label="${n} из 5">${STAR}</button>`).join("");$("#rm").classList.add("on");haptic("soft")}
@@ -720,10 +737,15 @@ $("#rm").addEventListener("click",e=>{if(e.target.id==="rm")rmClose()});
 $("#onbGrid").addEventListener("click",e=>{const op=e.target.closest(".op");if(!op)return;document.querySelectorAll("#onbGrid .nudge").forEach(o=>{o.classList.remove("nudge");const t=o.querySelector(".tip");t&&t.remove()});
   const i=+op.dataset.i,F=onbK==="films";
   rmAsk($("#onbGrid")._l[i],onbPick[i],n=>{onbPick[i]=n;op.classList.add("rated");op.querySelector(".badge").textContent="★ "+n;onbBtn()},onbPick[i]!=null?"Снять отметку":"",()=>{delete onbPick[i];op.classList.remove("rated");onbBtn()})});
-function introShow(){const L=POP.books.slice(0,5).map(a=>popItem("books",a));$("#introFan").innerHTML=L.map(cover).join("");
-  [...$("#introFan").children].forEach((c,i)=>{const o=i-2;c.style.transform=`translateX(${o*58}px) translateY(${Math.abs(o)*12}px) rotate(${o*8}deg)`;c.style.zIndex=10-Math.abs(o);c.style.animationDelay=(.1+i*.08)+"s"});
-  L.forEach(async(x,i)=>{const u=await findImg(x,false);if(!u)return;x.img=u;const c=$("#introFan").children[i];if(c){const im=document.createElement("img");im.src=u;im.referrerPolicy="no-referrer";im.onload=()=>im.classList.add("ok");c.appendChild(im)}});
-  $("#intro").classList.add("on")}
+function introShow(){const L=POP.books.map(a=>popItem("books",a)),cells=12,reel=$("#reel");
+  reel.innerHTML=Array.from({length:cells},(_,c)=>cover(L[c%L.length])).join("");$("#intro").classList.add("on");
+  L.forEach(async x=>{const u=await findImg(x,false);if(u)x.img=u});
+  // кадры мелькают всё медленнее, потом — вспышка, и появляется текст
+  let t=0,k=cells,delay=55;const swap=()=>{const n=Math.min(cells,2+Math.floor(Math.random()*4));for(let m=0;m<n;m++){const c=reel.children[Math.floor(Math.random()*cells)];if(c)c.outerHTML=cover(L[(k++)%L.length])}};
+  const tick=()=>{if(!$("#intro").classList.contains("on"))return;swap();t+=delay;delay=t<1600?55:Math.min(900,delay*1.35);
+    if(t>2600&&!$("#intro").classList.contains("ready")){$("#flash").classList.add("on");$("#intro").classList.add("ready");haptic("medium")}
+    setTimeout(tick,t>2600?1400:delay)};
+  setTimeout(tick,200)}
 $("#introGo").onclick=()=>{$("#intro").classList.remove("on");$("#onb").classList.add("on");onbDraw();haptic("medium")};
 function onbSave(){const list=$("#onbGrid")._l,r=D[onbK];Object.entries(onbPick).forEach(([i,n])=>{const x=list[+i];if(!r.read.some(y=>norm(y.t)===norm(x.t)))r.read.push({...x,r:n})});save()}
 function onbFinish(){D.onb=1;save();$("#onb").classList.remove("on");realm="books";document.body.classList.remove("films");document.querySelectorAll("[data-realm]").forEach(x=>x.classList.toggle("on",x.dataset.realm==="books"));

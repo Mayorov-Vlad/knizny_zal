@@ -397,8 +397,14 @@ body.kb .wrap{padding-bottom:70vh}
 .rate button.on{background:var(--gold);border-color:var(--gold);color:#fff}
 .two{display:grid;grid-template-columns:minmax(0,1fr) 110px;gap:10px}
 .sugg{display:grid;gap:2px;margin-top:4px}
-.sugg button{text-align:left;border:none;background:var(--gold-soft);border-radius:8px;padding:8px 10px;font-size:14px}
-.sugg small{color:var(--muted)}
+.sugg button{display:flex;align-items:center;gap:10px;text-align:left;border:none;background:var(--gold-soft);border-radius:10px;padding:6px 10px;font-size:14px;line-height:1.25;width:100%}
+.sugg button>span{min-width:0;display:flex;flex-direction:column}
+.sugg b{font-weight:600;overflow-wrap:anywhere}
+.sugg small{color:var(--muted);font-size:12.5px}
+.sugg .cv{flex:none}
+.ask-wrap{position:relative}
+#askSugg{margin-top:6px}
+#askSugg .k{font-size:12px;color:var(--muted);margin:2px 2px 2px}
 .w-done{flex:none;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--line);background:var(--paper);display:grid;place-items:center;align-self:center;color:var(--green)}
 .w-done svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;opacity:.35}
 .w-done:hover svg,.w-done:active svg{opacity:1}
@@ -569,6 +575,7 @@ nav.tabs button.tev.on{color:var(--gold-deep)}
       <input id="askInput" placeholder="Или своими словами: «современное фэнтези с драконами»" aria-label="Своё настроение">
       <button class="btn btn-gold" id="askBtn">Шепнуть</button>
     </div>
+    <div class="sugg" id="askSugg"></div>
     <div class="status" id="tevStatus"></div>
     <div class="letters" id="recs"></div>
   </section>
@@ -1045,6 +1052,13 @@ const WHISPERS=GUEST?["Шшш… Я как раз перебирал полки.
 const PAL=[["#2F4A6B","#F3E9D2"],["#5B2333","#F4DCCB"],["#3E5641","#F3E8C8"],["#8C6A3A","#FFF6E2"],["#1F3B4D","#E9D7A6"],["#6B2140","#F7D9C9"],["#2C7C8C","#FFF3DA"],["#C2862E","#2A1A0A"],["#4B3A5E","#F1E4CC"],["#7A2E2A","#F6E7CF"],["#E7DED0","#7A2C24"],["#3B3A36","#E9D9B4"],["#9CC9C2","#1D2E2B"],["#5C7A4A","#FBF3DA"],["#B9B6CF","#2A2740"],["#24384F","#E8C66A"]];
 const hsh=s=>{let h=0;for(const ch of s)h=(h*31+ch.charCodeAt(0))>>>0;return h};
 const norm=s=>String(s).toLowerCase().replace(/ё/g,"е").replace(/[^a-zа-я0-9]/g,"");
+function bookHits(q,pool,n=6){const v=norm(q);if(v.length<2)return [];const ws=String(q).toLowerCase().replace(/ё/g,"е").split(/[^a-zа-я0-9]+/).filter(Boolean);
+  const seen=new Set(),out=[];
+  pool.forEach(b=>{if(!b||!b.t)return;const k=norm(b.t)+"|"+norm(b.a||"");if(seen.has(k))return;const t=norm(b.t),a=norm(b.a||""),tw=String(b.t).toLowerCase().replace(/ё/g,"е").split(/[^a-zа-я0-9]+/).filter(Boolean);
+    let r=null;if(t.startsWith(v))r=0;else if(ws.every(w=>tw.some(x=>x.startsWith(w))))r=1;else if(t.includes(v))r=2;else if(a&&(a.includes(v)||ws.every(w=>String(b.a).toLowerCase().replace(/ё/g,"е").split(/\s+/).some(x=>x.startsWith(w)))))r=3;
+    if(r!=null){seen.add(k);out.push({b,r})}});
+  return out.sort((x,y)=>x.r-y.r||(y.b.q||0)-(x.b.q||0)||x.b.t.length-y.b.t.length).slice(0,n).map(x=>x.b)}
+function suggHTML(hits){return hits.map((b,i)=>`<button type="button" data-s="${i}">${cover(b,26)}<span><b>${esc(b.t)}</b><small>${esc(b.a||"")}${b.y?", "+b.y:""}</small></span></button>`).join("")}
 CAT.forEach(b=>{b.id="c"+hsh(b.t+b.a).toString(36);const p=PAL[hsh(b.t)%PAL.length];b.bg=p[0];b.fg=p[1]});
 const CATMAP=Object.fromEntries(CAT.map(b=>[b.id,b]));
 
@@ -1509,9 +1523,10 @@ function openAddBook(target){const toW=target==="want";
       box.innerHTML=total?`<div class="ocr-t">Узнал ${total} ${plural(total,"книгу","книги","книг")}</div>`:`<div class="ocr-t">Не разобрал названия. Попробуй ближе и при хорошем свете — или впиши вручную.</div>`;
     }catch(err){box.innerHTML=`<div class="ocr-t">Распознавание не запустилось${location.protocol==="file:"?"":" — открой зал в Telegram"}. Впиши книгу вручную.</div>`}
     e.target.value=""};
-  T.addEventListener("input",()=>{picked=null;upd();const v=norm(T.value);if(v.length<3){$("#bSugg").innerHTML="";return}
-    const hits=[...want,...CAT].filter(b=>norm(b.t).includes(v)).slice(0,5);
-    $("#bSugg").innerHTML=hits.map((b,i)=>`<button type="button" data-s="${i}"><b>${esc(b.t)}</b> <small>${esc(b.a)}${b.y?", "+b.y:""}</small></button>`).join("");
+  T.addEventListener("focus",()=>{const sh=$("#sheet");setTimeout(()=>{const d=T.getBoundingClientRect().top-sh.getBoundingClientRect().top-70;if(d>0)sh.scrollBy({top:d,behavior:"smooth"})},300)});
+  T.addEventListener("input",()=>{picked=null;upd();const v=norm(T.value);if(v.length<2){$("#bSugg").innerHTML="";return}
+    const rd=new Set(BOOKS.map(b=>norm(b.t)));const hits=bookHits(T.value,[...want,...CAT].filter(b=>!rd.has(norm(b.t))),6);
+    $("#bSugg").innerHTML=suggHTML(hits);
     $("#bSugg").querySelectorAll("[data-s]").forEach(x=>x.onclick=()=>{const b=hits[+x.dataset.s];picked=b;T.value=b.t;$("#bA").value=b.a||"";$("#bSugg").innerHTML="";upd()})});
   sv.onclick=()=>{const all=[...found.map(b=>({t:b.t,a:b.a,picked:b,w:!!b._w}))];const t=T.value.trim();if(t)all.push({t,a:$("#bA").value.trim(),picked,w:toW});if(!all.length)return;
     const single=!found.length&&!toW;const added=[];const wantAdded=[];
@@ -1681,7 +1696,7 @@ document.addEventListener("pointermove",e=>{
 });
 let wi=0;
 function whisper(t){const el=$("#whisper");el.classList.add("fade");setTimeout(()=>{el.textContent=t;el.classList.remove("fade")},300)}
-setInterval(()=>{if($("#v-tev").classList.contains("on")&&!busy){wi=(wi+1)%WHISPERS.length;whisper(WHISPERS[wi])}},8000);
+setInterval(()=>{if($("#v-tev").classList.contains("on")&&!tevScope&&!sheetOpen){wi=(wi+1)%WHISPERS.length;whisper(WHISPERS[wi])}},8000);
 function wake(){const g=$("#gap");if(!g)return;g.classList.remove("wake");void g.offsetWidth;g.classList.add("wake")}
 
 // Вкус: теги прочитанных книг и оценки
@@ -1905,6 +1920,10 @@ $("#askBtn").onclick=()=>{const v=$("#askInput").value.trim();if(v){activeMood=n
   document.addEventListener("focusout",e=>{if(e.target!==el)return;el=null;setTimeout(()=>{if(!el)document.body.classList.remove("kb")},150)});
   if(window.visualViewport)visualViewport.addEventListener("resize",()=>setTimeout(show,50));
   if(TG&&TG.onEvent)TG.onEvent("viewportChanged",()=>setTimeout(show,50))})();
+$("#askInput").addEventListener("input",()=>{const box=$("#askSugg"),v=$("#askInput").value;const hits=v.trim().split(/\s+/).length<=4?bookHits(v,[...BOOKS,...CAT],4):[];
+  box.innerHTML=hits.length?`<div class="k">Найти похожее на книгу:</div>`+suggHTML(hits):"";
+  box.querySelectorAll("[data-s]").forEach(x=>x.onclick=()=>{const b=hits[+x.dataset.s];box.innerHTML="";$("#askInput").value="";$("#askInput").blur();openSimilar(b)})});
+$("#askBtn").addEventListener("click",()=>{$("#askSugg").innerHTML=""});
 $("#askInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("#askBtn").click()});
 
 // ---------- Хочу прочитать ----------

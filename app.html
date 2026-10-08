@@ -498,6 +498,11 @@ html,body{overflow-x:hidden}
 .stamp-pop .ring{width:96px;height:96px}
 .stamp-pop .ring svg{width:46px;height:46px}
 
+.shelf-seg{display:flex;justify-content:center}
+.shelf-seg .seg{margin-top:0}
+.spine.wantsp{opacity:.97}
+#shelfWant .now{margin-top:14px}
+nav.tabs .in{max-width:380px}
 /* Хочу прочитать */
 .want-head{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
 .want-head h2{font-size:26px}
@@ -534,7 +539,7 @@ nav.tabs button.tev.on{color:var(--gold-deep)}
 
 </head><body><div class="wrap" lang="ru">
 
-  <section class="view on" id="v-shelves"></section>
+  <section class="view on" id="v-shelves"><div id="shelfSeg"></div><div id="shelfRead"></div><div id="shelfWant" hidden><button class="now" id="now" aria-label="Сейчас читаю — подробнее"></button><div id="wantShelves"></div></div></section>
   <section class="view" id="v-time"></section>
 
   <section class="view" id="v-tev">
@@ -561,19 +566,12 @@ nav.tabs button.tev.on{color:var(--gold-deep)}
   </section>
 
 
-  <section class="view" id="v-want" lang="ru">
-    <div class="want-head">
-      <div><h2>Хочу прочитать</h2></div>
-    </div>
-    <button class="now" id="now" aria-label="Сейчас читаю — подробнее"></button>
-        <div class="wants" id="wants"></div>
-  </section>
+
 </div>
 
 <button class="theme-sw" id="themeSw" role="switch" aria-label="Тёмная тема"><span class="ts-ic sun"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></span><span class="ts-ic moon"><svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></span><span class="ts-knob"></span></button>
 <nav class="tabs" aria-label="Разделы"><div class="in">
   <button data-v="shelves" class="on"><svg viewBox="0 0 24 24"><path d="M4 4v16M8 6v14M12 4v16M15 7l4 13M3 20h18"/></svg>Полки</button>
-  <button data-v="want"><svg viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Хочу прочитать</button>
   <button data-v="tev" class="tev"><svg viewBox="0 0 24 24"><path d="M5 20c-1-9 2-15 7-15s8 6 7 15l-2-1.5-2.5 1.5-2.5-1.5L9.5 20 7 18.5z"/><circle cx="10" cy="11" r=".8"/><circle cx="14" cy="11" r=".8"/></svg>Тевосгинк</button>
   <button data-v="time"><svg viewBox="0 0 24 24"><path d="M6 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6zM6 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2M9 8h6M9 12h6"/></svg>Летопись</button>
 </div></nav>
@@ -1228,12 +1226,18 @@ function cover(b,w){
 function toast(t){const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("on"),2000)}
 
 // ---------- подгонка текста по реальным размерам ----------
-function fitSpine(sp){const st=sp.querySelector(".st"),box=sp.querySelector(".stw");if(!st||!box||!box.clientHeight)return false;if(sp.dataset.w0)sp.style.minWidth=sp.dataset.w0;
+function fitSpine(sp){const st=sp.querySelector(".st"),box=sp.querySelector(".stw");if(!st||!box||!box.clientHeight)return false;if(st.dataset.one==null)st.dataset.one=st.innerHTML;else st.innerHTML=st.dataset.one;if(sp.dataset.w0)sp.style.minWidth=sp.dataset.w0;
   const fits=()=>st.offsetHeight<=box.clientHeight+.5&&st.offsetWidth<=box.clientWidth+.5;
   const shrink=(min)=>{let fs=parseFloat(st.style.fontSize)||13,g=60;while(!fits()&&fs>min&&g--){fs-=.5;st.style.fontSize=fs+"px"}return fits()};
   st.style.fontSize="13px";if(shrink(10.5))return true;
-  const alt=st.dataset.alt;if(alt){const one=st.innerHTML;st.innerHTML=alt;st.style.fontSize="12.5px";const need=st.offsetWidth+14;if(sp.offsetWidth<need)sp.style.minWidth=need+"px";if(shrink(9))return true;st.innerHTML=one;if(sp.dataset.w0)sp.style.minWidth=sp.dataset.w0}
-  st.style.fontSize="13px";shrink(7);return true}
+  const one=st.dataset.one,txt=st.textContent.replace(/…$/,"").trim(),w0=sp.dataset.w0||"";
+  const tryV=(html,start,min)=>{st.innerHTML=html;st.style.fontSize=start+"px";sp.style.minWidth=w0;const need=st.offsetWidth+14;if(sp.offsetWidth<need)sp.style.minWidth=need+"px";return shrink(min)};
+  const alt=st.dataset.alt,ws=txt.split(/\s+/).length,three=ws>=3?splitLines(txt,3).map(x=>esc(x).replace(/ /g,"&nbsp;")).join("<br>"):"";
+  if(alt&&tryV(alt,12.5,9))return true;
+  if(three&&tryV(three,12,9))return true;
+  if(alt&&tryV(alt,9,7.5))return true;
+  if(three&&tryV(three,9,7))return true;
+  st.innerHTML=one;sp.style.minWidth=w0;st.style.fontSize="13px";shrink(7);return true}
 function fitCoverText(el){const box=el.classList.contains("cv-lt")?el.parentElement:el;if(!box.clientWidth)return false;if(el.dataset.fs0==null)el.dataset.fs0=el.style.fontSize;else el.style.fontSize=el.dataset.fs0;let fs=parseFloat(getComputedStyle(el).fontSize),g=60;
   const over=()=>el.scrollWidth>box.clientWidth+.5||(el.classList.contains("cv-lt")&&el.scrollHeight>box.clientHeight*.75);
   while(over()&&fs>5&&g--){fs-=.5;el.style.fontSize=fs+"px"}return true}
@@ -1252,36 +1256,54 @@ if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{document.
 })();
 
 // ---------- shelves ----------
-function renderShelves(){
-  const nm=VIEW&&SHARED.n?esc(String(SHARED.n).slice(0,40)):"";
-  const addBtn=VIEW?`<div class="view-ban"><div class="k">Только просмотр</div><h2>${nm?nm+" делится своими полками":"С тобой поделились полками"}</h2></div>`:`<button class="add-book" id="addBook"><span>+</span>Поставить книгу на полку</button><div class="shelf-links">${BOOKS.length?`<button class="share-shelf" id="shareShelf">Поделиться полками</button>`:""}<button class="share-shelf" id="backupBtn">Резервная копия</button></div>`;
-  const search=BOOKS.length>3?`<div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="shelfQ" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="Найти на полках" value="${esc(shelfQ)}" aria-label="Поиск по полкам"><button class="clr" id="shelfClr" aria-label="Очистить"${shelfQ?"":" hidden"}>×</button></div><div class="sres" id="shelfRes"></div>`:"";
+let shelfMode="read";
+function spinesHTML(list,kind){
   const order=["Россия","Англия","США","Швейцария","Япония","Неразобранное","Новые поступления"];
   const rank=c=>{const i=order.indexOf(c);return i<0?50:i};
-  const byC={};BOOKS.forEach(b=>(byC[b.c]=byC[b.c]||[]).push(b));
-  const welcome=BOOKS.length?"":`<div class="welcome"><h2>Твои полки пока пустые</h2><p>Сфотографируй книги, которые уже прочитала, или впиши их — они встанут на полки по странам и жанрам, с обложками. А Тевосгинк подскажет, что читать дальше.</p></div>`;
-  $("#v-shelves").innerHTML=addBtn+search+welcome+`<div id="shelfAll">`+Object.keys(byC).sort((a,b)=>rank(a)-rank(b)).map(c=>{
-    const byG={};byC[c].forEach(b=>(byG[b.g]=byG[b.g]||[]).push(b));
+  const byC={};list.forEach(x=>{const c=x.b.c||NEWSHELF;(byC[c]=byC[c]||[]).push(x)});
+  return Object.keys(byC).sort((a,b)=>rank(a)-rank(b)||a.localeCompare(b,"ru")).map(c=>{
+    const byG={};byC[c].forEach(x=>{const g=GEN[x.b.g]?x.b.g:"unknown";(byG[g]=byG[g]||[]).push(x)});
     return `<div class="country"><div class="sign"><h2>${esc(c)}</h2></div>`+
      Object.keys(GEN).filter(g=>byG[g]).map(g=>`<div class="genre"><span class="genre-label">${GEN[g]}</span><div class="shelf">${
-       byG[g].sort((a,b)=>(a.y||9999)-(b.y||9999)).map(b=>{
-         let w=Math.min(44,Math.max(30,Math.round(24+b.pg/30)));const h=214+((b.pg*7)%30);
-         const sur=b.a==="Автор не указан"?"?":b.a.split(" ").slice(-1)[0];
-         const two=splitLines(b.t,2),alt=two.length===2&&Math.min(two[0].length,two[1].length)/Math.max(two[0].length,two[1].length)>=.4?two.map(x=>esc(x).replace(/\u00a0/g,"&nbsp;")).join("<br>"):"";
-         return `<button class="spine" data-id="${b.id}" data-w0="${w}px" style="min-width:${w}px;height:${h}px;background:${b.bg};color:${b.fg}" aria-label="${esc(b.t)}, ${esc(b.a)}"><span class="band"></span>${motifSVG(b,"sm")}<span class="stw"><span class="st" data-alt="${esc(alt)}">${esc(wordsOf(b.t).join(" ")).replace(/\u00a0/g,"&nbsp;")}</span></span><span class="sa">${esc(sur)}</span></button>`;
+       byG[g].sort((a,b)=>(a.b.y||9999)-(b.b.y||9999)).map(({b,i})=>{
+         const pg=b.pg||(b.len==="short"?200:b.len==="long"?620:360);
+         let w=Math.min(44,Math.max(30,Math.round(24+pg/30)));const h=214+((pg*7)%30);
+         const sur=!b.a||b.a==="Автор не указан"?"?":b.a.split(" ").slice(-1)[0];
+         const two=splitLines(b.t,2),alt=two.length===2&&Math.min(two[0].length,two[1].length)/Math.max(two[0].length,two[1].length)>=.4?two.map(x=>esc(x).replace(/ /g,"&nbsp;")).join("<br>"):"";
+         const key=kind==="want"?`data-w="${i}"`:`data-id="${b.id}"`;
+         return `<button class="spine${kind==="want"?" wantsp":""}" ${key} data-w0="${w}px" style="min-width:${w}px;height:${h}px;background:${b.bg};color:${b.fg}" aria-label="${esc(b.t)}, ${esc(b.a||"")}"><span class="band"></span>${motifSVG(b,"sm")}<span class="stw"><span class="st" data-alt="${esc(alt)}">${esc(wordsOf(b.t).join(" ")).replace(/ /g,"&nbsp;")}</span></span><span class="sa">${esc(sur)}</span></button>`;
        }).join("")}</div><div class="ledge"></div></div>`).join("")+`</div>`;
-  }).join("")+`</div>`;
-  if(shelfQ)runShelfSearch();
+  }).join("")}
+function renderShelves(){
+  const seg=$("#shelfSeg");
+  seg.innerHTML=VIEW?"":`<div class="shelf-seg"><div class="seg" role="tablist"><button data-sm="read" class="${shelfMode==="read"?"on":""}">Прочитано</button><button data-sm="want" class="${shelfMode==="want"?"on":""}">Хочу прочитать</button></div></div>`;
+  $("#shelfRead").hidden=shelfMode!=="read";$("#shelfWant").hidden=shelfMode!=="want";
+  const nm=VIEW&&SHARED.n?esc(String(SHARED.n).slice(0,40)):"";
+  const addBtn=VIEW?`<div class="view-ban"><div class="k">Только просмотр</div><h2>${nm?nm+" делится своими полками":"С тобой поделились полками"}</h2></div>`:`<button class="add-book" id="addBook"><span>+</span>Поставить книгу на полку</button><div class="shelf-links">${BOOKS.length?`<button class="share-shelf" id="shareShelf">Поделиться полками</button>`:""}<button class="share-shelf" id="backupBtn">Резервная копия</button></div>`;
+  const search=BOOKS.length>3?searchBox():"";
+  const welcome=BOOKS.length?"":`<div class="welcome"><h2>Твои полки пока пустые</h2><p>Сфотографируй книги, которые уже прочитала, или впиши их — они встанут на полки по странам и жанрам, с обложками. А Тевосгинк подскажет, что читать дальше.</p></div>`;
+  $("#shelfRead").innerHTML=addBtn+(shelfMode==="read"?search:"")+welcome+`<div id="shelfAll">${spinesHTML(BOOKS.map(b=>({b})),"read")}</div>`;
+  if(shelfQ&&shelfMode==="read")runShelfSearch();
 }
+function searchBox(){return `<div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="shelfQ" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="${shelfMode==="want"?"Найти в «Хочу прочитать»":"Найти на полках"}" value="${esc(shelfQ)}" aria-label="Поиск"><button class="clr" id="shelfClr" aria-label="Очистить"${shelfQ?"":" hidden"}>×</button></div><div class="sres" id="shelfRes"></div>`}
+function renderWantShelves(){
+  const box=$("#wantShelves");if(!box)return;
+  box.innerHTML=`<button class="add-book" id="addWant"><span>+</span>Добавить в «Хочу прочитать»</button>`+(shelfMode==="want"&&want.length>3?searchBox():"")+
+    (want.length?`<div id="shelfAll">${spinesHTML(want.map((b,i)=>({b,i})),"want")}</div>`:`<div class="empty">Список пуст. Добавь книгу или загляни к Тевосгинку — он подбросит что-нибудь.</div>`);
+  if(shelfQ&&shelfMode==="want")runShelfSearch();
+}
+document.addEventListener("click",e=>{const m=e.target.closest("[data-sm]");if(!m||m.dataset.sm===shelfMode)return;shelfMode=m.dataset.sm;shelfQ="";haptic();renderShelves();renderWantShelves();window.scrollTo({top:0});requestAnimationFrame(()=>fitAll())});
+document.addEventListener("click",e=>{if(e.target.closest("#addWant")){haptic();openAddBook("want")}});
 let shelfQ="";
-function runShelfSearch(){const res=$("#shelfRes"),all=$("#shelfAll");if(!res||!all)return;const q=norm(shelfQ);const clr=$("#shelfClr");if(clr)clr.hidden=!shelfQ;
+function runShelfSearch(){const root=shelfMode==="want"?$("#shelfWant"):$("#shelfRead");const res=root&&root.querySelector("#shelfRes"),all=root&&root.querySelector("#shelfAll");if(!res||!all)return;const q=norm(shelfQ);const clr=$("#shelfClr");if(clr)clr.hidden=!shelfQ;
   if(!q){res.innerHTML="";all.hidden=false;return}
-  const hay=b=>norm([b.t,b.a,b.c,GEN[b.g]||"",b.y||"",b.y?(ROMAN[centuryOf(b.y)]||"")+"век":""].join(" "));
+  const hay=b=>norm([b.t,b.a||"",b.c||"",GEN[b.g]||"",b.y||"",b.y?(ROMAN[centuryOf(b.y)]||"")+"век":""].join(" "));
   const words=String(shelfQ).toLowerCase().replace(/ё/g,"е").split(/\s+/).map(norm).filter(Boolean);
-  const hits=BOOKS.filter(b=>{const h=hay(b);return words.every(w=>h.includes(w))}).sort((a,b)=>(norm(a.t).startsWith(q)?0:1)-(norm(b.t).startsWith(q)?0:1)||(a.y||0)-(b.y||0));
+  const src=shelfMode==="want"?want.map((b,i)=>({...b,_i:i})):BOOKS;const hits=src.filter(b=>{const h=hay(b);return words.every(w=>h.includes(w))}).sort((a,b)=>(norm(a.t).startsWith(q)?0:1)-(norm(b.t).startsWith(q)?0:1)||(a.y||0)-(b.y||0));
   all.hidden=true;
-  res.innerHTML=hits.length?`<div class="k">${hits.length} ${plural(hits.length,"книга","книги","книг")}</div><div class="tl" style="border-left:none;margin-left:0">${hits.map(b=>`<button class="tl-row" data-id="${b.id}" style="padding-left:0">${cover(b,40)}<span class="tx"><b>${esc(b.t)}</b><span>${esc(b.a)} · ${esc(b.c)}${b.y?", "+b.y:""}</span></span></button>`).join("")}</div>`:`<div class="empty">На полках такого нет.</div>`}
+  res.innerHTML=hits.length?`<div class="k">${hits.length} ${plural(hits.length,"книга","книги","книг")}</div><div class="tl" style="border-left:none;margin-left:0">${hits.map(b=>`<button class="tl-row" ${b._i!=null?`data-w="${b._i}"`:`data-id="${b.id}"`} style="padding-left:0">${cover(b,40)}<span class="tx"><b>${esc(b.t)}</b><span>${esc(b.a)} · ${esc(b.c)}${b.y?", "+b.y:""}</span></span></button>`).join("")}</div>`:`<div class="empty">На полках такого нет.</div>`}
 document.addEventListener("input",e=>{if(e.target.id==="shelfQ"){shelfQ=e.target.value;runShelfSearch()}});
+document.addEventListener("click",e=>{const w=e.target.closest(".spine[data-w],.tl-row[data-w]");if(w)openWant(+w.dataset.w)});
 document.addEventListener("click",e=>{if(e.target.closest("#shelfClr")){shelfQ="";const i=$("#shelfQ");if(i){i.value="";i.focus()}runShelfSearch()}});
 
 // ---------- timeline ----------
@@ -1404,7 +1426,7 @@ function resolveMeta(t,a,picked){
   if(src)return {t:src.t,a:src.a||a||"Автор не указан",c:src.c||NEWSHELF,y:src.y||null,g:GEN[src.g]?src.g:"modern",pg:src.pg||(src.len==="short"?200:src.len==="long"?600:320),bg:src.bg,fg:src.fg,m:motifOf(src),ann:src.ann,tags:src.tags,f:src.f};
   let fullA=a;
   if(na){const fix=Object.keys(AUTHOR_FIX).find(k=>na===norm(k));if(fix)fullA=AUTHOR_FIX[fix]}
-  const byA=fullA?all.filter(b=>{const x=norm(b.a);return x===norm(fullA)||x.endsWith(norm(fullA))||norm(fullA).endsWith(x.slice(-6))}):[];
+  const fa=norm(fullA||""),oneWord=String(fullA||"").trim().split(/\s+/).length===1;const byA=fullA?all.filter(b=>{const x=norm(b.a||"");return x===fa||(oneWord&&fa.length>=4&&norm(String(b.a||"").split(" ").slice(-1)[0])===fa)}):[];
   if(byA.length){const cnt={};byA.forEach(b=>cnt[b.g]=(cnt[b.g]||0)+1);const g=Object.entries(cnt).sort((x,y)=>y[1]-x[1])[0][0];
     return {t,a:byA[0].a,c:byA[0].c||NEWSHELF,y:null,g:GEN[g]?g:"modern",pg:320,tags:byA[0].tags}}
   return {t,a:fullA||"Автор не указан",c:NEWSHELF,y:null,g:"unknown",pg:320};
@@ -1435,7 +1457,7 @@ function matchBooks(text){
   const authTok=new Set(out.flatMap(x=>toks(x.b.a||"")));
   return out.filter(x=>!toks(x.b.t).filter(w=>w.length>=3).every(w=>authTok.has(w))||toks(x.b.a||"").some(w=>toks(x.b.t).includes(w))===false&&false).sort((x,y)=>y.score-x.score).slice(0,24).map(x=>x.b);
 }
-function openAddBook(){
+function openAddBook(target){const toW=target==="want";
   openSheet(`<div class="qform">
    <input type="file" id="bPhoto" accept="image/*" multiple hidden>
    <button type="button" class="photo-btn" id="bPhotoBtn"><svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg><span><b>Сфотографируй книгу или сразу книжный шкаф</b></span></button>
@@ -1443,14 +1465,14 @@ function openAddBook(){
    <div class="found" id="bFound"></div><div id="bUnk"></div>
    <label for="bT">Или впиши название</label><input id="bT" autocomplete="off" placeholder="Например, Мастер и Маргарита"><div class="sugg" id="bSugg"></div>
    <label for="bA">Автор (необязательно)</label><input id="bA" autocomplete="off">
-   <div id="bOne"><label>Оценка</label>${ratingPicker(null)}
+   <div id="bOne"${toW?" hidden":""}><label>Оценка</label>${ratingPicker(null)}
    <label for="bN">Заметка (необязательно)</label><textarea id="bN" placeholder="Напиши что-нибудь"></textarea></div>
-   <div class="sheet-actions"><button class="btn btn-main" id="bSave" style="margin-top:0" disabled>Поставить на полку</button></div></div>`);
+   <div class="sheet-actions"><button class="btn btn-main" id="bSave" style="margin-top:0" disabled>${toW?"В «Хочу прочитать»":"Поставить на полку"}</button></div></div>`);
   const getR=bindRating(),T=$("#bT"),sv=$("#bSave");let picked=null,found=[];
-  const upd=()=>{sv.disabled=!T.value.trim()&&!found.length;$("#bOne").hidden=found.length>0;const n=found.length+(T.value.trim()?1:0),nw=found.filter(b=>b._w).length;sv.textContent=!found.length||nw===0?"Поставить на полку":nw===n?"В «Хочу прочитать»":"Разложить книги"};
+  const upd=()=>{sv.disabled=!T.value.trim()&&!found.length;$("#bOne").hidden=toW||found.length>0;const n=found.length+(T.value.trim()?1:0),nw=found.filter(b=>b._w).length+(T.value.trim()&&toW?1:0);sv.textContent=nw===0?"Поставить на полку":nw===n?"В «Хочу прочитать»":"Разложить книги"};
   let unk=[];
   const drawUnk=()=>{const el=$("#bUnk");el.innerHTML=unk.length?`<div class="unk-k">Не нашёл в каталоге, но прочитал на фото — нажми, если это книга</div><div class="unk">${unk.map((l,i)=>`<button type="button" data-u="${i}">+ ${esc(l)}</button>`).join("")}</div>`:"";
-    el.querySelectorAll("[data-u]").forEach(x=>x.onclick=()=>{const t=unk[+x.dataset.u];const nice=t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();found.push({t:nice,a:"",bg:"#6E5A44",fg:"#F7EEDD",g:"unknown"});unk.splice(+x.dataset.u,1);drawUnk();drawFound();haptic()})};
+    el.querySelectorAll("[data-u]").forEach(x=>x.onclick=()=>{const t=unk[+x.dataset.u];const nice=t.charAt(0).toUpperCase()+t.slice(1).toLowerCase();found.push({t:nice,a:"",bg:"#6E5A44",fg:"#F7EEDD",g:"unknown",_w:toW});unk.splice(+x.dataset.u,1);drawUnk();drawFound();haptic()})};
   const drawFound=()=>{$("#bFound").innerHTML=found.length?`<div class="found-k">Нашёл на фото — отметь, что уже прочитано</div>${found.map((b,i)=>`<div class="fchip">${cover(b,30)}<span><b>${esc(b.t)}</b>${b.a?`<small>${esc(b.a)}</small>`:""}<span class="fseg"><button type="button" data-fs="${i}" data-w="0" class="${b._w?"":"on"}">Прочитано</button><button type="button" data-fs="${i}" data-w="1" class="${b._w?"on":""}">Хочу прочитать</button></span></span><button type="button" class="fdel" data-fx="${i}" aria-label="Убрать">×</button></div>`).join("")}`:"";
     $("#bFound").querySelectorAll("[data-fx]").forEach(x=>x.onclick=()=>{found.splice(+x.dataset.fx,1);drawFound();upd()});
     $("#bFound").querySelectorAll("[data-fs]").forEach(x=>x.onclick=()=>{found[+x.dataset.fs]._w=x.dataset.w==="1";haptic();drawFound()});upd()};
@@ -1463,7 +1485,7 @@ function openAddBook(){
       let lines=[];
       for(fi=0;fi<N;fi++){const cans=await imgToCanvases(files[fi]);let text="";
         for(stage=0;stage<cans.length;stage++){const r=await w.recognize(cans[stage]);text+="\n"+r.data.text;(r.data.lines||[]).forEach(l=>{if(l.confidence>=70)lines.push(l.text)})}
-        const res=matchBooks(text).filter(b=>!READ.has(norm(b.t))&&!found.some(f=>norm(f.t)===norm(b.t)));found.push(...res);total+=res.length;drawFound()}
+        const res=matchBooks(text).filter(b=>!READ.has(norm(b.t))&&!found.some(f=>norm(f.t)===norm(b.t)));found.push(...res.map(b=>({...b,_w:toW})));total+=res.length;drawFound()}
       haptic(total?"ok":"light");
       const known=new Set([...found,...BOOKS].flatMap(b=>[norm(b.t),...toks(b.a||"").map(norm)]));
       const cand=[...new Set(lines.map(l=>l.replace(/[^А-Яа-яЁёA-Za-z0-9 .,:!?«»"'—-]/g," ").replace(/\s+/g," ").trim()))].filter(l=>{const letters=(l.match(/[А-Яа-яЁёA-Za-z]/g)||[]).length;const ws=l.split(" ").filter(w=>w.length>=3);return l.length>=4&&l.length<=48&&letters/l.length>.75&&ws.length>=1&&!known.has(norm(l))&&![...known].some(k=>k.length>4&&norm(l).includes(k))}).slice(0,10);
@@ -1475,15 +1497,17 @@ function openAddBook(){
     const hits=[...want,...CAT].filter(b=>norm(b.t).includes(v)).slice(0,5);
     $("#bSugg").innerHTML=hits.map((b,i)=>`<button type="button" data-s="${i}"><b>${esc(b.t)}</b> <small>${esc(b.a)}${b.y?", "+b.y:""}</small></button>`).join("");
     $("#bSugg").querySelectorAll("[data-s]").forEach(x=>x.onclick=()=>{const b=hits[+x.dataset.s];picked=b;T.value=b.t;$("#bA").value=b.a||"";$("#bSugg").innerHTML="";upd()})});
-  sv.onclick=()=>{const list=[...found.map(b=>({t:b.t,a:b.a,picked:b}))];const t=T.value.trim();if(t)list.push({t,a:$("#bA").value.trim(),picked});if(!list.length)return;
-    const single=!found.length;const added=[];
-    const toWant=found.filter(b=>b._w);const wantAdded=[];
-    toWant.forEach(b=>{if(want.some(w=>norm(w.t)===norm(b.t)))return;const src=CATMAP[b.id]||b;want.unshift({...src,id:src.id||("w"+Date.now()+wantAdded.length),when:src.when||"Нашлась на твоей полке — ждёт своего часа",from:null});wantAdded.push(src)});
-    list.splice(0,list.length,...list.filter(x=>!(x.picked&&x.picked._w)));
+  sv.onclick=()=>{const all=[...found.map(b=>({t:b.t,a:b.a,picked:b,w:!!b._w}))];const t=T.value.trim();if(t)all.push({t,a:$("#bA").value.trim(),picked,w:toW});if(!all.length)return;
+    const single=!found.length&&!toW;const added=[];const wantAdded=[];
+    all.filter(x=>x.w).forEach(x=>{if(want.some(w=>norm(w.t)===norm(x.t))||READ.has(norm(x.t)))return;
+      let src=x.picked&&CATMAP[x.picked.id]?CATMAP[x.picked.id]:null;
+      if(!src){const m=resolveMeta(x.t,x.a,x.picked);const c=CAT.find(z=>norm(z.t)===norm(m.t));src=c||{...m,id:"w"+Date.now()+"_"+wantAdded.length,bg:m.bg||PAL[hsh(m.t+m.a)%PAL.length][0],fg:m.fg||PAL[hsh(m.t+m.a)%PAL.length][1]}}
+      want.unshift({...src,when:src.when||(x.picked&&!toW?"Нашлась на твоей полке — ждёт своего часа":"Ждёт своего часа"),from:null});wantAdded.push(src)});
+    const list=all.filter(x=>!x.w);
     list.forEach(x=>{const m=resolveMeta(x.t,x.a,x.picked);const rec=addBook({t:m.t,a:m.a,c:m.c,y:m.y,g:m.g,r:single?getR():null,n:single?$("#bN").value.trim():"",pg:m.pg,bg:m.bg,fg:m.fg,m:m.m,ann:m.ann,tags:m.tags,f:m.f||[]});added.push(rec);
       const wi=want.findIndex(w=>norm(w.t)===norm(m.t));if(wi>=0)want.splice(wi,1)});
-    saveWant();renderWant();closeSheet();haptic("ok");
-    const parts=[];if(added.length)parts.push(added.length>1?`${added.length} ${plural(added.length,"книга","книги","книг")} на полке`:`«${added[0].t}» на полке`);if(wantAdded.length)parts.push(`${wantAdded.length} в «Хочу прочитать»`);toast(parts.join(", "));
+    saveWant();renderWant();closeSheet();haptic("ok");if(wantAdded.length&&!added.length&&shelfMode!=="want"){shelfMode="want";renderShelves();renderWantShelves()}
+    const parts=[];if(added.length)parts.push(added.length>1?`${added.length} ${plural(added.length,"книга","книги","книг")} на полке`:`«${added[0].t}» на полке`);if(wantAdded.length)parts.push(wantAdded.length===1&&!added.length?`«${wantAdded[0].t}» в «Хочу прочитать»`:`${wantAdded.length} в «Хочу прочитать»`);if(!parts.length)parts.push("Эти книги уже есть");toast(parts.join(", "));
     const unrated=added.filter(r=>r.r==null);if(unrated.length)setTimeout(()=>openRatePrompt(unrated),700);else if(added.length===1)setTimeout(()=>offerDisc(BOOKS.find(x=>x.id===added[0].id)),800)};
 }
 function openRatePrompt(list){
@@ -1862,6 +1886,7 @@ $("#askInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("#askBtn").cl
 function renderWant(){
   const nb=nowBook;
   $("#now").innerHTML=nb?`${cover(nb,64)}<div class="tx"><div class="k">Сейчас читаю</div><b>${esc(nb.t)}</b><span>${esc(nb.a)}</span></div><span class="chev" aria-hidden="true">›</span>`:`<div class="tx"><div class="k">Сейчас читаю</div><b>Пока ничего</b><span>Открой книгу из списка и нажми «Читаю сейчас»</span></div>`;
+  renderWantShelves();return;
   $("#wants").innerHTML=want.length?want.map((s,i)=>`<div class="w-item" role="button" tabindex="0" data-w="${i}">${cover(s,64)}<span class="tx"><b>${esc(s.t)}</b><span class="by">${esc(s.a)}</span><span class="when" style="display:block">${esc(s.when)}</span>${s.from?`<span class="from" style="display:block">Тевосгинк · ${esc(s.from)}</span>`:""}</span></div>`).join(""):`<div class="empty">Список пуст. Загляни к Тевосгинку — он подбросит что-нибудь.</div>`;
 }
 $("#now").addEventListener("click",()=>{const s=nowBook;if(!s)return;haptic();openSheet(`<div class="bk">${cover(s,112)}<div class="bk-meta"><h3>${esc(s.t)}</h3><div class="au">${esc(s.a)}</div><div class="chips">${s.c?`<span class="chip">${esc(s.c)}</span>`:""}${s.y?`<span class="chip">${s.y}</span>`:""}${GEN[s.g]?`<span class="chip">${GEN[s.g]}</span>`:""}</div>${(s.acclaim||[]).length?`<div class="acc" style="margin-top:10px">${s.acclaim.map(a=>`<span>${esc(a)}</span>`).join("")}</div>`:""}</div></div>${s.when?`<div class="when">${esc(s.when)}</div>`:""}${s.ann?`<div class="ann" style="margin-top:10px">${esc(s.ann)}</div>`:""}
@@ -1869,8 +1894,7 @@ $("#now").addEventListener("click",()=>{const s=nowBook;if(!s)return;haptic();op
   $("#nDone").onclick=()=>openMarkRead(s,()=>{nowBook=null;saveNow();renderWant()});
   $("#nBack").onclick=()=>{want.unshift(s);nowBook=null;saveNow();saveWant();renderWant();closeSheet();haptic();toast("Вернула в «Хочу прочитать»")};
   $("#nDel").onclick=()=>{nowBook=null;saveNow();renderWant();closeSheet();haptic();toast("Убрано из «Сейчас читаю»")}});
-$("#wants").addEventListener("click",e=>{const b=e.target.closest("[data-w]");if(b)openWant(+b.dataset.w)});
-$("#wants").addEventListener("keydown",e=>{if(e.key==="Enter"){const b=e.target.closest("[data-w]");if(b)openWant(+b.dataset.w)}});
+
 
 // ---------- цитаты ----------
 let quotes=LS.get("zal.quotes",[]);
@@ -2012,7 +2036,7 @@ document.querySelectorAll("nav.tabs button").forEach(btn=>btn.addEventListener("
 document.addEventListener("click",e=>{const t=e.target.closest(".spine,.tl-row,.au-book");if(t)openBook(t.dataset.id)});
 
 // ---------- свайп между вкладками ----------
-const ORDER=["shelves","want","tev","time"];let curView="shelves";
+const ORDER=["shelves","tev","time"];let curView="shelves";
 const _go=go;go=function(v){curView=v;_go(v)};
 (function(){
   let x0=0,y0=0,t0=0,mode=null,dx=0,el=null;

@@ -329,13 +329,17 @@ html,body{overflow-x:hidden}
 .sec-head{display:flex;justify-content:space-between;align-items:baseline;margin-top:24px;gap:12px;flex-wrap:wrap}
 .sec-head h3{font-size:19px}
 .link-btn{background:none;border:none;color:var(--gold-deep);font-weight:700;font-size:13px;padding:4px 0}
-.notes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:14px}
+.notes{display:grid;grid-auto-flow:column;grid-template-rows:repeat(2,auto);grid-auto-columns:clamp(104px,29vw,140px);gap:10px;margin:4px -16px 0;padding:12px 16px 16px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding-inline:16px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.notes::-webkit-scrollbar{display:none}
+.notes .slip{scroll-snap-align:start;font-size:14.5px;line-height:1.25;padding:18px 10px 12px;hyphens:manual;overflow-wrap:normal}
 .slip{position:relative;background:var(--slip);border:1px solid var(--warm-line);border-radius:4px;padding:20px 14px 16px;text-align:left;font-family:var(--serif);font-style:italic;font-size:16px;line-height:1.3;box-shadow:0 1px 0 var(--warm-line),0 10px 18px -14px rgba(80,60,20,.5);transition:transform .2s,box-shadow .2s,border-color .2s;min-height:86px}
 .slip:nth-child(3n+1){transform:rotate(-1.4deg)}.slip:nth-child(3n+2){transform:rotate(.9deg)}.slip:nth-child(3n){transform:rotate(-.4deg)}
 .slip::before{content:"";position:absolute;top:7px;left:50%;width:9px;height:9px;border-radius:50%;background:var(--gold);transform:translateX(-50%);box-shadow:0 1px 2px rgba(0,0,0,.25)}
 .slip:hover{transform:translateY(-3px) rotate(0)}
 .slip.on{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold),0 14px 22px -14px rgba(80,60,20,.6);transform:rotate(0)}
 .ask{display:flex;gap:8px;margin-top:14px}
+body.kb nav.tabs,body.kb .theme-sw{display:none}
+body.kb .wrap{padding-bottom:70vh}
 .ask input{flex:1;min-width:0;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;background:var(--card);color:var(--ink)}
 .ask input:focus{outline:2px solid var(--gold);outline-offset:0;border-color:transparent}
 .status{font-size:13px;color:var(--muted);margin-top:10px;min-height:20px}
@@ -1245,7 +1249,7 @@ function fitCoverText(el){const box=el.classList.contains("cv-lt")?el.parentElem
 function fitAll(root){(root||document).querySelectorAll(".spine:not([data-fit])").forEach(sp=>{if(fitSpine(sp))sp.dataset.fit=1});
   (root||document).querySelectorAll(".cv-t:not([data-fit]),.cv-lt:not([data-fit])").forEach(el=>{if(fitCoverText(el))el.dataset.fit=1})}
 let _fitRaf=0;new MutationObserver(()=>{cancelAnimationFrame(_fitRaf);_fitRaf=requestAnimationFrame(()=>fitAll())}).observe(document.body,{childList:true,subtree:true});
-if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{document.querySelectorAll("[data-fit]").forEach(e=>{e.removeAttribute("data-fit")});fitAll()});
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>{if(typeof fitSlips==="function")fitSlips();document.querySelectorAll("[data-fit]").forEach(e=>{e.removeAttribute("data-fit")});fitAll()});
 
 // ---------- stats ----------
 (function(){
@@ -1284,14 +1288,14 @@ function renderShelves(){
   const links=VIEW?"":`<div class="shelf-links">${BOOKS.length?`<button class="share-shelf" id="shareShelf">Поделиться полками</button>`:""}<button class="share-shelf" id="backupBtn">Резервная копия</button></div>`;
   const search=BOOKS.length>3?searchBox():"";
   const welcome=BOOKS.length?"":`<div class="welcome"><h2>Твои полки пока пустые</h2><p>Сфотографируй книги, которые уже прочитала, или впиши их — они встанут на полки по странам и жанрам, с обложками. А Тевосгинк подскажет, что читать дальше.</p></div>`;
-  $("#shelfRead").innerHTML=addBtn+(shelfMode==="read"?search:"")+welcome+`<div id="shelfAll">${spinesHTML(BOOKS.map(b=>({b})),"read")}</div>`+links;
+  const srch=shelfMode==="read"?search:"";$("#shelfRead").innerHTML=(VIEW?addBtn+srch:srch+addBtn)+welcome+`<div id="shelfAll">${spinesHTML(BOOKS.map(b=>({b})),"read")}</div>`+links;
   if(shelfQ&&shelfMode==="read")runShelfSearch();
 }
 function searchBox(){return `<div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="shelfQ" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" placeholder="${shelfMode==="want"?"Найти в «Хочу прочитать»":"Найти на полках"}" value="${esc(shelfQ)}" aria-label="Поиск"><button class="clr" id="shelfClr" aria-label="Очистить"${shelfQ?"":" hidden"}>×</button></div><div class="sres" id="shelfRes"></div>`}
 function renderWantShelves(){
   const box=$("#wantShelves");if(!box)return;
-  box.innerHTML=`<button class="add-book" id="addWant"><span>+</span>Добавить в «Хочу прочитать»</button>`+(shelfMode==="want"&&want.length>3?searchBox():"")+
-    (want.length?`<div id="shelfAll">${spinesHTML(want.map((b,i)=>({b,i})),"want")}</div>`:`<div class="empty">Список пуст. Добавь книгу или загляни к Тевосгинку — он подбросит что-нибудь.</div>`)+`<div class="shelf-links"><button class="share-shelf" id="backupBtn">Резервная копия</button></div>`;
+  box.innerHTML=(shelfMode==="want"&&want.length>3?searchBox():"")+`<button class="add-book" id="addWant"><span>+</span>Добавить в «Хочу прочитать»</button>`+
+    (want.length?`<div id="shelfAll">${spinesHTML(want.map((b,i)=>({b,i})),"want")}</div>`:`<div class="empty">Список пуст. Добавь книгу или загляни к Тевосгинку — он подбросит что-нибудь.</div>`);
   if(shelfQ&&shelfMode==="want")runShelfSearch();
 }
 document.addEventListener("click",e=>{const m=e.target.closest("[data-sm]");if(!m||m.dataset.sm===shelfMode)return;shelfMode=m.dataset.sm;shelfQ="";haptic();renderShelves();renderWantShelves();window.scrollTo({top:0});requestAnimationFrame(()=>fitAll())});
@@ -1832,7 +1836,7 @@ const MOOD_POOL=[
 ];
 let moods=[],activeMood=null,picks={},flipOpen=null;
 const inWant=r=>want.some(s=>norm(s.t)===norm(r.t));
-function shuffleMoods(){const p=[...MOOD_POOL].sort(()=>Math.random()-.5);moods=p.slice(0,6);picks={};flipOpen=null;renderMoods()}
+function shuffleMoods(){const p=[...MOOD_POOL].sort(()=>Math.random()-.5);moods=p.slice(0,14);picks={};flipOpen=null;renderMoods()}
 function rankFor(q){return CAT.map(b=>({b,s:score(b,q)})).filter(x=>x.s!=null).sort((a,b)=>b.s-a.s).map(x=>x.b)}
 function nextPick(st){
   if(!st.rank){st.rank=rankFor(st.q);if(!st.rank.length)st.rank=rankFor({...st.q,len:null,heavyMax:null,yMin:null,yMax:null,qMin:null,must:null,c:null})}
@@ -1855,7 +1859,8 @@ function tevCard(scope,st,back){
    ${r._why?`<div class="why">${esc(r._why)}</div>`:""}
    <div class="rec-actions"><button class="btn btn-gold" data-take${has?" disabled":""}>${has?"Уже в списке":"Хочу прочитать"}</button><button class="btn btn-ghost" data-other>Другая книга ↻</button></div></div>`;
 }
-function renderMoods(){$("#moods").innerHTML=moods.map(([m],i)=>`<button class="slip" data-i="${i}">${esc(m)}</button>`).join("")}
+function renderMoods(){$("#moods").innerHTML=moods.map(([m],i)=>`<button class="slip" data-i="${i}">${esc(m).replace(/(^|\s)([а-яёА-ЯЁ]{1,2})\s/g,"$1$2&nbsp;")}</button>`).join("");fitSlips()}
+function fitSlips(){requestAnimationFrame(()=>document.querySelectorAll("#moods .slip").forEach(sl=>{if(!sl.clientWidth)return;sl.style.fontSize="";let fs=parseFloat(getComputedStyle(sl).fontSize),g=20;while(sl.scrollWidth>sl.clientWidth+1&&fs>11&&g--){fs-=.5;sl.style.fontSize=fs+"px"}}))}
 let tevScope=null,simState=null;
 const stOf=s=>s==="ask"?askState:s==="sim"?simState:picks[s];
 function tagsOf(b){if(b.tags&&b.tags.length)return b.tags;const c=CAT.find(x=>norm(x.t)===norm(b.t));if(c&&c.tags)return c.tags;return (typeof TASTE_TAGS!=="undefined"&&TASTE_TAGS[b.id])||[]}
@@ -1889,6 +1894,12 @@ function runQuery(text){
 }
 $("#moreMoods").onclick=()=>{haptic();activeMood=null;shuffleMoods();whisper("Свежие записки. Чернила ещё не высохли.")};
 $("#askBtn").onclick=()=>{const v=$("#askInput").value.trim();if(v){activeMood=null;flipOpen=null;renderMoods();runQuery(v)}};
+(function(){let el=null;const show=()=>{if(!el||document.activeElement!==el)return;const vv=window.visualViewport,vh=vv?vv.height:innerHeight,top=vv?vv.offsetTop:0,r=el.getBoundingClientRect();
+    if(r.top<top+70||r.bottom>top+vh-16)window.scrollBy({top:r.top-top-Math.min(140,vh*.3),behavior:"smooth"})};
+  document.addEventListener("focusin",e=>{const t=e.target;if(!t.matches||!t.matches("input:not([type=file]):not([type=checkbox]),textarea")||t.closest(".scrim"))return;el=t;document.body.classList.add("kb");[80,350,700].forEach(d=>setTimeout(show,d))});
+  document.addEventListener("focusout",e=>{if(e.target!==el)return;el=null;setTimeout(()=>{if(!el)document.body.classList.remove("kb")},150)});
+  if(window.visualViewport)visualViewport.addEventListener("resize",()=>setTimeout(show,50));
+  if(TG&&TG.onEvent)TG.onEvent("viewportChanged",()=>setTimeout(show,50))})();
 $("#askInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("#askBtn").click()});
 
 // ---------- Хочу прочитать ----------
@@ -2034,7 +2045,7 @@ function summaryHTML(){
 // ---------- nav ----------
 var go=function(v){
   document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.toggle("on",x.dataset.v===v));
-  document.querySelectorAll(".view").forEach(el=>el.classList.toggle("on",el.id==="v-"+v));
+  document.querySelectorAll(".view").forEach(el=>el.classList.toggle("on",el.id==="v-"+v));if(v==="tev")fitSlips();
   
   window.scrollTo({top:0});
   requestAnimationFrame(()=>fitAll());
@@ -2047,7 +2058,7 @@ const ORDER=["shelves","tev","time"];let curView="shelves";
 const _go=go;go=function(v){curView=v;_go(v)};
 (function(){
   let x0=0,y0=0,t0=0,mode=null,dx=0,el=null;
-  const blocked=t=>t.closest(".shelf,.fav-row,.cchips,select,input,textarea,.stories,.disc,.scrim.on,nav.tabs");
+  const blocked=t=>t.closest(".notes,.shelf,.fav-row,.cchips,select,input,textarea,.stories,.disc,.scrim.on,nav.tabs");
   document.addEventListener("touchstart",e=>{if(VIEW||e.touches.length!==1||blocked(e.target)||story||sheetOpen||disc||tevScope){mode="off";return}
     const p=e.touches[0];x0=p.clientX;y0=p.clientY;t0=Date.now();mode=null;dx=0;el=document.getElementById("v-"+curView)},{passive:true});
   document.addEventListener("touchmove",e=>{if(mode==="off"||mode==="v")return;const p=e.touches[0];dx=p.clientX-x0;const dy=p.clientY-y0;

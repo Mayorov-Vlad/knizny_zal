@@ -385,9 +385,9 @@ mark{background:none;color:inherit}
   <h1>Добро пожаловать в&nbsp;Нору</h1>
   <p>Прежде чем войти, отметь несколько книг и фильмов, которые ты уже знаешь. По ним я подберу первые рекомендации, а твои полки сразу будут заполнены.</p>
   <button class="btn w" id="introGo">Начать</button></div>
-<div class="onb" id="onb"><div class="onb-top"><div class="stp" id="onbStep">1 из 2</div><h1 id="onbH">Выбери хотя бы две прочитанные книги</h1><p id="onbP">Нажми на обложку и поставь оценку.</p></div>
+<div class="onb" id="onb"><div class="onb-top"><div class="stp" id="onbStep">1 из 2</div><h1 id="onbH">Выбери хотя бы две прочитанные книги</h1><p id="onbP">Нажми на книгу и поставь оценку.</p></div>
   <div class="onb-grid" id="onbGrid"></div><div class="onb-bar"><button class="btn w" id="onbNext" disabled>Выбери хотя бы две</button><button class="onb-skip" id="onbSkip" hidden>пропустить</button></div></div>
-<div class="rm" id="rm"><div class="rm-in"><div id="rmCv"></div><b id="rmT"></b><span id="rmA"></span><p>Как тебе?</p><div class="rm-st" id="rmSt"></div><button class="rm-x" id="rmX">Не читала</button></div></div>
+<div class="rm" id="rm"><div class="rm-in"><div id="rmCv"></div><b id="rmT"></b><span id="rmA"></span><p>Как тебе?</p><div class="rm-st" id="rmSt"></div><button class="rm-x" id="rmX" hidden></button></div></div>
 <div class="coach" id="coach" role="dialog" aria-label="Подсказка">
   <div class="cz l"><div class="trail"><i></i></div><div class="ic gl"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></div><b>Не предлагать</b><small>смахни влево</small></div>
   <div class="cz r"><div class="trail"><i></i></div><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></div><b>Хочу</b><small>смахни вправо</small></div>
@@ -703,14 +703,14 @@ let onbK="books",onbPick={};
 const STAR='<svg viewBox="0 0 24 24"><path d="M12 3.2l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/></svg>';
 function onbDraw(){const F=onbK==="films",list=POP[onbK].map(a=>popItem(onbK,a));onbPick={};
   $("#onbStep").textContent=F?"2 из 2":"1 из 2";$("#onbH").textContent=F?"Выбери хотя бы два просмотренных фильма или сериала":"Выбери хотя бы две прочитанные книги";
-  $("#onbP").textContent=F?"Нажми на постер и поставь оценку.":"Нажми на обложку и поставь оценку.";
+  $("#onbP").textContent=F?"Нажми на фильм или сериал и поставь оценку.":"Нажми на книгу и поставь оценку.";
   $("#onbSkip").hidden=!F;$("#onbGrid").scrollTop=0;
   $("#onbGrid").innerHTML=list.map((x,i)=>`<div class="op${i===0?" nudge":""}" data-i="${i}">${cover(x)}${i===0?`<span class="tip">Нажми</span>`:""}<span class="badge"></span><small>${esc(x.t)}${x.s?" · сериал":""}</small></div>`).join("");
   $("#onbGrid")._l=list;onbBtn();
   list.forEach(async(x,i)=>{const u=await findImg(x,F);if(!u)return;x.img=u;const el=$(`#onbGrid .op[data-i="${i}"] .cv`);if(el)el.outerHTML=cover(x)})}
 function onbBtn(){const n=Object.keys(onbPick).length,b=$("#onbNext"),F=onbK==="films";b.disabled=n<2;b.textContent=n>=2?`Дальше · ${n}`:n?(F?"Выбери ещё один":"Выбери ещё одну"):(F?"Выбери хотя бы два":"Выбери хотя бы две")}
 let rmCb=null;
-function rmAsk(x,curR,onPick,noLabel,onNo){rmCb={onPick,onNo};$("#rmCv").innerHTML=cover(x);$("#rmT").textContent=x.t;$("#rmA").textContent=[x.a,x.s?"сериал":""].filter(Boolean).join(" · ");$("#rmX").textContent=noLabel;
+function rmAsk(x,curR,onPick,noLabel,onNo){rmCb={onPick,onNo};$("#rmCv").innerHTML=cover(x);$("#rmT").textContent=x.t;$("#rmA").textContent=[x.a,x.s?"сериал":""].filter(Boolean).join(" · ");$("#rmX").textContent=noLabel||"";$("#rmX").hidden=!noLabel;
   $("#rmSt").innerHTML=[1,2,3,4,5].map(n=>`<button data-st="${n}" class="${curR>=n?"on":""}" aria-label="${n} из 5">${STAR}</button>`).join("");$("#rm").classList.add("on");haptic("soft")}
 function rmClose(){$("#rm").classList.remove("on");rmCb=null}
 $("#rmSt").addEventListener("click",e=>{const b=e.target.closest("[data-st]");if(!b||!rmCb)return;const n=+b.dataset.st,cb=rmCb;
@@ -719,7 +719,7 @@ $("#rmX").onclick=()=>{const cb=rmCb;rmClose();cb&&cb.onNo&&cb.onNo()};
 $("#rm").addEventListener("click",e=>{if(e.target.id==="rm")rmClose()});
 $("#onbGrid").addEventListener("click",e=>{const op=e.target.closest(".op");if(!op)return;document.querySelectorAll("#onbGrid .nudge").forEach(o=>{o.classList.remove("nudge");const t=o.querySelector(".tip");t&&t.remove()});
   const i=+op.dataset.i,F=onbK==="films";
-  rmAsk($("#onbGrid")._l[i],onbPick[i],n=>{onbPick[i]=n;op.classList.add("rated");op.querySelector(".badge").textContent="★ "+n;onbBtn()},F?"Не смотрела":"Не читала",()=>{delete onbPick[i];op.classList.remove("rated");onbBtn()})});
+  rmAsk($("#onbGrid")._l[i],onbPick[i],n=>{onbPick[i]=n;op.classList.add("rated");op.querySelector(".badge").textContent="★ "+n;onbBtn()},onbPick[i]!=null?"Снять отметку":"",()=>{delete onbPick[i];op.classList.remove("rated");onbBtn()})});
 function introShow(){const L=POP.books.slice(0,5).map(a=>popItem("books",a));$("#introFan").innerHTML=L.map(cover).join("");
   [...$("#introFan").children].forEach((c,i)=>{const o=i-2;c.style.transform=`translateX(${o*58}px) translateY(${Math.abs(o)*12}px) rotate(${o*8}deg)`;c.style.zIndex=10-Math.abs(o);c.style.animationDelay=(.1+i*.08)+"s"});
   L.forEach(async(x,i)=>{const u=await findImg(x,false);if(!u)return;x.img=u;const c=$("#introFan").children[i];if(c){const im=document.createElement("img");im.src=u;im.referrerPolicy="no-referrer";im.onload=()=>im.classList.add("ok");c.appendChild(im)}});

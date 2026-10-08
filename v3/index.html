@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Нора — третья версия</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!--
+  ТРЕТЬЯ ВЕРСИЯ «НОРЫ» — редакционный «кинематографичный» вид по мотивам конкурсных сайтов.
+  Живёт только в папке v3/ и ничего не трогает в основном приложении. Не понравится — удалить папку v3.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0E1420; --bg2:#151D2C; --card:#1B2537; --ink:#F1ECE4; --ink2:#AEB3BE; --ink3:#6E7686; --line:rgba(241,236,228,.12);
+  --acc:#F5B971; --acc2:#A99BFF; --acc-ink:#1A1206;
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Inter Tight',system-ui,sans-serif;
+}
+body.films{--bg:#16090F; --bg2:#21101A; --card:#2B1622; --ink:#F6ECEE; --ink2:#C2AEB5; --ink3:#86707A; --line:rgba(246,236,238,.12); --acc:#FF7A6B; --acc2:#7FD1FF; --acc-ink:#24070A}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);transition:background .8s ease,color .8s ease}
+body{font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:none;padding:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
+img{display:block;max-width:100%}
+.grain{position:fixed;inset:-50%;z-index:100;pointer-events:none;opacity:.06;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");animation:gr 1s steps(4) infinite}
+@keyframes gr{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}}
+
+/* шапка */
+.bar{position:fixed;top:0;left:0;right:0;z-index:40;display:flex;align-items:center;justify-content:space-between;padding:calc(12px + env(safe-area-inset-top,0px)) 18px 12px;mix-blend-mode:normal;transition:background .4s,backdrop-filter .4s}
+.bar.solid{background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.logo{font-family:var(--serif);font-style:italic;font-weight:600;font-size:24px;letter-spacing:.01em}
+.sw{position:relative;display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:999px;padding:3px;background:color-mix(in srgb,var(--bg) 60%,transparent)}
+.sw button{position:relative;z-index:1;padding:6px 15px;font-size:13px;font-weight:600;color:var(--ink2);transition:color .4s}
+.sw button.on{color:var(--acc-ink)}
+.sw i{position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:999px;background:var(--acc);transition:transform .6s cubic-bezier(.65,0,.2,1),background .8s}
+body.films .sw i{transform:translateX(100%)}
+
+/* hero */
+.hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 18px 34px;overflow:hidden}
+.hero-glow{position:absolute;inset:0;background:radial-gradient(60% 45% at 70% 30%,color-mix(in srgb,var(--acc2) 40%,transparent),transparent 70%),radial-gradient(50% 40% at 20% 70%,color-mix(in srgb,var(--acc) 35%,transparent),transparent 70%);filter:blur(10px);transition:background .8s}
+.stage{position:absolute;left:50%;top:44%;width:260px;height:340px;transform:translate(-50%,-50%);perspective:900px;z-index:1}
+.stack{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .2s ease-out}
+.stack .cv{position:absolute;left:50%;top:50%;width:150px;margin:-112px 0 0 -75px;transition:transform 1s cubic-bezier(.2,.8,.2,1),opacity .6s}
+.hero h1{position:relative;z-index:2;margin:0;font-family:var(--serif);font-weight:600;font-size:clamp(96px,34vw,220px);line-height:.78;letter-spacing:-.04em}
+.hero h1 span{display:inline-block;transform:translateY(110%);animation:up 1.1s cubic-bezier(.2,.8,.2,1) forwards}
+.hero h1 span:nth-child(2){animation-delay:.08s}.hero h1 span:nth-child(3){animation-delay:.16s}.hero h1 span:nth-child(4){animation-delay:.24s}
+@keyframes up{to{transform:none}}
+.hero .clip{overflow:hidden;display:block;padding-bottom:.06em}
+.hero p{position:relative;z-index:2;margin:14px 0 0;max-width:30ch;color:var(--ink2);font-size:17px}
+.scrollhint{position:relative;z-index:2;margin-top:22px;display:flex;align-items:center;gap:10px;color:var(--ink3);font-size:13px}
+.scrollhint i{width:1px;height:34px;background:linear-gradient(var(--ink3),transparent);animation:drip 2s ease-in-out infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* общие */
+section.s{padding:72px 18px 0}
+.k{font-size:13px;color:var(--acc);font-weight:600;letter-spacing:.02em}
+.h2{font-family:var(--serif);font-weight:600;font-size:clamp(44px,13vw,84px);line-height:.92;letter-spacing:-.02em;margin:6px 0 0}
+.h2 em{font-style:italic;font-weight:500}
+.lead{color:var(--ink2);max-width:36ch;margin:14px 0 0}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .9s ease,transform .9s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* обложка */
+.cv{position:relative;aspect-ratio:2/3;border-radius:6px;overflow:hidden;background:var(--card);box-shadow:0 30px 50px -24px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.06)}
+.cv .gen{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:12px;font-family:var(--serif);font-weight:600;font-size:18px;line-height:1.05;color:#fff}
+.cv .gen small{font-family:var(--sans);font-size:11px;font-weight:500;opacity:.75;margin-top:4px}
+.cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}
+.cv img.ok{opacity:1}
+
+/* сейчас */
+.now{display:grid;grid-template-columns:120px 1fr;gap:20px;align-items:end;margin-top:28px}
+.now .cv{width:120px}
+.now b{display:block;font-family:var(--serif);font-size:32px;line-height:1;font-weight:600}
+.now span{color:var(--ink2)}
+
+/* полка 3D */
+.shelf{display:flex;gap:26px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;margin:30px -18px 0;padding:20px 18px 40px;perspective:1100px}
+.shelf::-webkit-scrollbar{display:none}
+.book{flex:none;width:150px;scroll-snap-align:center;text-align:left}
+.b3{position:relative;width:150px;height:225px;transform-style:preserve-3d;transform:rotateY(var(--ry,-28deg));transition:transform .2s ease-out}
+.b3 .cv{position:absolute;inset:0;border-radius:2px 6px 6px 2px;transform:translateZ(14px)}
+.b3 .sp{position:absolute;top:0;left:0;width:28px;height:100%;transform-origin:left;transform:rotateY(-90deg) translateX(-14px) translateZ(0);background:var(--c,#333);filter:brightness(.7)}
+.b3 .pg{position:absolute;top:3px;right:0;width:26px;height:calc(100% - 6px);transform-origin:right;transform:rotateY(90deg) translateX(13px);background:repeating-linear-gradient(90deg,#e9e3d6 0 1px,#d8d0bf 1px 2px)}
+.book .t{margin-top:16px;font-weight:600;font-size:15px;line-height:1.2}
+.book .a{color:var(--ink3);font-size:13px}
+.book .r{font-family:var(--serif);font-size:22px;color:var(--acc);font-style:italic}
+body.films .b3 .pg{display:none}
+
+/* тевосгинк: колода */
+.deck-wrap{position:relative;margin-top:30px;height:470px}
+.deck-bg{position:absolute;inset:0 -18px;background:radial-gradient(50% 50% at 50% 45%,color-mix(in srgb,var(--acc2) 35%,transparent),transparent 70%)}
+.eyes{position:absolute;left:50%;top:-4px;transform:translateX(-50%);display:flex;gap:10px;z-index:3}
+.eyes span{width:26px;height:30px;border-radius:50%;background:var(--ink);position:relative;overflow:hidden}
+.eyes span i{position:absolute;width:12px;height:13px;border-radius:50%;background:var(--bg);left:7px;top:9px;transition:transform .15s}
+.deck{position:absolute;left:50%;top:40px;width:250px;height:375px;transform:translateX(-50%)}
+.dc{position:absolute;inset:0;border-radius:18px;overflow:hidden;background:var(--card);box-shadow:0 40px 60px -30px rgba(0,0,0,.9);touch-action:none;user-select:none;transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .45s}
+.dc .cv{position:absolute;inset:0;border-radius:0;box-shadow:none}
+.dc .info{position:absolute;left:0;right:0;bottom:0;padding:60px 16px 16px;background:linear-gradient(transparent,rgba(0,0,0,.85));color:#fff}
+.dc .info b{display:block;font-family:var(--serif);font-size:28px;line-height:1;font-weight:600}
+.dc .info span{font-size:13px;opacity:.85}
+.dc .info p{margin:8px 0 0;font-size:13.5px;opacity:.9}
+.stamp{position:absolute;top:22px;padding:4px 10px;border:2px solid;border-radius:6px;font-weight:700;font-size:15px;opacity:0;transform:rotate(-12deg)}
+.stamp.yes{left:16px;color:#7CF29C}.stamp.no{right:16px;color:#FF8A8A;transform:rotate(12deg)}
+.deck-btns{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:center;gap:14px}
+.round{width:58px;height:58px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--bg) 60%,transparent);display:grid;place-items:center;font-size:22px;backdrop-filter:blur(8px)}
+.round.pri{background:var(--acc);color:var(--acc-ink);border:none}
+.deck-note{text-align:center;color:var(--ink3);font-size:13px;margin-top:10px}
+
+/* бенто */
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:30px}
+.bx{border-radius:22px;background:var(--bg2);border:1px solid var(--line);padding:18px;min-height:150px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative}
+.bx.tall{grid-row:span 2;background:var(--acc);color:var(--acc-ink);border:none}
+.bx.wide{grid-column:span 2}
+.bx .n{font-family:var(--serif);font-weight:600;font-size:76px;line-height:.85;letter-spacing:-.03em}
+.bx.tall .n{font-size:128px}
+.bx .l{font-size:13.5px;font-weight:600;opacity:.75}
+.bx .v{font-family:var(--serif);font-size:26px;line-height:1.05;font-weight:600}
+.dots{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.dots span{padding:5px 10px;border-radius:999px;border:1px solid var(--line);font-size:13px}
+
+/* летопись — горизонтальная лента */
+.tl{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;margin:30px -18px 0;padding:0 18px 20px}
+.tl::-webkit-scrollbar{display:none}
+.mo{flex:none;width:170px;padding:0 14px 0 0;border-left:1px solid var(--line);padding-left:14px}
+.mo .m{font-family:var(--serif);font-style:italic;font-size:26px}
+.mo .y{font-size:12px;color:var(--ink3)}
+.mo .cv{width:70px;margin-top:12px}
+.mo .tt{font-size:13px;margin-top:8px;color:var(--ink2);line-height:1.25}
+footer{padding:80px 18px calc(40px + env(safe-area-inset-bottom,0px));color:var(--ink3);font-size:13px}
+footer .big{font-family:var(--serif);font-style:italic;font-size:clamp(60px,22vw,140px);line-height:.85;color:var(--ink);opacity:.12}
+
+/* карточка */
+.det{position:fixed;inset:0;z-index:60;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.55);opacity:0;pointer-events:none;transition:opacity .35s}
+.det.on{opacity:1;pointer-events:auto}
+.det-in{width:100%;max-width:560px;background:var(--bg2);border-radius:26px 26px 0 0;padding:22px 20px calc(26px + env(safe-area-inset-bottom,0px));transform:translateY(40px);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
+.det.on .det-in{transform:none}
+.det-top{display:grid;grid-template-columns:110px 1fr;gap:16px;align-items:end}
+.det h3{margin:0;font-family:var(--serif);font-size:30px;line-height:1;font-weight:600}
+.det .da{color:var(--ink2);margin-top:6px;font-size:14px}
+.rate{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:20px -20px 0;padding:0 20px}
+.rate::-webkit-scrollbar{display:none}
+.rate button{flex:none;width:42px;height:42px;border-radius:50%;border:1px solid var(--line);font-weight:600}
+.rate button.on{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.det .row{display:flex;gap:8px;margin-top:18px}
+.pill{flex:1;height:50px;border-radius:999px;border:1px solid var(--line);font-weight:600}
+.pill.pri{background:var(--acc);color:var(--acc-ink);border:none}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translate(-50%,90px);z-index:70;background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:999px;font-weight:600;font-size:14px;transition:transform .45s cubic-bezier(.2,1.3,.4,1);white-space:nowrap}
+.toast.on{transform:translate(-50%,0)}
+.tag3{font-size:11px;font-weight:600;color:var(--ink3);margin-left:8px;font-family:var(--sans);font-style:normal}
+@media (min-width:760px){section.s,.hero{padding-left:8vw;padding-right:8vw}.bento{grid-template-columns:repeat(4,1fr)}.shelf,.tl{margin:30px -8vw 0;padding-left:8vw}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.hero h1 span{transform:none}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<header class="bar" id="bar">
+  <div class="logo">Нора<span class="tag3">v3</span></div>
+  <div class="sw" role="tablist" aria-label="Раздел"><i></i><button data-realm="books" class="on">Книги</button><button data-realm="films">Кино</button></div>
+</header>
+
+<section class="hero" id="hero">
+  <div class="hero-glow"></div>
+  <div class="stage"><div class="stack" id="stack"></div></div>
+  <h1><span class="clip"><span>Н</span><span>о</span><span>р</span><span>а</span></span></h1>
+  <p id="heroP">Всё, что ты прочитала, — и всё, что ещё ждёт.</p>
+  <div class="scrollhint"><i></i><span>Листай вниз</span></div>
+</section>
+
+<section class="s reveal" id="nowS">
+  <div class="k" id="nowK">Сейчас читаю</div>
+  <div class="now" id="now"></div>
+</section>
+
+<section class="s">
+  <div class="reveal"><div class="k" id="shelfK">Полка</div><h2 class="h2" id="shelfH">Прочитано <em>в этом году</em></h2></div>
+  <div class="shelf" id="shelf"></div>
+</section>
+
+<section class="s">
+  <div class="reveal"><div class="k" id="tevK">Тевосгинк</div><h2 class="h2">Свайпни <em>вправо,</em><br>если хочется</h2>
+  <p class="lead" id="tevLead">Вправо — в «Хочу прочитать». Влево — мимо.</p></div>
+  <div class="deck-wrap"><div class="deck-bg"></div><div class="eyes" id="eyes"><span><i></i></span><span><i></i></span></div>
+    <div class="deck" id="deck"></div>
+    <div class="deck-btns"><button class="round" id="noB" aria-label="Мимо">✕</button><button class="round pri" id="yesB" aria-label="Хочу">♥</button></div>
+  </div>
+  <div class="deck-note" id="deckNote"></div>
+</section>
+
+<section class="s">
+  <div class="reveal"><div class="k">Итоги</div><h2 class="h2" id="sumH">Год <em>в цифрах</em></h2></div>
+  <div class="bento" id="bento"></div>
+</section>
+
+<section class="s">
+  <div class="reveal"><div class="k">Летопись</div><h2 class="h2">Месяц <em>за месяцем</em></h2></div>
+  <div class="tl" id="tl"></div>
+</section>
+
+<footer><div class="big">Нора</div><p>Третья версия — пример. Данные здесь свои и ни на что не влияют.</p></footer>
+
+<div class="det" id="det" role="dialog" aria-modal="true"><div class="det-in" id="detIn"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const TG=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?Telegram.WebApp:null;
+if(TG){try{TG.ready();TG.expand();TG.setHeaderColor&&TG.setHeaderColor("#0E1420");TG.setBackgroundColor&&TG.setBackgroundColor("#0E1420")}catch(e){}}
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const haptic=t=>{try{TG&&TG.HapticFeedback.impactOccurred(t||"light")}catch(e){}};
+const toast=t=>{const el=$("#toast");el.textContent=t;el.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove("on"),1900)};
+const plural=(n,a,b,c)=>{const m=n%10,h=n%100;return m===1&&h!==11?a:m>=2&&m<=4&&(h<12||h>14)?b:c};
+const hsh=s=>{let h=0;for(const ch of String(s))h=(h*31+ch.charCodeAt(0))>>>0;return h};
+const norm=s=>String(s||"").toLowerCase().replace(/ё/g,"е").replace(/[^a-zа-я0-9]/g,"");
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+const FL=id=>"https://fantlab.ru/images/editions/big/"+id, WP=p=>"https://upload.wikimedia.org/wikipedia/en/"+p;
+const SAMPLE={
+ books:{read:[
+   {t:"Преступление и наказание",a:"Фёдор Достоевский",y:1866,c:"Россия",r:10,d:"2026-09",img:FL(66847),col:"#7A1F1F"},
+   {t:"Правда о деле Гарри Квеберта",a:"Жоэль Диккер",y:2012,c:"Швейцария",r:8,d:"2026-08",img:FL(210352),col:"#C9B98F"},
+   {t:"Ребекка",a:"Дафна дю Морье",y:1938,c:"Англия",r:8,d:"2026-06",img:FL(40302),col:"#3B2A1A"},
+   {t:"Тонкая работа",a:"Сара Уотерс",y:2002,c:"Англия",r:9,d:"2026-04",img:FL(40076),col:"#4A3F5E"},
+   {t:"Убийство в «Восточном экспрессе»",a:"Агата Кристи",y:1933,c:"Англия",r:8,d:"2026-03",img:FL(390280),col:"#1F3550"},
+   {t:"Норвежский лес",a:"Харуки Мураками",y:1987,c:"Япония",r:7,d:"2026-02",img:FL(6684),col:"#2F5A3C"},
+   {t:"Грозовой перевал",a:"Эмили Бронте",y:1847,c:"Англия",r:9,d:"2026-01",img:FL(136191),col:"#2B2B33"}],
+  want:[],now:{t:"Джейн Эйр",a:"Шарлотта Бронте",y:1847,img:FL(446413)},
+  pool:[{t:"Бархатные коготки",a:"Сара Уотерс",y:1998,img:FL(40077),w:"Ещё Уотерс — викторианский Лондон и смелая героиня."},
+   {t:"Тайная история",a:"Донна Тартт",y:1992,img:FL(136461),w:"Тёмная академия, после которой хочется перечитать древних греков."},
+   {t:"Дом, в котором…",a:"Мариам Петросян",y:2009,img:FL(40654),w:"Чтобы пропасть в другом мире на месяц."},
+   {t:"Лавр",a:"Евгений Водолазкин",y:2012,img:FL(189346),w:"Тихая большая книга о любви и вине."},
+   {t:"Сто лет одиночества",a:"Габриэль Гарсиа Маркес",y:1967,img:FL(286489),w:"Семейная сага, где чудо — часть быта."},
+   {t:"Исчезновение Стефани Мейлер",a:"Жоэль Диккер",y:2018,img:FL(263603),w:"Новая загадка от автора «Гарри Квеберта»."},
+   {t:"Мастер и Маргарита",a:"Михаил Булгаков",y:1967,img:FL(31603),w:"Чтобы перечитывать каждые пять лет."}]},
+ films:{read:[
+   {t:"Идеальные дни",a:"Вим Вендерс",y:2023,c:"Япония",r:9,d:"2026-09",img:WP("c/c9/Perfect_Days_poster.jpg"),col:"#3E6B4F"},
+   {t:"Анатомия падения",a:"Жюстин Трие",y:2023,c:"Франция",r:8,d:"2026-07",img:WP("8/88/Anatomy_of_a_Fall_%282023%29_film_poster.jpg"),col:"#2A2A2A"},
+   {t:"Паразиты",a:"Пон Чжун Хо",y:2019,c:"Южная Корея",r:9,d:"2026-05",img:WP("5/53/Parasite_%282019_film%29.png"),col:"#1E2F2B"},
+   {t:"Сталкер",a:"Андрей Тарковский",y:1979,c:"СССР",r:9,d:"2026-02",img:WP("d/d4/Stalker_poster.jpg"),col:"#4C3A22"},
+   {t:"Унесённые призраками",a:"Хаяо Миядзаки",y:2001,c:"Япония",r:10,d:"2026-01",img:WP("d/db/Spirited_Away_Japanese_poster.png"),col:"#7A2D2D"}],
+  want:[],now:null,
+  pool:[{t:"Солнце моё",a:"Шарлотта Уэллс",y:2022,img:WP("1/11/Aftersun.jpg"),w:"Тёплое лето, которое помнится по-другому через двадцать лет."},
+   {t:"Прошлые жизни",a:"Селин Сон",y:2023,img:WP("d/da/Past_Lives_film_poster.png"),w:"Тихая история о том, что могло бы быть."},
+   {t:"Портрет девушки в огне",a:"Селин Сьямма",y:2019,img:WP("c/cb/Portrait_of_a_Lady_on_Fire.jpg"),w:"Медленно, красиво, надолго в памяти."},
+   {t:"Любовное настроение",a:"Вонг Карвай",y:2000,img:WP("4/45/In_the_Mood_for_Love_movie.jpg"),w:"Самый красивый фильм о несказанном."},
+   {t:"Опавшие листья",a:"Аки Каурисмяки",y:2023,img:WP("d/d2/Kuolleet_lehdet_Poster.jpg"),w:"В России почти не показывали — смешная грустная сказка."},
+   {t:"Сядь за руль моей машины",a:"Рюсукэ Хамагути",y:2021,img:WP("3/3d/Drive_My_Car_movie_poster.jpeg"),w:"Три часа, которые пролетают как один."},
+   {t:"Солярис",a:"Андрей Тарковский",y:1972,img:WP("5/54/Solyaris_ussr_poster.jpg"),w:"После «Сталкера» — следующий шаг."}]}
+};
+let D;try{D=JSON.parse(localStorage.getItem("nora3"))}catch(e){}
+if(!D||!D.books)D=JSON.parse(JSON.stringify(SAMPLE));
+const save=()=>{try{localStorage.setItem("nora3",JSON.stringify(D))}catch(e){}};
+let realm="books";const R=()=>D[realm],isF=()=>realm==="films";
+const TXT={books:{hero:"Всё, что ты прочитала, — и всё, что ещё ждёт.",now:"Сейчас читаю",shelf:"Прочитано <em>в этом году</em>",shelfK:"Полка",tev:"Тевосгинк",lead:"Вправо — в «Хочу прочитать». Влево — мимо.",sum:"Год <em>в цифрах</em>",unit:["книга","книги","книг"],done:"прочитано",want:"Хочу прочитать",didit:"Прочитала"},
+           films:{hero:"Всё, что ты посмотрела, — и всё, что ещё впереди.",now:"Сейчас смотрю",shelf:"Посмотрено <em>в этом году</em>",shelfK:"Фильмотека",tev:"Тевосоник",lead:"Вправо — в «Хочу посмотреть». Влево — мимо.",sum:"Год <em>в кадрах</em>",unit:["фильм","фильма","фильмов"],done:"посмотрено",want:"Хочу посмотреть",didit:"Посмотрела"}};
+const GR=[["#2B2D6E","#E86A92"],["#0F4C5C","#E3B04B"],["#3A0CA3","#4CC9F0"],["#1B4332","#95D5B2"],["#6A040F","#FFBA08"]];
+function cover(x){const [a,b]=GR[hsh(x.t)%GR.length];return `<div class="cv"><div class="gen" style="background:linear-gradient(160deg,${a},${b})">${esc(x.t)}<small>${esc(x.a||"")}</small></div>${x.img?`<img src="${esc(x.img)}" alt="" referrerpolicy="no-referrer" onload="this.classList.add('ok')" onerror="this.remove()">`:""}</div>`}
+
+// ---------- hero: 3D-стопка, которая наклоняется за пальцем/мышью ----------
+function drawStack(){const list=[...R().read].slice(0,5);
+  $("#stack").innerHTML=list.map((x,i)=>cover(x)).join("");
+  [...$("#stack").children].forEach((el,i)=>{const n=list.length,o=i-(n-1)/2;el.style.opacity=0;el.style.transform=`translate3d(${o*10}px,60px,${-Math.abs(o)*40}px) rotateZ(0deg)`;
+    setTimeout(()=>{el.style.opacity=1;el.style.transform=`translate3d(${o*58}px,${Math.abs(o)*14}px,${-Math.abs(o)*60}px) rotateZ(${o*7}deg) rotateY(${-o*8}deg)`},120+i*90)})}
+let tx=0,ty=0;
+function tilt(x,y){tx=x;ty=y;$("#stack").style.transform=`rotateX(${-y*12}deg) rotateY(${x*18}deg)`}
+addEventListener("pointermove",e=>{if(RM)return;tilt(e.clientX/innerWidth-.5,e.clientY/innerHeight-.5);eyes(e.clientX,e.clientY)},{passive:true});
+addEventListener("deviceorientation",e=>{if(RM||e.gamma==null)return;tilt(Math.max(-.5,Math.min(.5,e.gamma/40)),Math.max(-.5,Math.min(.5,(e.beta-45)/50)))},{passive:true});
+function eyes(x,y){document.querySelectorAll("#eyes i").forEach(el=>{const r=el.parentElement.getBoundingClientRect(),dx=x-(r.left+r.width/2),dy=y-(r.top+r.height/2),d=Math.hypot(dx,dy)||1;el.style.transform=`translate(${dx/d*5}px,${dy/d*6}px)`})}
+addEventListener("scroll",()=>{$("#bar").classList.toggle("solid",scrollY>40);const h=$("#hero").offsetHeight,p=Math.min(1,scrollY/h);$("#stack").parentElement.style.transform=`translate(-50%,calc(-50% - ${p*120}px)) scale(${1-p*.25})`;shelf3d()},{passive:true});
+
+// ---------- полка: книги поворачиваются корешком по мере прокрутки ----------
+function drawShelf(){$("#shelf").innerHTML=R().read.map((x,i)=>`<button class="book" data-open="${i}"><div class="b3" style="--c:${x.col||"#333"}">${cover(x)}<div class="sp"></div><div class="pg"></div></div><div class="t">${esc(x.t)}</div><div class="a">${esc(x.a)}</div>${x.r!=null?`<div class="r">${x.r} из 10</div>`:""}</button>`).join("");shelf3d()}
+function shelf3d(){const sh=$("#shelf");if(!sh)return;const c=innerWidth/2;sh.querySelectorAll(".b3").forEach(b=>{const r=b.getBoundingClientRect(),o=(r.left+r.width/2-c)/c;b.style.setProperty("--ry",(Math.max(-1,Math.min(1,o))*-38-4)+"deg")})}
+$("#shelf").addEventListener("scroll",shelf3d,{passive:true});
+
+// ---------- колода Тевосгинка ----------
+function poolLeft(){const have=new Set([...R().read,...R().want].map(x=>norm(x.t)));return R().pool.filter(x=>!have.has(norm(x.t))&&!(R().skip||[]).includes(x.t))}
+function drawDeck(){const p=poolLeft().slice(0,3).reverse();const n=p.length;
+  $("#deck").innerHTML=p.map((x,i)=>{const depth=n-1-i;return `<div class="dc" data-t="${esc(x.t)}" style="transform:translateY(${depth*-14}px) scale(${1-depth*.05});opacity:${1-depth*.25}">${cover(x)}<div class="info"><b>${esc(x.t)}</b><span>${esc(x.a)}, ${x.y}</span><p>${esc(x.w)}</p></div><span class="stamp yes">ХОЧУ</span><span class="stamp no">МИМО</span></div>`}).join("")||`<div class="dc" style="display:grid;place-items:center;padding:30px;text-align:center"><div><b style="font-family:var(--serif);font-size:30px">Колода пуста</b><p style="color:var(--ink2)">Тевосгинк ушёл за новыми находками.</p></div></div>`;
+  $("#deckNote").textContent=R().want.length?`${TXT[realm].want}: ${R().want.length}`:"";bindTop()}
+function decide(yes){const top=$("#deck .dc:last-child");if(!top||!top.dataset.t)return;const x=R().pool.find(p=>p.t===top.dataset.t);
+  top.style.transform=`translateX(${yes?420:-420}px) rotate(${yes?24:-24}deg)`;top.style.opacity=0;haptic(yes?"medium":"light");
+  if(yes){R().want.unshift({t:x.t,a:x.a,y:x.y,img:x.img});toast(`«${x.t}» — ${TXT[realm].want.toLowerCase()}`)}else{(R().skip=R().skip||[]).push(x.t)}
+  save();setTimeout(()=>{drawDeck();drawBento()},380)}
+function bindTop(){const el=$("#deck .dc:last-child");if(!el||!el.dataset.t)return;let x0=null,dx=0;
+  el.addEventListener("pointerdown",e=>{x0=e.clientX;dx=0;el.style.transition="none";el.setPointerCapture(e.pointerId)});
+  el.addEventListener("pointermove",e=>{if(x0==null)return;dx=e.clientX-x0;el.style.transform=`translateX(${dx}px) rotate(${dx/14}deg)`;el.querySelector(".yes").style.opacity=Math.max(0,dx/90);el.querySelector(".no").style.opacity=Math.max(0,-dx/90)});
+  const up=()=>{if(x0==null)return;x0=null;el.style.transition="";if(Math.abs(dx)>90)decide(dx>0);else if(Math.abs(dx)<6)openPool(el.dataset.t);else{el.style.transform="";el.querySelectorAll(".stamp").forEach(s=>s.style.opacity=0)}};
+  el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up)}
+$("#yesB").onclick=()=>decide(true);$("#noB").onclick=()=>decide(false);
+
+// ---------- бенто с отсчётом ----------
+function drawBento(){const r=R(),y=new Date().getFullYear(),list=r.read.filter(x=>String(x.d).startsWith(y)),u=TXT[realm].unit;
+  const cs=[...new Set(r.read.map(x=>x.c))],avg=(r.read.reduce((s,x)=>s+(x.r||0),0)/Math.max(1,r.read.length)).toFixed(1).replace(".",",");
+  const best=r.read.filter(x=>x.r===10);
+  $("#bento").innerHTML=`<div class="bx tall"><div class="l">${y}</div><div><div class="n" data-count="${list.length}">0</div><div class="v">${plural(list.length,...u)} ${TXT[realm].done}</div></div></div>
+   <div class="bx"><div class="l">Средняя оценка</div><div class="n">${avg}</div></div>
+   <div class="bx"><div class="l">${TXT[realm].want}</div><div class="n" data-count="${r.want.length}">0</div></div>
+   <div class="bx wide"><div class="l">${cs.length} ${plural(cs.length,"страна","страны","стран")}</div><div class="dots">${cs.map(c=>`<span>${esc(c)}</span>`).join("")}</div></div>
+   <div class="bx wide"><div class="l">Десять из десяти</div><div class="v">${best.map(x=>esc(x.t)).join(" · ")||"Пока нет"}</div></div>`;
+  countUp()}
+function countUp(){document.querySelectorAll("[data-count]").forEach(el=>{const to=+el.dataset.count;if(RM){el.textContent=to;return}
+  const io=new IntersectionObserver(es=>{if(!es[0].isIntersecting)return;io.disconnect();const t0=performance.now();const f=t=>{const p=Math.min(1,(t-t0)/1100),e=1-Math.pow(1-p,3);el.textContent=Math.round(to*e);if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)});io.observe(el)})}
+
+// ---------- летопись ----------
+const MON=["январь","февраль","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"];
+function drawTL(){const by={};R().read.forEach(x=>{(by[x.d]=by[x.d]||[]).push(x)});
+  $("#tl").innerHTML=Object.keys(by).sort().reverse().map(k=>{const [y,m]=k.split("-");return `<div class="mo"><div class="m">${MON[+m-1]}</div><div class="y">${y}</div>${by[k].map(x=>`${cover(x)}<div class="tt">${esc(x.t)}</div>`).join("")}</div>`}).join("")}
+
+// ---------- карточки ----------
+function openRead(i){const x=R().read[i];openDet(`<div class="det-top">${cover(x)}<div><h3>${esc(x.t)}</h3><div class="da">${esc(x.a)}, ${x.y}</div></div></div>
+  <div class="rate">${Array.from({length:11},(_,n)=>`<button data-rate="${n}" data-i="${i}" class="${x.r===n?"on":""}">${n}</button>`).join("")}</div>
+  <div class="row"><button class="pill" data-close>Закрыть</button></div>`)}
+function openPool(t){const x=R().pool.find(p=>p.t===t);if(!x)return;openDet(`<div class="det-top">${cover(x)}<div><h3>${esc(x.t)}</h3><div class="da">${esc(x.a)}, ${x.y}</div></div></div><p style="color:var(--ink2)">${esc(x.w)}</p>
+  <div class="row"><button class="pill" data-close>Закрыть</button><button class="pill pri" data-yes>${TXT[realm].want}</button></div>`)}
+function openDet(h){$("#detIn").innerHTML=h;$("#det").classList.add("on");haptic();TG&&TG.BackButton&&TG.BackButton.show()}
+function closeDet(){$("#det").classList.remove("on");TG&&TG.BackButton&&TG.BackButton.hide()}
+TG&&TG.BackButton&&TG.BackButton.onClick(closeDet);
+document.addEventListener("click",e=>{const t=e.target;
+  if(t===$("#det")||t.closest("[data-close]")){closeDet();return}
+  if(t.closest("[data-yes]")){closeDet();setTimeout(()=>decide(true),200);return}
+  const rt=t.closest("[data-rate]");if(rt){const x=R().read[+rt.dataset.i];x.r=+rt.dataset.rate;save();document.querySelectorAll("[data-rate]").forEach(b=>b.classList.toggle("on",b===rt));drawShelf();drawBento();haptic();return}
+  const o=t.closest("[data-open]");if(o){openRead(+o.dataset.open);return}
+  const rl=t.closest("[data-realm]");if(rl&&rl.dataset.realm!==realm){realm=rl.dataset.realm;document.body.classList.toggle("films",isF());document.querySelectorAll("[data-realm]").forEach(b=>b.classList.toggle("on",b===rl));haptic("medium");render(true)}});
+
+function render(swap){const T=TXT[realm];$("#heroP").textContent=T.hero;$("#nowK").textContent=T.now;$("#shelfH").innerHTML=T.shelf;$("#shelfK").textContent=T.shelfK;$("#tevK").textContent=T.tev;$("#tevLead").textContent=T.lead;$("#sumH").innerHTML=T.sum;
+  const now=R().now;$("#nowS").style.display=now?"":"none";if(now)$("#now").innerHTML=`${cover(now)}<div><b>${esc(now.t)}</b><span>${esc(now.a)}</span></div>`;
+  drawStack();drawShelf();drawDeck();drawBento();drawTL();
+  if(TG){try{TG.setHeaderColor(getComputedStyle(document.body).getPropertyValue("--bg").trim());TG.setBackgroundColor(getComputedStyle(document.body).getPropertyValue("--bg").trim())}catch(e){}}}
+// плавное появление секций
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.15});
+document.querySelectorAll(".reveal").forEach(el=>io.observe(el));
+render();
+</script>
+</body>
+</html>

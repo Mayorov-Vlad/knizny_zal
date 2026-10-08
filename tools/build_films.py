@@ -73,10 +73,10 @@ def sparql(q, tries=4):
 wd = {}
 ranges = [(1870, 1950)] + [(y, y + 5) for y in range(1950, 1990, 5)] + [(y, y + 2) for y in range(1990, 2031, 2)]
 for a, b in ranges:
-    q = f"""SELECT ?imdb (GROUP_CONCAT(DISTINCT ?cc;separator=",") AS ?c) (SAMPLE(?lc) AS ?l) (SAMPLE(?ruL) AS ?ru) WHERE {{
+    q = f"""SELECT ?imdb (GROUP_CONCAT(DISTINCT ?cx;separator=",") AS ?c) (GROUP_CONCAT(DISTINCT ?lc;separator=",") AS ?l) (SAMPLE(?ruL) AS ?ru) WHERE {{
       ?f wdt:P345 ?imdb; wdt:P31/wdt:P279* wd:Q11424; wdt:P577 ?d.
       FILTER(YEAR(?d) >= {a} && YEAR(?d) < {b})
-      OPTIONAL {{ ?f wdt:P495 ?co. ?co wdt:P297 ?cc. }}
+      OPTIONAL {{ ?f wdt:P495 ?co. OPTIONAL {{ ?co wdt:P297 ?cc. }} BIND(COALESCE(?cc, STRAFTER(STR(?co), "entity/")) AS ?cx) }}
       OPTIONAL {{ ?f wdt:P364 ?la. ?la wdt:P218 ?lc. }}
       OPTIONAL {{ ?f rdfs:label ?ruL. FILTER(LANG(?ruL)="ru") }}
     }} GROUP BY ?imdb"""
@@ -88,6 +88,16 @@ for a, b in ranges:
     print(f"wikidata {a}-{b}: {len(rows)} (итого совпало {len(wd)})", flush=True)
     time.sleep(2)
 
+# исторические страны без ISO-кода
+OLD = {"Q15180": "SU", "Q33946": "CS", "Q36704": "YU", "Q16957": "DD", "Q713750": "DE", "Q34266": "RU", "Q83286": "YU", "Q131964": "AT"}
+def fix_c(c):
+    out = []
+    for x in c.split(","):
+        x = OLD.get(x, x)
+        if len(x) == 2 and x not in out:
+            out.append(x)
+    return ",".join(out)
+
 # 5. сборка
 out = []
 for tid, f in films.items():
@@ -95,10 +105,11 @@ for tid, f in films.items():
     rt = ru[tid][1] if tid in ru else ""
     if not rt and wru and wru != f["o"]:
         rt = wru
-    out.append([int(tid[2:]), f["o"], rt if rt != f["o"] else "", f["y"], f["m"], f["g"], f["r"], f["v"], c, l, 1 if (tid in ru or wru) else 0])
+    # «вышел в России» — только если у IMDb есть русское прокатное название
+    out.append([int(tid[2:]), f["o"], rt if rt != f["o"] else "", f["y"], f["m"], f["g"], f["r"], f["v"], fix_c(c), l, 1 if tid in ru else 0])
 out.sort(key=lambda x: -x[7])
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
-meta = {"v": 1, "built": time.strftime("%Y-%m-%d"), "genres": GENRES, "fields": ["id", "orig", "ru", "year", "min", "genres", "rating10", "votes", "countries", "lang", "hasRu"], "n": len(out)}
+meta = {"v": 1, "built": time.strftime("%Y-%m-%d"), "genres": GENRES, "fields": ["id", "orig", "ru", "year", "min", "genres", "rating10", "votes", "countries", "langs", "ruRelease"], "n": len(out)}
 with open(OUT, "w", encoding="utf-8") as fo:
     json.dump({"meta": meta, "f": out}, fo, ensure_ascii=False, separators=(",", ":"))
 print("готово:", len(out), "фильмов,", os.path.getsize(OUT) // 1024, "КБ")

@@ -133,3 +133,24 @@ html[data-theme="light"] #app .sy-in{background:rgba(20,21,27,.06)}
 html[data-theme="light"] #app .sy-err,html[data-theme="light"] #app .sy-msg{color:#B3261E}
 #app .intro .intro-login{opacity:0;transition:opacity .7s .36s}#app .intro.ready .intro-login{opacity:1}
 #app #vsheet.ontop{z-index:96}
+
+/* ---------- обучение в ленте по шагам ---------- */
+#app .co{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:0;transition:opacity .35s}
+#app .co.on{opacity:1}
+#app .co-b{position:fixed;background:transparent;pointer-events:auto}
+#app .co:not(.on) .co-b{pointer-events:none}
+#app .co-hole{position:fixed;box-shadow:0 0 0 200vmax rgba(4,4,8,.8),inset 0 0 0 1.5px rgba(255,255,255,.55);transition:all .45s cubic-bezier(.2,.9,.3,1);pointer-events:none}
+#app .co[data-step="1"] .co-hole::after,#app .co[data-step="2"] .co-hole::after{content:"";position:absolute;top:44%;left:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:rgba(255,255,255,.9);box-shadow:0 0 0 8px rgba(255,255,255,.18);animation:coR 2.2s cubic-bezier(.5,0,.3,1) infinite}
+#app .co[data-step="2"] .co-hole::after{animation-name:coL}
+@keyframes coR{0%,15%{transform:translateX(-40px);opacity:0}25%{opacity:1}70%{transform:translateX(40px);opacity:1}85%,100%{transform:translateX(40px);opacity:0}}
+@keyframes coL{0%,15%{transform:translateX(40px);opacity:0}25%{opacity:1}70%{transform:translateX(-40px);opacity:1}85%,100%{transform:translateX(-40px);opacity:0}}
+#app .co[data-step="3"] .co-hole{animation:coP 1.6s ease-in-out infinite}
+@keyframes coP{50%{box-shadow:0 0 0 200vmax rgba(4,4,8,.8),inset 0 0 0 1.5px rgba(255,255,255,.55),0 0 0 8px rgba(255,255,255,.25)}}
+#app .co-txt{position:fixed;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 10px;text-align:center;color:#fff;pointer-events:none}
+#app .co-txt.s3{transform:none}
+#app .co-txt b{font-family:var(--serif);font-size:30px;font-weight:600;line-height:1}
+#app .co-txt small{font-size:13px;color:rgba(255,255,255,.7);max-width:150px}
+#app .co-txt.s3 small{max-width:none}
+#app .co-skip{position:fixed;left:0;right:0;bottom:calc(22px + env(safe-area-inset-bottom,0px));text-align:center;font-size:12.5px;color:rgba(255,255,255,.5);pointer-events:none}
+#app .co.nudge .co-skip{color:#fff}
+#app #coach{display:none!important}

@@ -149,16 +149,16 @@ function onFeedScroll(){const f=$("#feed");if(!f.clientHeight)return;const j=Mat
   document.querySelectorAll("#dots i").forEach((d,k)=>d.classList.toggle("on",k===j));if(f.children.length-j<6)moreSlides();tgHaptic("soft")}
 $("#feed").addEventListener("scroll",onFeedScroll,{passive:true});
 const slideEl=j=>$(`#feed .slide[data-j="${j}"]`);
-function decide(j,kind){const x=slides[j];if(!x||x._done)return;x._done=kind;const D=DATA();if(kind==="want")D.addWant(x);else D.skip(x);
+function decide(j,kind){const x=slides[j];if(!x||x._done)return;if(CO&&CO.step<3&&kind!==(CO.step===1?"want":"skip")){const sl=slideEl(j),fl=sl&&sl.querySelector(".fly");if(fl){leanTo(fl,0);fl.style.transition="transform .4s cubic-bezier(.2,1.3,.4,1)";fl.style.transform="";fl.style.opacity=""}tgHaptic("rigid");return}x._done=kind;const D=DATA();if(kind==="want")D.addWant(x);else D.skip(x);
   acts.push({j,kind,F:!!x._f});if(acts.length>3)acts.shift();const sl=slideEl(j),fl=sl.querySelector(".fly");
   fl.style.transition="transform .38s cubic-bezier(.4,0,.7,1),opacity .38s";fl.style.transform=`translateX(${kind==="want"?125:-125}%) rotate(${kind==="want"?10:-10}deg)`;fl.style.opacity=0;
   toast(kind==="want"?"Добавила в избранное":"Больше не предложу");tgHaptic("medium");
-  setTimeout(()=>{sl.remove();cur=-1;onFeedScroll();drawDots();updUndo()},390)}
-function undo(){if(!acts.length)return;const {j,kind,F}=acts.pop(),x=slides[j],D=F?FM:BK;if(kind==="want")D.rmWant(x);else D.unskip(x);delete x._done;
+  setTimeout(()=>{sl.remove();cur=-1;onFeedScroll();drawDots();updUndo();if(CO)coachNext()},390)}
+function undo(){if(!acts.length)return;if(CO&&CO.step!==3)return;const {j,kind,F}=acts.pop(),x=slides[j],D=F?FM:BK;if(kind==="want")D.rmWant(x);else D.unskip(x);delete x._done;
   const f=$("#feed"),next=[...f.children].find(el=>el.dataset.end!=null||+el.dataset.j>j);next.insertAdjacentHTML("beforebegin",slideHTML(x,j));
   const sl=slideEl(j),fl=sl.querySelector(".fly"),pos=[...f.children].indexOf(sl);bgFill(sl,x);fl.style.transition="none";fl.style.opacity=0;fl.style.transform=`translateX(${kind==="want"?125:-125}%) rotate(${kind==="want"?10:-10}deg)`;
   f.scrollTo({top:pos*f.clientHeight});void fl.offsetWidth;fl.style.transition="transform .45s cubic-bezier(.2,.9,.3,1),opacity .3s";fl.style.transform="";fl.style.opacity="";
-  cur=-1;onFeedScroll();drawDots();updUndo();toast("Вернула");tgHaptic()}
+  cur=-1;onFeedScroll();drawDots();updUndo();toast("Вернула");tgHaptic();if(CO)setTimeout(coachNext,500)}
 function updUndo(){document.querySelectorAll("#feed [data-undo]").forEach(b=>b.disabled=!acts.length)}
 function leanTo(fl,dx){const r=fl.querySelector(".lean.r"),l=fl.querySelector(".lean.l"),k=v=>Math.max(0,Math.min(1,(v-24)/70));
   r.style.opacity=k(dx);l.style.opacity=k(-dx);r.style.transform=`translate(-50%,-50%) scale(${.85+.15*k(dx)})`;l.style.transform=`translate(-50%,-50%) scale(${.85+.15*k(-dx)})`}
@@ -405,11 +405,33 @@ function onbFinish(){LS.set("zal.onb",1);$("#onb").classList.remove("on");setRea
 $("#onbNext").onclick=()=>{onbSave();tgHaptic("medium");if(onbK==="books"){onbK="films";onbDraw()}else onbFinish()};
 $("#onbSkip").onclick=()=>onbFinish();
 
-// ---------- подсказки в ленте ----------
-function coach(){if(LS.get("zal.coach",0)||!slides.length||VIEW)return;
-  setTimeout(()=>{const ce=$("#feed").children[Math.max(0,cur)],u=ce&&ce.querySelector("[data-undo]");if(u){const b=u.getBoundingClientRect();Object.assign($("#cUndo").style,{left:b.left+b.width/2+"px",top:b.top-16+"px"})}
-    $("#coach").classList.add("on")},450)}
-$("#coach").addEventListener("click",()=>{$("#coach").classList.remove("on");LS.set("zal.coach",1);tgHaptic()});
+// ---------- обучение в ленте: по шагам, с настоящими действиями ----------
+// 1) светится правая половина карточки — смахни вправо или ✓; 2) левая — влево или ✕; 3) кнопка отмены — только нажатие.
+// Несколько быстрых нажатий в тёмной части — пропустить обучение.
+let CO=null;
+const coEl=document.createElement("div");coEl.className="co";coEl.innerHTML=`<div class="co-hole"></div><div class="co-b"></div><div class="co-b"></div><div class="co-b"></div><div class="co-b"></div><div class="co-txt"><b></b><small></small></div><div class="co-skip">Нажми несколько раз в любом месте, чтобы пропустить</div>`;
+$("#app").appendChild(coEl);
+const CO_TXT={1:["Добавить","смахни вправо или нажми ✓"],2:["Не предлагать","смахни влево или нажми ✕"],3:["Отменить действие","нажми — и книга вернётся"]};
+function coRect(){const el=$("#feed").children[Math.max(0,cur)],fl=el&&el.querySelector(".fly");if(!fl)return null;const r0=fl.getBoundingClientRect(),fb=$("#fbar"),top=Math.max(r0.top,fb&&fb.offsetHeight?fb.getBoundingClientRect().bottom+8:0),r={left:r0.left,right:r0.right,top,bottom:r0.bottom,width:r0.width},cx=r.left+r.width/2;
+  if(CO.step===1)return {l:cx+26,t:r.top,r:r.right,b:r.bottom};
+  if(CO.step===2)return {l:r.left,t:r.top,r:cx-26,b:r.bottom};
+  const u=el.querySelector("[data-undo]");if(!u)return null;const q=u.getBoundingClientRect();return {l:q.left-10,t:q.top-10,r:q.right+10,b:q.bottom+10}}
+function coDraw(){if(!CO)return;const R=coRect();if(!R){setTimeout(coDraw,300);return}const W=innerWidth,H=innerHeight,[h,b1,b2,b3,b4]=coEl.children;
+  Object.assign(h.style,{left:R.l+"px",top:R.t+"px",width:R.r-R.l+"px",height:R.b-R.t+"px",borderRadius:CO.step===3?"50%":"28px"});
+  Object.assign(b1.style,{left:0,top:0,width:W+"px",height:R.t+"px"});Object.assign(b2.style,{left:0,top:R.b+"px",width:W+"px",height:H-R.b+"px"});
+  Object.assign(b3.style,{left:0,top:R.t+"px",width:R.l+"px",height:R.b-R.t+"px"});Object.assign(b4.style,{left:R.r+"px",top:R.t+"px",width:W-R.r+"px",height:R.b-R.t+"px"});
+  const tx=coEl.querySelector(".co-txt");tx.querySelector("b").textContent=CO_TXT[CO.step][0];tx.querySelector("small").textContent=CO_TXT[CO.step][1];
+  tx.className="co-txt s"+CO.step;if(CO.step===1)Object.assign(tx.style,{left:"0px",width:R.l+"px",top:(R.t+R.b)/2+"px",bottom:""});
+  else if(CO.step===2)Object.assign(tx.style,{left:R.r+"px",width:W-R.r+"px",top:(R.t+R.b)/2+"px",bottom:""});
+  else Object.assign(tx.style,{left:"0px",width:W+"px",top:(R.t-90)+"px",bottom:""});
+  coEl.classList.add("on");coEl.dataset.step=CO.step}
+function coachNext(){if(!CO)return;CO.step++;if(CO.step>3){coachEnd(true);return}tgHaptic("medium");coEl.classList.remove("on");setTimeout(coDraw,280)}
+function coachEnd(done){CO=null;coEl.classList.remove("on");LS.set("zal.coach",1);if(done)setTimeout(()=>toast("Всё, дальше — сама"),300)}
+function coach(){if(LS.get("zal.coach",0)||!slides.length||VIEW||CO)return;CO={step:1,taps:[]};setTimeout(coDraw,500)}
+coEl.addEventListener("click",e=>{if(!CO||!e.target.classList.contains("co-b"))return;const now=Date.now();CO.taps=CO.taps.filter(t=>now-t<1500);CO.taps.push(now);
+  coEl.classList.add("nudge");setTimeout(()=>coEl.classList.remove("nudge"),250);if(CO.taps.length>=3){tgHaptic();coachEnd(false)}});
+addEventListener("resize",()=>{if(CO)coDraw()});
+$("#feed").addEventListener("scroll",()=>{if(CO)coDraw()},{passive:true});
 
 // ---------- навигация ----------
 let SCREEN="col";
@@ -417,7 +439,7 @@ function moveLens(){const b=document.querySelector(".dock button.on"),l=$("#lens
 function show(s){SCREEN=s;document.body.classList.toggle("col",s==="col");document.body.classList.toggle("sum",s==="sum");const was=document.querySelector(".dock button.on");
   document.querySelectorAll("#app .screen").forEach(x=>x.classList.toggle("on",x.id==="s-"+s));document.querySelectorAll(".dock button").forEach(b=>b.classList.toggle("on",b.dataset.s===s));tgHaptic();
   if(was&&was.dataset.s!==s){const l=$("#lens");l.classList.add("go");setTimeout(()=>l.classList.remove("go"),260)}moveLens();
-  if(s==="feed"){cur=-1;onFeedScroll();coach()}if(s==="col")drawCol();if(s==="sum"){drawSum();const x=DATA().read()[0];ambFor(x)}}
+  if(s==="feed"){cur=-1;onFeedScroll();if(CO)setTimeout(coDraw,300);else coach()}else if(CO)coEl.classList.remove("on");if(s==="col")drawCol();if(s==="sum"){drawSum();const x=DATA().read()[0];ambFor(x)}}
 function refresh(){if(SCREEN==="col")drawCol();else if(SCREEN==="sum")drawSum();else if(SCREEN==="feed"){const keep=$("#feed").scrollTop;if(!slides.length)buildFeed()}}
 document.querySelector(".dock").addEventListener("click",e=>{const b=e.target.closest("[data-s]");if(b)show(b.dataset.s)});
 function setRealmUI(r){REALM=r;LS.set("zal.realm",r);document.body.classList.toggle("films",r==="films");document.querySelectorAll("#app [data-realm]").forEach(x=>x.classList.toggle("on",x.dataset.realm===r))}

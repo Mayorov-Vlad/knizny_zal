@@ -5,7 +5,7 @@
 // (Firebase Auth) нужны, чтобы найти свой ключ, если Telegram недоступен: users/<uid> = {k}.
 // Слияние — по ключам localStorage: у каждого ключа время последнего изменения, побеждает новее.
 (function(){
-const FB={apiKey:"",projectId:""};
+const FB={apiKey:"AIzaSyD9yfazxfKpaEk1BNFDN61dEB3pfxT9cS4",projectId:"nora-ed429"};
 const ON=!!(FB.apiKey&&FB.projectId);
 const ls=window.localStorage,P=Storage.prototype,_set=P.setItem,_rm=P.removeItem,_get=P.getItem;
 const SKIP=k=>!k||!k.startsWith("zal.")||k==="zal.img"||k==="zal.recent"||k.startsWith("zal.sync");

@@ -264,3 +264,48 @@ body:not(.col) #app .bottom::before{opacity:0}
 /* описание в ленте — длиннее, обычным шрифтом */
 #app .info p.ds{font-family:var(--f);font-style:normal;font-size:14.5px;line-height:1.45;color:rgba(255,255,255,.86);-webkit-line-clamp:6}
 html[data-theme="light"] #app .info p.ds{color:rgba(255,255,255,.88)}
+
+/* ---------- друзья ---------- */
+#app #frScroll{padding:calc(70px + env(safe-area-inset-top,0px)) 16px 140px}
+#app .fr-h{margin:0 0 14px;font-family:var(--serif);font-size:44px;font-weight:600;line-height:1}
+#app .fr-row{display:flex;gap:14px;overflow-x:auto;scrollbar-width:none;padding:4px 2px 14px;margin:0 -16px;padding-left:16px;padding-right:16px}
+#app .fr-row::-webkit-scrollbar{display:none}
+#app .fr-row>button{flex:none;display:flex;flex-direction:column;align-items:center;gap:6px;width:66px}
+#app .fr-row span{font-size:12px;color:var(--ink2);max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#app .ava{display:grid;place-items:center;width:58px;height:58px;border-radius:50%;font-style:normal;font-family:var(--serif);font-size:26px;font-weight:600;color:#fff;background:linear-gradient(150deg,hsl(var(--h,260) 55% 46%),hsl(calc(var(--h,260) + 40) 60% 30%));box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+#app .ava.new{box-shadow:0 0 0 2.5px #05060A,0 0 0 4.5px #fff}
+#app .ava.plus{background:rgba(255,255,255,.08);font-family:var(--f);font-weight:300;font-size:30px}
+#app .ava.big{width:76px;height:76px;font-size:34px;margin:4px auto 10px}
+#app .frc{margin-top:12px;padding:14px 0 14px}
+#app .frh{display:flex;align-items:center;gap:10px;padding:0 14px;width:100%;text-align:left}
+#app .frh .ava{width:36px;height:36px;font-size:17px}
+#app .frh b{font-size:15px;font-weight:600}
+#app .frh span{margin-left:auto;font-size:12px;color:var(--ink3)}
+#app .frs{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:12px 14px 2px}
+#app .frs::-webkit-scrollbar{display:none}
+#app .fre{flex:none;width:84px;text-align:left}
+#app .fre .cv{border-radius:6px}
+#app .fre em{display:block;margin-top:6px;font-style:normal;font-size:11.5px;font-weight:600;color:var(--ink)}
+#app .fre small{display:block;font-size:11.5px;color:var(--ink3);line-height:1.25;max-height:2.5em;overflow:hidden}
+#app .fr-sec{margin:20px 0 0;font-family:var(--serif);font-size:28px;font-weight:600}
+#app .fr-empty p{margin:8px 0 14px;font-size:14px;line-height:1.5;color:var(--ink2)}
+#app .fr-empty .btn{width:100%}
+#app .fr-note{margin:16px 2px 0;font-size:14px;color:var(--ink3)}
+#app .fr-me{margin:22px 2px 0;font-size:13px;color:var(--ink3)}
+#app .fr-me b{color:var(--ink2);font-weight:500}
+#app .fr-me button{margin-left:6px;font-size:13px;color:var(--ink2);text-decoration:underline;text-underline-offset:3px}
+#app .frp{text-align:center}
+#app .frg{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+#app .frg button{text-align:left}
+#app .frg .cv{border-radius:6px}
+#app .frg small{display:block;margin-top:5px;font-size:12px;line-height:1.25;color:var(--ink2)}
+#app .frg em{font-style:normal;font-size:11.5px;color:var(--ink3)}
+#app .fr-del{display:block;margin:20px auto 4px;font-size:13px;color:var(--ink3);text-decoration:underline;text-underline-offset:3px}
+#app .dock button .dot{position:absolute;top:7px;right:calc(50% - 16px);width:7px;height:7px;border-radius:50%;background:#FF5C7A;font-style:normal}
+#app .dock button .dot[hidden]{display:none}
+#app .dock button{min-width:58px;padding:0 10px}
+html[data-theme="light"] #app .ava.new{box-shadow:0 0 0 2.5px #F3F1EC,0 0 0 4.5px #14151B}
+html[data-theme="light"] #app .ava.plus{background:rgba(20,21,27,.08);color:#14151B}
+#app .fr-yes{width:100%;margin-top:16px}
+#app .fr-row>button{width:72px}
+#app .fr-row span{max-width:72px;font-size:11.5px}

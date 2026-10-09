@@ -13,7 +13,7 @@ const jget=(k,d)=>{try{const v=_get.call(ls,k);return v?JSON.parse(v):d}catch(e)
 const jset=(k,v)=>{try{_set.call(ls,k,JSON.stringify(v))}catch(e){}};
 const TG=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?Telegram.WebApp:null;
 const sp=TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param||"";
-const VIEWING=/[#&]s=/.test(location.hash)||(!!sp&&!/^k/.test(sp));
+const VIEWING=/[#&]s=/.test(location.hash)||(!!sp&&/^[23]/.test(sp));
 let T=jget("zal.sync.t",null);
 if(!T){T={};for(let i=0;i<ls.length;i++){const k=ls.key(i);if(!SKIP(k))T[k]=1}jset("zal.sync.t",T)}
 let key=_get.call(ls,"zal.sync.k")||"",ready=false,booting=true,applying=false,timer=0,busy=false,again=false;
@@ -63,9 +63,20 @@ async function idt(path,body){const r=await fetch(`https://identitytoolkit.googl
 async function userDoc(j,method,k){const r=await fetch(base()+"users/"+j.localId,{method,headers:{"Content-Type":"application/json",Authorization:"Bearer "+j.idToken},body:method==="PATCH"?JSON.stringify({fields:{k:{stringValue:k}}}):undefined});
   if(method==="GET"){if(r.status===404)return null;if(!r.ok)throw new Error("Не получилось: облако недоступно");const x=await r.json();return x.fields&&x.fields.k&&x.fields.k.stringValue||null}
   if(!r.ok)throw new Error("Не получилось сохранить вход")}
+// токен входа: храним только на этом устройстве (для записи своего профиля для друзей)
+const tok={rt:_get.call(ls,"zal.sync.rt")||"",uid:_get.call(ls,"zal.sync.uid")||"",id:"",exp:0};
+const keepTok=j=>{tok.rt=j.refreshToken||j.refresh_token||tok.rt;tok.uid=j.localId||j.user_id||tok.uid;tok.id=j.idToken||j.id_token||"";tok.exp=Date.now()+((+(j.expiresIn||j.expires_in)||3600)-120)*1000;
+  _set.call(ls,"zal.sync.rt",tok.rt);_set.call(ls,"zal.sync.uid",tok.uid)};
+S.uid=()=>tok.uid;S.hasTok=()=>!!tok.rt;
+S.token=async()=>{if(tok.id&&Date.now()<tok.exp)return tok.id;if(!tok.rt)return "";const r=await fetch("https://securetoken.googleapis.com/v1/token?key="+FB.apiKey,{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:"grant_type=refresh_token&refresh_token="+encodeURIComponent(tok.rt)});
+  if(!r.ok)return "";keepTok(await r.json());return tok.id};
+S.getProfile=async uid=>{const r=await fetch(base()+"profiles/"+uid+"?key="+FB.apiKey,{cache:"no-store"});if(r.status===404)return null;if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json(),f=j.fields||{};
+  let d={};try{d=JSON.parse(f.d.stringValue)}catch(e){}return {uid,n:f.n?f.n.stringValue:"",u:f.u?+f.u.integerValue:0,...d}};
+S.putProfile=async(n,d)=>{const t=await S.token();if(!t||!tok.uid)return false;const body=JSON.stringify({fields:{n:{stringValue:n},u:{integerValue:String(Date.now())},d:{stringValue:JSON.stringify(d)}}});
+  if(body.length>900000)return false;const r=await fetch(base()+"profiles/"+tok.uid,{method:"PATCH",headers:{"Content-Type":"application/json",Authorization:"Bearer "+t},body});return r.ok};
 const keep=email=>{S.email=email;_set.call(ls,"zal.sync.email",email);ls.setItem("zal.acct",JSON.stringify(email));emit()};
-S.signUp=async(email,pw)=>{if(!key)setKey(gen());const j=await idt("signUp",{email,password:pw,returnSecureToken:true});await userDoc(j,"PATCH",key);keep(email);ready=true;await sync()};
-S.signIn=async(email,pw)=>{const j=await idt("signInWithPassword",{email,password:pw,returnSecureToken:true});const k=await userDoc(j,"GET");
+S.signUp=async(email,pw)=>{if(!key)setKey(gen());const j=await idt("signUp",{email,password:pw,returnSecureToken:true});keepTok(j);await userDoc(j,"PATCH",key);keep(email);ready=true;await sync()};
+S.signIn=async(email,pw)=>{const j=await idt("signInWithPassword",{email,password:pw,returnSecureToken:true});keepTok(j);const k=await userDoc(j,"GET");
   if(k){if(k!==key)setKey(k)}else{if(!key)setKey(gen());await userDoc(j,"PATCH",key)}keep(email);ready=true;booting=false;await sync();emit()};
 S.reset=email=>idt("sendOobCode",{requestType:"PASSWORD_RESET",email});
 S.link=()=>key?"https://moya-nora.github.io/#k="+key:"";

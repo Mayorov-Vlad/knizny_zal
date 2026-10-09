@@ -122,6 +122,8 @@ v5_body = rep(v5_body, '<div class="seg gl" role="tablist"><i></i><button data-r
 v5_body = rep(v5_body, 'отметь несколько книг и фильмов, которые ты уже знаешь', 'отметь несколько книг, которые уже прочитаны')
 v5_body = rep(v5_body, '<div class="stp" id="onbStep">1 из 2</div>', '<div class="stp" id="onbStep" hidden></div>')
 v5_body = '<div class="splash on" id="splash" aria-hidden="true"><div class="sp-reel" id="spReel">'+''.join('<i></i>' for _ in range(15))+'</div><div class="sp-fade"></div><div class="sp-logo"><b>НОРА</b><small>книжная</small></div><div class="sp-flash"></div></div>' + v5_body
+v5_body = rep(v5_body, '<button data-s="sum">', '<button data-s="fr"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="16.5" cy="9.5" r="2.6"/><path d="M15.5 14.2c2.6-.3 4.6 1.3 5 4.3"/></svg>Друзья<i class="dot" id="frDot" hidden></i></button><button data-s="sum">')
+v5_body = rep(v5_body, '<section class="screen" id="s-sum">', '<section class="screen" id="s-fr"><div class="scroll" id="frScroll"><div id="frBox"></div></div></section><section class="screen" id="s-sum">')
 v5_body = rep(v5_body, '<div class="scroll" id="colScroll">', '<div class="scroll" id="colScroll"><div class="vbanner gl" id="vbanner" hidden></div>')
 
 

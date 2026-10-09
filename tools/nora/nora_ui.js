@@ -452,7 +452,7 @@ function introShow(){const L=popBooks(),cells=12,reel=$("#reel");
 if(window.NSYNC&&NSYNC.on){$("#introGo").insertAdjacentHTML("afterend",`<button class="intro-login" id="introLogin">Уже есть аккаунт? Войти</button>`);$("#introLogin").onclick=()=>{authMode="in";authShow(()=>{$("#intro").classList.remove("on");if(emptyAll()){$("#onb").classList.add("on");onbDraw()}})}}
 $("#introGo").onclick=()=>{const go=()=>{$("#intro").classList.remove("on");$("#onb").classList.add("on");onbDraw()};tgHaptic("medium");if(needAuth()){authMode="up";authShow(go)}else go()};
 function onbSave(){const list=$("#onbGrid")._l,D=onbK==="films"?FM:BK,cs=checkStamps;checkStamps=()=>{};try{Object.entries(onbPick).forEach(([i,n])=>{const x=list[+i];if(!D.has(x))D.markRead(x,n*2,true)})}finally{checkStamps=cs}checkStamps(true)}
-function onbFinish(){LS.set("zal.onb",1);$("#onb").classList.remove("on");setRealmUI("books");checkStamps(true);pickCol();fi=0;buildFeed();show("col");toast("Полки готовы")}
+function onbFinish(){setTimeout(inviteCheck,1200);LS.set("zal.onb",1);$("#onb").classList.remove("on");setRealmUI("books");checkStamps(true);pickCol();fi=0;buildFeed();show("col");toast("Полки готовы")}
 $("#onbNext").onclick=()=>{onbSave();tgHaptic("medium");onbFinish()};
 $("#onbSkip").onclick=()=>onbFinish();
 
@@ -490,7 +490,7 @@ function moveLens(){const b=document.querySelector(".dock button.on"),l=$("#lens
 function show(s){SCREEN=s;document.body.classList.toggle("col",s==="col");document.body.classList.toggle("sum",s==="sum");const was=document.querySelector(".dock button.on");
   document.querySelectorAll("#app .screen").forEach(x=>x.classList.toggle("on",x.id==="s-"+s));document.querySelectorAll(".dock button").forEach(b=>b.classList.toggle("on",b.dataset.s===s));tgHaptic();
   if(was&&was.dataset.s!==s){const l=$("#lens");l.classList.add("go");setTimeout(()=>l.classList.remove("go"),260)}moveLens();
-  if(s==="feed"){cur=-1;onFeedScroll();if(CO)setTimeout(coDraw,300);else coach()}else if(CO)coEl.classList.remove("on");if(s==="col")drawCol();if(s==="sum"){drawSum();const x=DATA().read()[0];ambFor(x)}}
+  if(s==="feed"){cur=-1;onFeedScroll();if(CO)setTimeout(coDraw,300);else coach()}else if(CO)coEl.classList.remove("on");if(s==="col")drawCol();if(s==="fr"){drawFr();frLoad()}if(s==="sum"){drawSum();const x=DATA().read()[0];ambFor(x)}}
 function refresh(){if(SCREEN==="col")drawCol();else if(SCREEN==="sum")drawSum();else if(SCREEN==="feed"){const keep=$("#feed").scrollTop;if(!slides.length)buildFeed()}}
 document.querySelector(".dock").addEventListener("click",e=>{const b=e.target.closest("[data-s]");if(b)show(b.dataset.s)});
 function setRealmUI(r){REALM=r;LS.set("zal.realm",r);document.body.classList.toggle("films",r==="films");document.querySelectorAll("#app [data-realm]").forEach(x=>x.classList.toggle("on",x.dataset.realm===r))}
@@ -705,13 +705,85 @@ function splashEnd(){const sp=$("#splash");if(!sp||SPL.done)return;SPL.done=true
 function splashStart(){splashRun();const t0=performance.now();
   Promise.race([new Promise(r=>setTimeout(r,1600)).then(splashReady),new Promise(r=>setTimeout(r,3200))]).then(()=>{const wait=Math.max(0,1900-(performance.now()-t0));setTimeout(splashEnd,wait)})}
 
+
+// ---------- друзья: полки друзей и «что нового» (без ссылок-снимков) ----------
+// Свой профиль публикуется в облако (profiles/<uid>): имя, прочитанное, «хочу прочитать», последние события.
+const myName=()=>{const n=LS.get("zal.name","");if(n)return n;const u=TG&&TG.initDataUnsafe&&TG.initDataUnsafe.user;return (u&&u.first_name)||(NS.email?String(NS.email).split("@")[0]:"")};
+let FRIENDS=LS.get("zal.friends",[]);const frSave=()=>LS.set("zal.friends",FRIENDS);
+let FSEEN2=LS.get("zal.frseen",{});const frSeenSave=()=>LS.set("zal.frseen",FSEEN2);
+const FRP={};   // загруженные профили друзей
+const hueOf=s=>hsh(String(s))%360;
+const avatar=(n,uid,cls="")=>`<i class="ava ${cls}" style="--h:${hueOf(uid)}">${esc((n||"?").trim().charAt(0).toUpperCase())}</i>`;
+function snapNow(){return {read:BOOKS.map(b=>({t:b.t,a:b.a||"",r:b.r??null,rd:b.rd||"",ds:(b.ann||"").slice(0,300)})),want:want.map(w=>({t:w.t,a:w.a||""})),now:nowBook&&nowBook.t?{t:nowBook.t,a:nowBook.a||""}:null}}
+function pubCheck(){if(!NS.on||VIEW||!(NS.hasTok&&NS.hasTok()))return;const cur=snapNow(),name=myName(),sig=JSON.stringify([name,cur]);const prev=LS.get("zal.sync.pub",null);
+  if(prev&&prev.sig===sig)return;const ev=prev?prev.ev||[]:[],now=Date.now(),add=[];
+  if(prev&&prev.snap){const pr=new Map(prev.snap.read.map(b=>[norm(b.t),b])),pw=new Set(prev.snap.want.map(w=>norm(w.t)));
+    cur.read.forEach(b=>{const o=pr.get(norm(b.t));if(!o)add.push({k:"read",t:b.t,a:b.a,r:b.r,ts:now});else if(b.r!=null&&o.r!==b.r)add.push({k:"rate",t:b.t,a:b.a,r:b.r,ts:now})});
+    cur.want.forEach(w=>{if(!pw.has(norm(w.t)))add.push({k:"want",t:w.t,a:w.a,ts:now})});
+    if(cur.now&&(!prev.snap.now||norm(prev.snap.now.t)!==norm(cur.now.t)))add.push({k:"now",t:cur.now.t,a:cur.now.a,ts:now})}
+  const evs=[...add,...ev].slice(0,40);
+  NS.putProfile(name,{...cur,ev:evs}).then(ok=>{if(ok)localStorage.setItem("zal.sync.pub",JSON.stringify({sig,snap:cur,ev:evs}))}).catch(()=>{})}
+setInterval(pubCheck,20000);document.addEventListener("visibilitychange",()=>{if(document.hidden)pubCheck()});setTimeout(pubCheck,6000);
+async function frLoad(){if(!NS.on)return;await Promise.all(FRIENDS.map(f=>NS.getProfile(f.uid).then(p=>{if(p){FRP[f.uid]=p;if(p.n&&p.n!==f.n){f.n=p.n;frSave()}}}).catch(()=>{})));frDotUpd();if(SCREEN==="fr")drawFr()}
+const frNew=f=>{const p=FRP[f.uid];return p&&(p.ev||[]).some(e=>e.ts>(FSEEN2[f.uid]||0))};
+function frDotUpd(){const d=$("#frDot");if(d)d.hidden=!FRIENDS.some(frNew)}
+const evLabel=e=>e.k==="read"?(e.r!=null?"прочитано ★"+r5(e.r):"прочитано"):e.k==="rate"?"оценка ★"+r5(e.r):e.k==="want"?"хочет прочитать":"читает сейчас";
+const whenTxt=ts=>{const d=new Date(ts),t=new Date();const days=Math.floor((new Date(t.toDateString())-new Date(d.toDateString()))/864e5);return days<=0?"сегодня":days===1?"вчера":days<7?days+" "+plural(days,"день","дня","дней")+" назад":d.toLocaleDateString("ru-RU",{day:"numeric",month:"long"})};
+const fbItem=b=>{const it=bItem({...b,id:b.id||"f"+hsh(norm(b.t)).toString(36)},"friend");it.ds=b.ds||it.ds;return it};
+function inviteLink(){const u=NS.uid&&NS.uid();if(!u)return "";return TG?`https://t.me/${SHARE_BOT}?startapp=f_${u}`:`https://moya-nora.github.io/#f=${u}`}
+function drawFr(){const box=$("#frBox");if(!box)return;const me=myName();
+  const list=FRIENDS.map(f=>({f,p:FRP[f.uid]})),news=list.filter(x=>x.p&&(x.p.ev||[]).length).sort((a,b)=>(b.p.ev[0].ts||0)-(a.p.ev[0].ts||0));
+  box.innerHTML=`<h1 class="fr-h">Друзья</h1>
+   <div class="fr-row"><button class="fr-add" data-fr-inv><i class="ava plus">+</i><span>Пригласить</span></button>${list.map(({f})=>`<button class="fr-av" data-fr-open="${esc(f.uid)}">${avatar(f.n,f.uid,frNew(f)?"new":"")}<span>${esc(f.n||"Друг")}</span></button>`).join("")}</div>
+   ${FRIENDS.length?"":`<div class="sc gl fr-empty"><h3>Полки друзей</h3><p>Пригласи друга — и вы будете видеть полки друг друга: что прочитано, какие оценки, что хочется прочитать. Ссылкой-снимком делиться больше не нужно: всё обновляется само.</p><button class="btn w" data-fr-inv>Пригласить друга</button></div>`}
+   ${news.length?`<h3 class="fr-sec">Что нового</h3>`+news.map(({f,p})=>{const ev=(p.ev||[]).slice(0,10),fresh=ev.filter(e=>e.ts>(FSEEN2[f.uid]||0)).length;
+     return `<div class="sc gl frc"><button class="frh" data-fr-open="${esc(f.uid)}">${avatar(f.n,f.uid)}<b>${esc(f.n||"Друг")}</b><span>${whenTxt(ev[0].ts)}${fresh?` · новых: ${fresh}`:""}</span></button>
+       <div class="frs">${ev.map((e,i)=>`<button class="fre" data-fr-ev="${esc(f.uid)}|${i}">${cv(fbItem(e),84)}<em>${esc(evLabel(e))}</em><small>${esc(e.t)}</small></button>`).join("")}</div></div>`}).join(""):FRIENDS.length?`<p class="fr-note">Когда друзья что-нибудь прочитают или оценят, это появится здесь.</p>`:""}
+   <div class="fr-me">Тебя видят как <b>${esc(me||"без имени")}</b> <button data-fr-name>изменить</button></div>`}
+async function frInvite(){const link=inviteLink();if(!link){toast("Сначала нужен вход");authShow();return}const text="Добавь меня в друзья в Норе — будем видеть книжные полки друг друга";
+  if(TG&&TG.openTelegramLink){try{TG.openTelegramLink("https://t.me/share/url?url="+encodeURIComponent(link)+"&text="+encodeURIComponent(text));return}catch(e){}}
+  if(navigator.share){try{await navigator.share({title:"Нора",text,url:link});return}catch(e){}}
+  try{await navigator.clipboard.writeText(link);toast("Ссылка-приглашение скопирована")}catch(e){vOpen(`<h3 class="vh">Приглашение</h3><textarea class="sy-in" rows="3" readonly>${esc(link)}</textarea>`)}}
+function frShelf(uid,tab){const f=FRIENDS.find(x=>x.uid===uid),p=FRP[uid];if(!f)return;FSEEN2[uid]=Date.now();frSeenSave();frDotUpd();
+  if(!p){vOpen(`<h3 class="vh">${esc(f.n||"Друг")}</h3><p class="sy-note">Полки пока не загрузились — проверь интернет.</p>`);return}
+  tab=tab||"read";const L=(tab==="read"?p.read:p.want)||[];
+  vOpen(`<div class="frp">${avatar(f.n,uid,"big")}<h3 class="vh">${esc(f.n||"Друг")}</h3><p class="sy-note">${(p.read||[]).length} ${plural((p.read||[]).length,"книга","книги","книг")} прочитано${p.now?` · сейчас: «${esc(p.now.t)}»`:""}</p></div>
+   <div class="imp-to"><button class="${tab==="read"?"on":""}" data-frt="read">Прочитано</button><button class="${tab==="want"?"on":""}" data-frt="want">Хочет прочитать</button></div>
+   <div class="frg">${L.map((b,i)=>`<button data-frb="${i}">${cv(fbItem(b),100)}<small>${esc(b.t)}</small>${b.r!=null?`<em>★ ${r5(b.r)}</em>`:""}</button>`).join("")||`<p class="sy-note">Пусто.</p>`}</div>
+   <button class="fr-del" data-fr-del>Убрать из друзей</button>`,true);
+  const sh=$("#vshBody");sh._fr={uid,tab}}
+function frBook(uid,b){const f=FRIENDS.find(x=>x.uid===uid)||{},x=fbItem(b),has=BK.has(x);cardX=x;cardL="friend";
+  vOpen(`<div class="dt">${cv(x,150)}<h2>${esc(x.t)}</h2><div class="meta">${esc(x.a||"")}</div>${b.r!=null?`<p class="dd q">У ${esc(f.n||"друга")}: ★ ${r5(b.r)}</p>`:""}<p class="dd" id="cardDesc">${esc(descOf(x))}</p>
+   <div class="one">${has?`<button class="btn" disabled>${has==="read"?"Уже прочитано":"Уже в «Хочу прочитать»"}</button>`:`<button class="btn w" data-fr-want>Хочу прочитать</button>`}</div></div>`);
+  wantDesc(x,()=>{const d=$("#cardDesc");if(d&&cardX===x)d.textContent=descOf(x)})}
+async function frAddFlow(uid){if(!uid||uid===(NS.uid&&NS.uid()))return;if(FRIENDS.some(f=>f.uid===uid)){show("fr");return}
+  let p=null;try{p=await NS.getProfile(uid)}catch(e){}const n=p&&p.n||"Друг";
+  vOpen(`<div class="frp">${avatar(n,uid,"big")}<h3 class="vh">${esc(n)} приглашает в друзья</h3><p class="sy-note">Будут видны полки друг друга: что прочитано, оценки и что хочется прочитать.</p></div><button class="btn w fr-yes" data-fr-yes="${esc(uid)}">Добавить в друзья</button>`);
+  if(p)FRP[uid]=p;$("#vshBody")._addn=n}
+document.addEventListener("click",e=>{const t=e.target;
+  if(t.closest("[data-fr-inv]")){tgHaptic();frInvite();return}
+  const o=t.closest("[data-fr-open]");if(o){tgHaptic();frShelf(o.dataset.frOpen);return}
+  const ev=t.closest("[data-fr-ev]");if(ev){const [uid,i]=ev.dataset.frEv.split("|");const e2=(FRP[uid].ev||[])[+i];if(e2)frBook(uid,e2);return}
+  const tb=t.closest("[data-frt]");if(tb){const fr=$("#vshBody")._fr;if(fr)frShelf(fr.uid,tb.dataset.frt);return}
+  const bb=t.closest("[data-frb]");if(bb){const fr=$("#vshBody")._fr;if(fr){const p=FRP[fr.uid];frBook(fr.uid,(fr.tab==="read"?p.read:p.want)[+bb.dataset.frb])}return}
+  if(t.closest("[data-fr-want]")){BK.addWant(cardX);vDirty=true;toast("Добавлено в избранное");vClose();return}
+  if(t.closest("[data-fr-del]")){const fr=$("#vshBody")._fr;if(fr){FRIENDS=FRIENDS.filter(x=>x.uid!==fr.uid);frSave();vClose();drawFr();toast("Убрано из друзей")}return}
+  const y=t.closest("[data-fr-yes]");if(y){const uid=y.dataset.frYes;FRIENDS.push({uid,n:$("#vshBody")._addn||"",added:Date.now()});frSave();vClose();show("fr");frLoad();toast("Теперь в друзьях");return}
+  if(t.closest("[data-fr-name]")){vOpen(`<h3 class="vh">Как тебя зовут?</h3><p class="sy-note">Это имя увидят друзья.</p><input class="sy-in" id="frN" value="${esc(myName())}" maxlength="40"><div class="one"><button class="btn w" data-fr-nsave>Сохранить</button></div>`);return}
+  if(t.closest("[data-fr-nsave]")){const v=$("#frN").value.trim();if(v){LS.set("zal.name",v.slice(0,40));pubCheck()}vClose();drawFr();return}});
+// приглашение по ссылке: #f=<uid> или startapp=f_<uid>
+const INV=(()=>{const h=location.hash.match(/[#&]f=([\w-]{10,})/);if(h){history.replaceState(null,"",location.pathname+location.search);return h[1]}const sp=TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param||"";const m=sp.match(/^f_([\w-]{10,})$/);return m?m[1]:""})();
+function inviteCheck(){if(INV&&!needAuth()&&!$("#onb").classList.contains("on")&&!$("#intro").classList.contains("on"))setTimeout(()=>frAddFlow(INV),400)}
+setTimeout(frLoad,2500);
+
 // ---------- обязательная регистрация ----------
-const needAuth=()=>!!(NS.on&&!VIEW&&!NS.email);
+const needAuth=()=>!!(NS.on&&!VIEW&&!(NS.hasTok&&NS.hasTok()));
 const authEl=document.createElement("div");authEl.className="auth";authEl.id="auth";$("#app").appendChild(authEl);
 let authNext=null,authMode="up";
-function authShow(next){authNext=next||null;authDraw();authEl.classList.add("on")}
+function authShow(next){authNext=next||null;if(NS.email&&authMode==="up")authMode="in";authDraw();authEl.classList.add("on")}
 function authDraw(){const up=authMode==="up";
   authEl.innerHTML=`<div class="au-in"><h1>${up?"Создай аккаунт":"Вход"}</h1><p>${up?"Почта и пароль нужны, чтобы полки не потерялись и открывались на любом устройстве — в Telegram, в браузере, на телефоне и компьютере.":"Почта и пароль, привязанные к Норе."}</p>
+   ${up?`<input class="sy-in" id="auN" autocomplete="given-name" placeholder="Имя — так тебя увидят друзья" value="${esc(myName())}">`:""}
    <input class="sy-in" id="auE" type="email" autocomplete="email" inputmode="email" placeholder="Почта">
    <input class="sy-in" id="auP" type="password" autocomplete="${up?"new-password":"current-password"}" placeholder="${up?"Пароль, от 6 символов":"Пароль"}">
    <p class="sy-msg" id="auM"></p><button class="btn w" id="auGo">${up?"Создать аккаунт":"Войти"}</button>
@@ -720,11 +792,12 @@ function authDraw(){const up=authMode==="up";
   $("#auSw").onclick=()=>{authMode=up?"in":"up";authDraw();tgHaptic()};
   const r=$("#auR");if(r)r.onclick=async()=>{const e=$("#auE").value.trim();if(!e){msg.textContent="Впиши почту — придёт ссылка для нового пароля";return}try{await NS.reset(e);msg.textContent="Письмо отправлено. Задай новый пароль по ссылке и возвращайся."}catch(x){msg.textContent=x.message}};
   go.onclick=async()=>{const e=$("#auE").value.trim(),p=$("#auP").value;if(!e||!p){msg.textContent="Заполни почту и пароль";return}go.disabled=true;go.textContent=up?"Создаю…":"Вхожу…";msg.textContent="";
+    const nm=$("#auN");if(nm&&nm.value.trim())LS.set("zal.name",nm.value.trim().slice(0,40));
     try{if(up){try{await NS.signUp(e,p)}catch(x){if(/уже есть Нора/.test(x.message)){await NS.signIn(e,p)}else throw x}}else await NS.signIn(e,p);
-      authEl.classList.remove("on");tgHaptic("medium");toast(up?"Аккаунт создан":"Вход выполнен");const n=authNext;authNext=null;if(n)n()}
+      authEl.classList.remove("on");tgHaptic("medium");toast(up?"Аккаунт создан":"Вход выполнен");const n=authNext;authNext=null;if(n)n();setTimeout(()=>{pubCheck();inviteCheck()},800)}
     catch(x){msg.textContent=x.message;go.disabled=false;go.textContent=up?"Создать аккаунт":"Войти"}};
   $("#auP").onkeydown=e=>{if(e.key==="Enter")go.click()}}
-function afterSplash(){if(needAuth()&&!$("#intro").classList.contains("on")&&!$("#onb").classList.contains("on")&&LS.get("zal.onb",0))authShow()}
+function afterSplash(){setTimeout(inviteCheck,300);if(needAuth()&&!$("#intro").classList.contains("on")&&!$("#onb").classList.contains("on")&&LS.get("zal.onb",0))authShow()}
 
 
 // ---------- смена обложки вручную: фото / рисунок / другое издание ----------

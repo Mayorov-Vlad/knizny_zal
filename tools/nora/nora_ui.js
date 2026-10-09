@@ -297,10 +297,13 @@ function drawViews(){cvw.hidden=true;const sp=SHV()==="spines"&&gridList().lengt
 // ---------- вид полки «корешки»: книги стоят в ряд на полках, в стиле Норы ----------
 function spDraw(){const L=gridList(),W=Math.max(260,Math.min(oldv.clientWidth||innerWidth,innerWidth-36)-16);
   const items=L.map((x,i)=>{const c=catOf(x)||{},pg=x.pg||LENPG[c.len]||360,p=palOf(x.t);
-    return {i,x,w:Math.round(Math.min(48,Math.max(26,20+pg/26))),h:Math.round(150+((hsh(x.t)%40))),bg:x.bg||c.bg||p[0],fg:x.fg||c.fg||p[1]}});
-  const rows=[];let row=[],acc=0;items.forEach(s=>{if(acc+s.w+3>W&&row.length){rows.push(row);row=[];acc=0}row.push(s);acc+=s.w+3});if(row.length)rows.push(row);
-  const sur=a=>{a=String(a||"");return a&&a!=="Автор не указан"?a.split(" ").slice(-1)[0]:""};
-  oldv.innerHTML=`<div class="spv">${rows.map(r=>`<div class="spr"><div class="spb">${r.map(s=>`<button class="spn" data-spn="${s.i}" style="width:${s.w}px;height:${s.h}px;--b:${s.bg};--f:${s.fg}" aria-label="${esc(s.x.t)}"><b>${esc(s.x.t)}</b><small>${esc(sur(s.x.a))}</small>${s.x.r!=null&&colF==="read"&&r5(s.x.r)>=5?`<i></i>`:""}</button>`).join("")}</div><i class="spk"></i></div>`).join("")}</div>`}
+    return {i,x,w:Math.round(Math.min(46,Math.max(30,22+pg/28))),h:Math.round(196+((hsh(x.t)%26))),bg:x.bg||c.bg||p[0],fg:x.fg||c.fg||p[1]}});
+  const au=a=>{a=String(a||"");return a&&a!=="Автор не указан"?a:""};
+  const sp=s=>`<button class="spn" data-spn="${s.i}" style="min-width:${s.w}px;height:${s.h}px;--b:${s.bg};--f:${s.fg}" aria-label="${esc(s.x.t)}"><span class="sl"><b>${esc(s.x.t)}</b><small>${esc(au(s.x.a))}</small></span>${s.x.r!=null&&colF==="read"&&r5(s.x.r)>=5?`<i></i>`:""}</button>`;
+  // сначала меряем настоящую ширину каждого корешка (длинные названия переносятся во второй столбец), потом раскладываем по полкам
+  oldv.innerHTML=`<div class="spv spm">${items.map(sp).join("")}</div>`;const ws=[...oldv.querySelectorAll(".spn")].map(e=>e.offsetWidth||e.getBoundingClientRect().width||36);
+  const rows=[];let row=[],acc=0;items.forEach((s,k)=>{const w=ws[k];if(acc+w+3>W&&row.length){rows.push(row);row=[];acc=0}row.push(s);acc+=w+3});if(row.length)rows.push(row);
+  oldv.innerHTML=`<div class="spv">${rows.map(r=>`<div class="spr"><div class="spb">${r.map(sp).join("")}</div><i class="spk"></i></div>`).join("")}</div>`}
 oldv.addEventListener("click",e=>{const s=e.target.closest("[data-spn]");if(!s)return;e.stopPropagation();flowHold=Date.now();const x=gridList()[+s.dataset.spn];if(x)openItem(x,colF==="want"?"top":colF)},true);
 oldv.addEventListener("click",e=>{const s=e.target.closest(".spine[data-w]");if(!s)return;e.stopPropagation();flowHold=Date.now();const w=want[+s.dataset.w];if(w)bkcOpen(bItem(w,"want"),"top")},true);
 cvw.addEventListener("click",e=>{const b=e.target.closest("[data-cv]");if(!b)return;colV[colF]=b.dataset.cv;LS.set("zal.colv",colV);tgHaptic();drawViews()});
@@ -737,8 +740,8 @@ function splashRun(){const sp=$("#splash"),reel=$("#spReel");if(!sp||!reel)retur
   const rest=Object.values(IMG).filter(u=>u&&u[0]!=="!"&&!own.includes(u));const U=[...own.sort(()=>Math.random()-.5),...rest.sort(()=>Math.random()-.5)].slice(0,60);
   const tile=u=>`<i class="spt"><img src="${esc(u)}" alt="" referrerpolicy="no-referrer" onload="this.parentNode.classList.add('ok')"></i>`;
   const cells=reel.children.length;if(!U.length)return;for(let c=0;c<cells;c++){reel.children[c].outerHTML=tile(U[c%U.length])}SPL.k=cells;
-  const tick=()=>{if(SPL.stop||U.length<=cells)return;const n=1+Math.floor(Math.random()*3);for(let m=0;m<n;m++){const c=reel.children[Math.floor(Math.random()*cells)];if(c&&c.classList.contains("ok")){const u=U[(SPL.k++)%U.length],im=new Image();im.referrerPolicy="no-referrer";im.onload=()=>{c.querySelector("img").src=u};im.src=u}}
-    setTimeout(tick,160)};setTimeout(tick,300)}
+  const tick=()=>{if(SPL.stop||U.length<=cells)return;const n=2+Math.floor(Math.random()*4);for(let m=0;m<n;m++){const c=reel.children[Math.floor(Math.random()*cells)];if(c&&c.classList.contains("ok")){const u=U[(SPL.k++)%U.length],im=new Image();im.referrerPolicy="no-referrer";im.onload=()=>{c.querySelector("img").src=u};im.src=u}}
+    setTimeout(tick,70)};setTimeout(tick,150)}
 function splashReady(){const imgs=[...document.querySelectorAll("#flow .cv.mid img,#flow .cv img,#grid .cv img,#spReel img")].slice(0,15);
   const one=im=>im.complete?Promise.resolve():new Promise(r=>{im.addEventListener("load",r,{once:true});im.addEventListener("error",r,{once:true})});
   return Promise.all([document.fonts?document.fonts.ready:0,...imgs.map(one)])}
@@ -978,7 +981,7 @@ function bkcDraw(){const {x,L}=BKC;
    <div class="bkc-covsw" hidden>${covRow(x)}</div>
    <h2>${esc(x.t)}</h2><div class="bkc-a">${esc(x.a||"")}</div>
    <div class="bkc-facts" id="bkcFacts">${bkcFacts(x)}</div>
-   <div class="bkc-dw"><p class="bkc-ds" id="bkcDs">${esc(descOf(x))}</p><button class="bkc-more" data-bkc="more" hidden>читать далее…</button></div>
+   <div class="bkc-dw" id="bkcDw"><p class="bkc-ds" id="bkcDs">${esc(descOf(x))}</p></div>
    <div class="bkc-acts">${bkcActs(x,L)}</div>
    <button class="bkc-where" data-bkc="where">${IC2.pin}Где найти?</button></div>`}
 function bkcOpen(x,L){if(!x||VIEW)return;BKC={x,L};cardX=x;cardL=L;ambFor(x);bkcDraw();
@@ -988,9 +991,7 @@ function bkcOpen(x,L){if(!x||VIEW)return;BKC={x,L};cardX=x;cardL=L;ambFor(x);bkc
   const upd=()=>{if(!BKC||BKC.x!==x)return;const f=$("#bkcFacts");if(f)f.innerHTML=bkcFacts(x);const d=$("#bkcDs");if(d)d.textContent=descOf(x);bkcFit()};requestAnimationFrame(bkcFit);
   wantMeta(x,upd);if(!x.ds)wantDesc(x,upd);if(FRIENDS.length&&!Object.keys(FRP).length)frLoad().then(upd)}
 // описание занимает всё свободное место и аккуратно обрезается — карточку не нужно листать
-function bkcFit(){const d=$("#bkcDs"),w=d&&d.parentNode;if(!d||w.classList.contains("open"))return;d.style.webkitLineClamp="";d.style.maxHeight="";
-  const lh=parseFloat(getComputedStyle(d).lineHeight)||22,room=w.clientHeight-lh-6,n=Math.max(2,Math.floor(room/lh));d.style.webkitLineClamp=n;d.style.maxHeight=n*lh+"px";
-  const more=w.querySelector(".bkc-more");more.hidden=d.scrollHeight<=d.clientHeight+2}
+function bkcFit(){const w=$("#bkcDw");if(!w)return;const upd=()=>w.classList.toggle("more",w.scrollTop+w.clientHeight<w.scrollHeight-4);w.onscroll=upd;upd()}
 addEventListener("resize",()=>{if(BKC)bkcFit()});
 function bkcClose(){bkcEl.classList.remove("on");BKC=null;syncBack();if(vDirty){vDirty=false;setTimeout(refresh,300)}}
 // отзывы читателей Фантлаба
@@ -1034,9 +1035,9 @@ if(TG&&TG.BackButton)try{TG.BackButton.onClick(()=>{if(bkcEl.classList.contains(
 const shEl=document.createElement("div");shEl.className="shput";$("#app").appendChild(shEl);
 function shelfAnim(x){if(RM)return;const c=catOf(x)||{},bg=x.bg||c.bg||palOf(x.t)[0],fg=x.fg||c.fg||palOf(x.t)[1];
   const nb=BOOKS.slice(-7).map(b=>{const cc=catOf(b)||{};return [b.bg||cc.bg||palOf(b.t)[0],b.fg||cc.fg||palOf(b.t)[1],b.t]});
-  const sp=(b,f,tt,cls="")=>`<i class="sp ${cls}" style="background:${b};color:${f};height:${120+hsh(tt)%34}px"><span>${esc(tt)}</span></i>`;
+  const sp=(b,f,tt,cls="")=>`<i class="sp ${cls}" style="--b:${b};--f:${f};height:${126+hsh(tt)%30}px"><span>${esc(tt)}</span></i>`;
   const half=Math.ceil(nb.length/2);
-  shEl.innerHTML=`<div class="shp-cv">${cv(x,150)}</div><div class="shp-row">${nb.slice(0,half).map(z=>sp(...z)).join("")}${sp(bg,fg,x.t,"new")}${nb.slice(half).map(z=>sp(...z)).join("")}</div><div class="shp-plank"></div><b class="shp-t">На полке</b>`;
+  shEl.innerHTML=`<div class="shp-cv">${cv(x,150)}</div><div class="shp-row">${nb.slice(0,half).map(z=>sp(...z)).join("")}${sp(bg,fg,x.t,"new")}${nb.slice(half).map(z=>sp(...z)).join("")}</div><div class="shp-plank"></div><div class="shp-t"><b>${esc(x.t)}</b><span>теперь на полке «Прочитано»</span></div>`;
   shEl.classList.remove("go");void shEl.offsetWidth;shEl.classList.add("go");tgHaptic("rigid");setTimeout(()=>tgHaptic("medium"),1050);
   clearTimeout(shEl._t);shEl._t=setTimeout(()=>shEl.classList.remove("go"),2300)}
 shEl.addEventListener("click",()=>shEl.classList.remove("go"));

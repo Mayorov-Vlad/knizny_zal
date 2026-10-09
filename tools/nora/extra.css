@@ -479,3 +479,28 @@ html[data-theme="light"] #app .hsb{background:rgba(250,249,246,.95)}
 #app .spn::after{content:"";position:absolute;left:4px;right:4px;bottom:24px;height:1.5px;background:currentColor;opacity:.35}
 #app .spn i{position:absolute;left:50%;top:-2px;width:8px;height:14px;margin-left:-4px;background:#E9C46A;clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)}
 #app .spk{display:block;height:6px;margin:0 2px;border-radius:3px;background:linear-gradient(rgba(255,255,255,.22),rgba(255,255,255,.06));box-shadow:0 10px 22px -6px rgba(0,0,0,.9),0 1px 0 rgba(255,255,255,.12) inset}
+/* заставка: книги заметно темнее, «книжная» читается */
+#app .sp-fade,#app .splash.frozen .sp-fade{background:radial-gradient(90% 55% at 50% 47%,rgba(5,6,10,.82),rgba(5,6,10,.9) 55%,rgba(5,6,10,.96))!important}
+#app .sp-reel>i.spt img{filter:saturate(.75) brightness(.8)}
+#app .sp-logo small{color:#fff;opacity:.92;font-size:14px;text-shadow:0 2px 12px rgba(0,0,0,.95),0 0 2px rgba(0,0,0,.9)}
+/* описание в карточке листается пальцем */
+#app .bkc-dw{overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;align-items:stretch;display:block}
+#app .bkc-dw .bkc-ds{display:block;-webkit-line-clamp:unset;max-height:none;padding-bottom:10px}
+#app .bkc-dw.more{-webkit-mask:linear-gradient(#000 calc(100% - 34px),transparent);mask:linear-gradient(#000 calc(100% - 34px),transparent)}
+#app .bkc-more{display:none}
+/* корешки: буквы верхом влево, видно и название, и автора */
+#app .spm{display:flex;flex-wrap:wrap;gap:3px;visibility:hidden}
+#app .spn{width:auto;padding:8px 5px}
+#app .spn .sl{display:flex;justify-content:space-between;align-items:center;gap:8px;height:100%;writing-mode:vertical-rl;transform:rotate(180deg)}
+#app .spn .sl b{position:static;transform:none;max-width:none;max-height:calc(100% - 26px);overflow:hidden;white-space:normal;font-family:var(--serif);font-size:12.5px;font-weight:600;line-height:1.05;text-align:center}
+#app .spn .sl small{position:static;font-size:8.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;opacity:.78;white-space:nowrap;line-height:1;padding:0}
+#app .spn::after{display:none}
+/* «теперь на полке» — в стиле Норы */
+#app .shput{background:rgba(5,6,10,.86);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+#app .shp-row .sp{width:28px;background:var(--b);color:var(--f);border-radius:4px 4px 2px 2px;box-shadow:inset -4px 0 0 rgba(0,0,0,.22),inset 2px 0 0 rgba(255,255,255,.1),0 6px 14px -6px rgba(0,0,0,.7)}
+#app .shp-row .sp span{transform:translate(-50%,-50%) rotate(-90deg);font-size:10.5px}
+#app .shp-row .sp.new{box-shadow:inset -4px 0 0 rgba(0,0,0,.22),0 0 0 2px rgba(255,255,255,.85),0 0 28px 4px rgba(255,255,255,.25)}
+@keyframes shpNew{0%{width:0;transform:translateY(-180px);opacity:0}40%{width:36px;opacity:1}100%{width:36px;transform:none;opacity:1}}
+#app .shp-plank{left:10%;right:10%;height:6px;border-radius:3px;background:linear-gradient(rgba(255,255,255,.28),rgba(255,255,255,.08));box-shadow:0 12px 26px -6px rgba(0,0,0,.9)}
+#app .shp-t{font-family:var(--f);font-size:14px;font-weight:500;color:var(--ink2);padding:0 30px}
+#app .shp-t b{display:block;font-family:var(--serif);font-size:26px;font-weight:600;color:#fff;line-height:1.1;margin-bottom:6px}

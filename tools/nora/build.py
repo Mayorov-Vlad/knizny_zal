@@ -110,7 +110,7 @@ NEUTRAL = [
  ("когда занята делом и не замечаешь времени", "когда с головой в деле и не замечаешь времени"),
 ]
 for x, y in NEUTRAL:
-    assert x in old_js, x
+    assert x in old_js or y in old_js, x
     old_js = old_js.replace(x, y)
 old_js = rep(old_js, '<b>${b.r}</b><span>/ 10</span>', '<b>${Math.round(b.r/2)}</b><span>/ 5</span>')
 

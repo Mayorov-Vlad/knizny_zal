@@ -672,13 +672,13 @@ function syncClick(t){
   if(t.closest("[data-sy-login]")){loginSheet();return true}
   return false}
 function mailSheet(mode){const L=mode==="link";
-  vOpen(`<h3 class="vh">${L?"Привязать почту":"Войти по почте"}</h3><p class="sy-note">${L?"Придумай пароль — с почтой и паролем Нору можно открыть в любом браузере, даже без Telegram.":"Почта и пароль, привязанные к Норе."}</p>
+  vOpen(`<h3 class="vh">${L?"Привязать почту":"Войти по почте"}</h3><p class="sy-note">${L?"Придумай пароль — с почтой и паролем Нору можно открыть в любом браузере, даже без Telegram.":"Имя, почта и пароль, привязанные к Норе."}</p>
    <input class="sy-in" id="syE" type="email" autocomplete="email" placeholder="Почта" inputmode="email">
    <input class="sy-in" id="syP" type="password" autocomplete="${L?"new-password":"current-password"}" placeholder="${L?"Пароль, от 6 символов":"Пароль"}">
    <p class="sy-msg" id="syM"></p><div class="one"><button class="btn w" id="syGo">${L?"Привязать":"Войти"}</button></div>${L?"":`<button class="sy-link" id="syR">Забыли пароль?</button>`}`);
   $("#vsheet").classList.toggle("ontop",$("#intro").classList.contains("on")||$("#onb").classList.contains("on"));
   const go=$("#syGo"),msg=$("#syM");
-  go.onclick=async()=>{const e=$("#syE").value.trim(),p=$("#syP").value;if(!e||!p){msg.textContent="Заполни почту и пароль";return}go.disabled=true;go.textContent=L?"Привязываю…":"Вхожу…";msg.textContent="";
+  go.onclick=async()=>{const e=$("#syE").value.trim(),p=$("#syP").value;const nv=$("#auN").value.trim();if(!nv){msg.textContent="Впиши имя — так тебя увидят друзья";$("#auN").focus();return}if(!e||!p){msg.textContent="Заполни почту и пароль";return}go.disabled=true;go.textContent=L?"Привязываю…":"Вхожу…";msg.textContent="";
     try{if(L){try{await NS.signUp(e,p)}catch(x){if(/уже есть Нора/.test(x.message))await NS.signIn(e,p);else throw x}}else await NS.signIn(e,p);
       vClose();toast(L?"Почта привязана":"Вход выполнен — загружаю полки");if(SCREEN==="sum")drawSum()}
     catch(x){msg.textContent=x.message;go.disabled=false;go.textContent=L?"Привязать":"Войти"}};
@@ -813,19 +813,19 @@ const authEl=document.createElement("div");authEl.className="auth";authEl.id="au
 let authNext=null,authMode="up";
 function authShow(next){authNext=next||null;if(NS.email&&authMode==="up")authMode="in";authDraw();authEl.classList.add("on")}
 function authDraw(){const up=authMode==="up";
-  authEl.innerHTML=`<div class="au-in"><h1>${up?"Создай аккаунт":"Вход"}</h1><p>${up?"Почта и пароль нужны, чтобы полки не потерялись и открывались на любом устройстве — в Telegram, в браузере, на телефоне и компьютере.":"Почта и пароль, привязанные к Норе."}</p>
-   ${up?`<input class="sy-in" id="auN" autocomplete="given-name" placeholder="Имя — так тебя увидят друзья" value="${esc(myName())}">`:""}
-   <input class="sy-in" id="auE" type="email" autocomplete="email" inputmode="email" placeholder="Почта">
+  authEl.innerHTML=`<div class="au-in"><h1>${up?"Создай аккаунт":"Вход"}</h1><p>${up?"Имя — для друзей. Почта и пароль нужны, чтобы полки не потерялись и открывались на любом устройстве — в Telegram, в браузере, на телефоне и компьютере.":"Имя, почта и пароль, привязанные к Норе."}</p>
+   <input class="sy-in" id="auN" autocomplete="given-name" placeholder="Имя — так тебя увидят друзья" value="${esc(LS.get("zal.name",""))}">
+   <input class="sy-in" id="auE" type="email" autocomplete="email" inputmode="email" placeholder="Почта" value="${esc(up?"":NS.email||"")}">
    <input class="sy-in" id="auP" type="password" autocomplete="${up?"new-password":"current-password"}" placeholder="${up?"Пароль, от 6 символов":"Пароль"}">
    <p class="sy-msg" id="auM"></p><button class="btn w" id="auGo">${up?"Создать аккаунт":"Войти"}</button>
    <button class="au-sw" id="auSw">${up?"Уже есть аккаунт? Войти":"Нет аккаунта? Создать"}</button>${up?"":`<button class="au-sw" id="auR">Забыли пароль?</button>`}</div>`;
   const go=$("#auGo"),msg=$("#auM");
   $("#auSw").onclick=()=>{authMode=up?"in":"up";authDraw();tgHaptic()};
   const r=$("#auR");if(r)r.onclick=async()=>{const e=$("#auE").value.trim();if(!e){msg.textContent="Впиши почту — придёт ссылка для нового пароля";return}try{await NS.reset(e);msg.textContent="Письмо отправлено. Задай новый пароль по ссылке и возвращайся."}catch(x){msg.textContent=x.message}};
-  go.onclick=async()=>{const e=$("#auE").value.trim(),p=$("#auP").value;if(!e||!p){msg.textContent="Заполни почту и пароль";return}go.disabled=true;go.textContent=up?"Создаю…":"Вхожу…";msg.textContent="";
+  go.onclick=async()=>{const e=$("#auE").value.trim(),p=$("#auP").value;const nv=$("#auN").value.trim();if(!nv){msg.textContent="Впиши имя — так тебя увидят друзья";$("#auN").focus();return}if(!e||!p){msg.textContent="Заполни почту и пароль";return}go.disabled=true;go.textContent=up?"Создаю…":"Вхожу…";msg.textContent="";
     const nm=$("#auN");if(nm&&nm.value.trim())LS.set("zal.name",nm.value.trim().slice(0,40));
     try{if(up){try{await NS.signUp(e,p)}catch(x){if(/уже есть Нора/.test(x.message)){await NS.signIn(e,p)}else throw x}}else await NS.signIn(e,p);
-      authEl.classList.remove("on");tgHaptic("medium");toast(up?"Аккаунт создан":"Вход выполнен");const n=authNext;authNext=null;if(n)n();setTimeout(()=>{pubCheck();inviteCheck()},800)}
+      LS.set("zal.name",nv.slice(0,40));authEl.classList.remove("on");tgHaptic("medium");toast(up?"Аккаунт создан":"Вход выполнен");const n=authNext;authNext=null;if(n)n();setTimeout(()=>{pubCheck();inviteCheck()},800)}
     catch(x){msg.textContent=x.message;go.disabled=false;go.textContent=up?"Создать аккаунт":"Войти"}};
   $("#auP").onkeydown=e=>{if(e.key==="Enter")go.click()}}
 function afterSplash(){setTimeout(inviteCheck,300);setTimeout(()=>{if(!$("#auth").classList.contains("on")&&!$("#onb").classList.contains("on")&&!$("#intro").classList.contains("on")&&!$("#vsheet").classList.contains("on"))hsCheck()},4000);if(needAuth()&&!$("#intro").classList.contains("on")&&!$("#onb").classList.contains("on")&&LS.get("zal.onb",0))authShow()}

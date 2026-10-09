@@ -379,7 +379,7 @@ function drawSum(){const F=isF(),r=DATA().read(),u=T[REALM].u,known=r.filter(x=>
   const cs=cntBy(known,x=>x.c),au=F?[]:cntBy(r.filter(x=>x.a&&x.a!=="Автор не указан"),x=>x.a),dated=r.filter(x=>x.y);
   const eras=F?cntBy(dated,x=>Math.floor(x.y/10)*10+"-е"):cntBy(dated,x=>(ROMAN[centuryOf(x.y)]||centuryOf(x.y))+" век");
   const gens=F?cntBy(r,x=>{const g=genreList(x.g||0);return g[0]||""}):cntBy(r,x=>GEN[x.g]);const vol=F?Math.round(r.reduce((a,x)=>a+(x.m||0),0)/60):r.reduce((a,x)=>a+(x.pg||0),0);const wn=DATA().want().length;
-  const links=VIEW?"":syncCard()+`<div class="sc gl s3"><button data-share>Поделиться полками</button><button data-backup>Резервная копия</button><div class="themes"><span>Тема</span>${[["dark","тёмная"],["light","светлая"]].map(([v,l])=>`<button data-theme-set="${v}" class="${(themePref()==="light"?"light":"dark")===v?"on":""}">${l}</button>`).join("")}</div></div>`;
+  const links=VIEW?"":syncCard()+`<div class="sc gl s3"><button data-import>Перенести книги из других сервисов</button><button data-share>Поделиться полками</button><button data-backup>Резервная копия</button><div class="themes"><span>Тема</span>${[["dark","тёмная"],["light","светлая"]].map(([v,l])=>`<button data-theme-set="${v}" class="${(themePref()==="light"?"light":"dark")===v?"on":""}">${l}</button>`).join("")}</div></div>`;
   if(!r.length){$("#sumMore").innerHTML=`<div class="sc gl"><p style="margin:0;color:var(--ink2)">Статистика появится, когда на полке будет что-то ${F?"просмотренное":"прочитанное"}.</p></div>${links}`;return}
   const avgS=rated.length?avg.toFixed(1).replace(".",","):"—";
   const head=`<div class="sc gl s1"><div class="big"><b>${r.length}</b><span>${plural(r.length,...u)}<br>${F?"посмотрено":"прочитано"}</span></div>
@@ -411,6 +411,7 @@ function drawSum(){const F=isF(),r=DATA().read(),u=T[REALM].u,known=r.filter(x=>
    ${links}`}
 $("#sumMore").addEventListener("click",e=>{const t=e.target;
   if(syncClick(t))return;
+  if(t.closest("[data-import]")){importOpen();return}
   if(t.closest("[data-qadd]")){openQuoteForm();return}if(t.closest("[data-qall]")){openSheet(`<h3 class="sheet-h">Цитаты</h3><div class="qlist" id="qlist">${quotesListHTML()}</div>`);return}
   if(t.closest("[data-share]")){openShare();return}if(t.closest("[data-backup]")){openBackup();return}
   const th=t.closest("[data-theme-set]");if(th){const v=th.dataset.themeSet;try{v?localStorage.setItem("zal.theme",v):localStorage.removeItem("zal.theme")}catch(x){}if(TG&&TG.CloudStorage){try{TG.CloudStorage.setItem("theme",v||"")}catch(x){}}applyTheme();drawSum();tgHaptic();return}
@@ -730,6 +731,36 @@ document.addEventListener("click",async e=>{const b=e.target.closest("[data-cov]
 // карточка прочитанной книги (старое окно) — настоящая обложка и выбор обложки
 const _openBook=openBook;openBook=function(id){_openBook(id);const b=BOOKS.find(x=>x.id===id),sh=$("#sheet");if(!b||!sh)return;const x=bItem(b,"read"),c=sh.querySelector(".bk .cover");
   if(c)c.outerHTML=`<div class="bk-cv">${cv(x,112)}</div>`;const m=sh.querySelector(".bk-meta");if(m&&!VIEW)m.insertAdjacentHTML("beforeend",covRow(x))};
+
+
+// ---------- перенос книг из Литрес, Яндекс Книг, LiveLib и других ----------
+// Готового доступа к спискам этих сервисов нет: переносим скриншотами (распознавание текста) или списком.
+function importOpen(){vOpen(`<h3 class="vh">Перенести книги</h3>
+  <p class="sy-note" style="font-size:14px;color:var(--ink2)">Литрес, Яндекс Книги, LiveLib и Bookmate не дают забрать список напрямую, поэтому есть два способа.</p>
+  <div class="imp-step"><b>1. Скриншоты</b><span>Открой в сервисе раздел «Мои книги» или «Прочитанное», сделай несколько скриншотов списка и загрузи их — Нора прочитает названия.</span><button class="btn w" data-imp-shot>Загрузить скриншоты</button></div>
+  <div class="imp-step"><b>2. Списком</b><span>Скопируй названия из сервиса или заметок и вставь — по одной книге в строке, автор через тире по желанию.</span>
+   <textarea class="sy-in" id="impT" rows="6" placeholder="Мастер и Маргарита — Булгаков&#10;Норвежский лес&#10;Сто лет одиночества — Маркес"></textarea>
+   <div class="imp-to"><button class="on" data-imp-to="read">Прочитано</button><button data-imp-to="want">Хочу прочитать</button></div>
+   <button class="btn w" data-imp-parse>Разобрать список</button></div><div id="impRes"></div>`,true)}
+let IMP={to:"read",list:[]};
+function impParse(text){const out=[],seen=new Set();String(text).split(/\n+/).map(l=>l.replace(/^[\s\d.)•\-–—*]+/,"").trim()).filter(l=>l.length>1).forEach(line=>{
+  const [t0,a0]=line.split(/\s+[—–-]\s+|\s*;\s*|\t/);const t=(t0||"").replace(/[«»"]/g,"").trim(),a=(a0||"").trim();if(!t)return;
+  const sur=norm(a.split(" ").slice(-1)[0]||"");let c=CAT.find(b=>norm(b.t)===norm(t)&&(!sur||norm(b.a).includes(sur)))||(!a?CAT.find(b=>norm(b.t)===norm(t)):null);
+  if(!c){const m=matchBooks(line);c=m[0]||null}const x=c?bItem(c,"cat"):{t:t.charAt(0).toUpperCase()+t.slice(1),a,kind:"man"};
+  const k=norm(x.t);if(seen.has(k))return;seen.add(k);out.push({x,ok:!BK.has(x),found:!!c})});return out}
+function impDraw(){const box=$("#impRes");if(!box)return;const L=IMP.list,n=L.filter(i=>i.ok).length;
+  box.innerHTML=L.length?`<div class="imp-list">${L.map((i,j)=>`<label class="imp-row"><input type="checkbox" data-imp-i="${j}" ${i.ok?"checked":""} ${BK.has(i.x)?"disabled":""}><span><b>${esc(i.x.t)}</b><small>${esc([i.x.a,BK.has(i.x)?"уже на полке":i.found?"":"нет в каталоге — добавится как есть"].filter(Boolean).join(" · "))}</small></span></label>`).join("")}</div>
+   <button class="btn w" data-imp-add ${n?"":"disabled"}>Добавить: ${n} ${plural(n,"книга","книги","книг")}</button>`:`<p class="sy-msg">Не получилось разобрать ни одной строки.</p>`}
+document.addEventListener("click",e=>{const t=e.target;if(!t.closest("#vshBody"))return;
+  if(t.closest("[data-imp-shot]")){vClose();openAddBook("read");setTimeout(()=>{const f=$("#bPhoto");if(f)f.click()},30);return}
+  const to=t.closest("[data-imp-to]");if(to){IMP.to=to.dataset.impTo;document.querySelectorAll("[data-imp-to]").forEach(b=>b.classList.toggle("on",b===to));tgHaptic();return}
+  if(t.closest("[data-imp-parse]")){IMP.list=impParse($("#impT").value);impDraw();tgHaptic();return}
+  if(t.closest("[data-imp-add]")){const L=IMP.list.filter(i=>i.ok&&!BK.has(i.x));const cs=checkStamps;checkStamps=()=>{};
+    try{L.forEach(i=>IMP.to==="want"?BK.addWant(i.x):BK.markRead(i.x,null,true))}finally{checkStamps=cs}checkStamps(true);
+    vDirty=true;vClose();toast(`Добавлено: ${L.length} ${plural(L.length,"книга","книги","книг")}`);return}});
+document.addEventListener("change",e=>{const c=e.target.closest("[data-imp-i]");if(!c)return;IMP.list[+c.dataset.impI].ok=c.checked;const n=IMP.list.filter(i=>i.ok).length,b=$("[data-imp-add]");if(b){b.disabled=!n;b.textContent=`Добавить: ${n} ${plural(n,"книга","книги","книг")}`}});
+// кнопка переноса — в окне «Добавить книгу» и в статистике
+const _openAddBook=openAddBook;openAddBook=function(target,pre){_openAddBook(target,pre);const pb=$("#bPhotoBtn");if(pb&&!pre)pb.insertAdjacentHTML("afterend",`<button type="button" class="imp-link" id="impLink">Перенести книги из Литрес, Яндекс Книг, LiveLib…</button>`);const il=$("#impLink");if(il)il.onclick=()=>{closeSheet();setTimeout(importOpen,330)}};
 
 // ---------- запуск ----------
 if(VIEW){document.body.classList.add("viewing");REALM="books"}

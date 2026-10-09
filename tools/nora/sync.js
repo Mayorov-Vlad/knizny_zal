@@ -8,7 +8,7 @@
 const FB={apiKey:"AIzaSyD9yfazxfKpaEk1BNFDN61dEB3pfxT9cS4",projectId:"nora-ed429"};
 const ON=!!(FB.apiKey&&FB.projectId);
 const ls=window.localStorage,P=Storage.prototype,_set=P.setItem,_rm=P.removeItem,_get=P.getItem;
-const SKIP=k=>!k||!k.startsWith("zal.")||k==="zal.img"||k==="zal.img2"||k==="zal.desc"||k==="zal.recent"||k.startsWith("zal.sync");
+const SKIP=k=>!k||!k.startsWith("zal.")||k==="zal.img"||k==="zal.img2"||k==="zal.desc"||k==="zal.meta"||k==="zal.recent"||k.startsWith("zal.sync");
 const jget=(k,d)=>{try{const v=_get.call(ls,k);return v?JSON.parse(v):d}catch(e){return d}};
 const jset=(k,v)=>{try{_set.call(ls,k,JSON.stringify(v))}catch(e){}};
 const TG=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?Telegram.WebApp:null;

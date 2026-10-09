@@ -324,3 +324,83 @@ html[data-theme="light"] #app .ava.plus{background:rgba(20,21,27,.08);color:#141
 #app .hs-steps li{margin:8px 0}
 #app .hs-ic{display:inline-block;padding:0 6px;border-radius:6px;background:rgba(255,255,255,.1)}
 html[data-theme="light"] #app .hsb{background:rgba(250,249,246,.95)}
+
+/* ---------- правки 10 октября ---------- */
+/* заставка: название видно сразу, книги мелькают за ним */
+#app .sp-logo{opacity:1;transform:translateY(-50%) scale(1);animation:spLogo .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes spLogo{from{opacity:0;transform:translateY(-50%) scale(1.12)}to{opacity:1;transform:translateY(-50%) scale(1)}}
+#app .sp-fade{background:radial-gradient(120% 80% at 50% 45%,rgba(5,6,10,.35),rgba(5,6,10,.7) 70%,rgba(5,6,10,.9))}
+/* лупа — в центре нижнего меню */
+#app .dock{align-items:center}
+#app .dock .dsrch{position:relative;z-index:1;flex:none;width:50px;height:50px;margin:0 4px;border-radius:50%;display:grid;place-items:center;background:#F5F5F7;color:#0B0B10;box-shadow:0 6px 18px -6px rgba(0,0,0,.6)}
+#app .dock .dsrch svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round}
+#app .dock button[data-s]{min-width:58px;padding:0 9px}
+/* лента: без фильтров и точек */
+#app .fbar,#app #fbar,#app .dots,#app #dots{display:none!important}
+#app #s-feed .wrap{top:calc(66px + env(safe-area-inset-top,0px))}
+#app .info h2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#app .info p.ds{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden;-webkit-line-clamp:5;overflow-wrap:anywhere}
+#app .fly .obj{flex:0 1 auto;min-height:0}
+@media (max-height:780px){#app .info p.ds{-webkit-line-clamp:3}}
+@media (max-height:680px){#app .info p.ds{-webkit-line-clamp:2}}
+#app .acts3{gap:12px}
+/* поиск: прочитанное скрыто — фишка Норы */
+#app .sx-feat{display:flex;gap:10px;align-items:flex-start;margin:4px 0 14px;padding:12px 14px;border-radius:16px;background:rgba(120,200,150,.1);color:var(--ink2);font-size:13.5px;line-height:1.4}
+#app .sx-feat b{color:var(--ink);font-weight:600}
+#app .sx-feat svg,#app .sx-hid svg{flex:none;width:20px;height:20px;fill:none;stroke:#8FD3A8;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;margin-top:1px}
+#app .sx-hid{display:flex;align-items:center;gap:8px;width:100%;margin:2px 0 8px;padding:9px 12px;border-radius:12px;background:rgba(120,200,150,.08);font-size:13px;color:var(--ink2);text-align:left}
+#app .sx-hid span{flex:1}#app .sx-hid u{color:var(--ink);text-underline-offset:3px}
+/* карточка книги на весь экран */
+#app .bkc{position:fixed;inset:0;z-index:60;background:#06070B;opacity:0;pointer-events:none;transition:opacity .28s}
+#app .bkc.on{opacity:1;pointer-events:auto}
+#app .bkc-bg{position:absolute;inset:-40px;overflow:hidden;opacity:.4;filter:blur(40px) saturate(1.3)}#app .bkc-bg img{width:100%;height:100%;object-fit:cover}
+#app .bkc-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(rgba(6,7,11,.3),rgba(6,7,11,.85) 60%,#06070B)}
+#app .bkc-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding:calc(18px + env(safe-area-inset-top,0px)) 22px calc(18px + env(safe-area-inset-bottom,0px));transition:transform .3s cubic-bezier(.2,1,.3,1);overflow:hidden}
+#app .bkc-x{position:absolute;top:calc(12px + env(safe-area-inset-top,0px));right:14px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);z-index:2}
+#app .bkc-x svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round}
+#app .bkc-cv{position:relative;flex:0 1 auto;min-height:0;height:min(40vh,330px);aspect-ratio:2/3;margin-top:14px}
+#app .bkc-cv .cv{width:100%;height:100%}
+#app .bkc-cov{z-index:3;position:absolute;left:50%;bottom:-14px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;white-space:nowrap;padding:8px 14px 8px 11px;border-radius:999px;background:#F5F5F7;color:#0B0B10;font-size:13px;font-weight:600;box-shadow:0 8px 20px -6px rgba(0,0,0,.7)}
+#app .bkc-cov svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+#app .bkc-cov.on{background:#8FD3A8}
+#app .bkc-covsw{margin-top:22px}#app .bkc-covsw .covsw{margin:0}
+#app .bkc h2{margin:26px 0 0;text-align:center;font-family:var(--serif);font-size:30px;font-weight:600;line-height:1.05;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#app .bkc-covsw:not([hidden])+h2{margin-top:12px}
+#app .bkc-a{margin-top:6px;color:var(--ink2);font-size:14.5px;text-align:center}
+#app .bkc-facts{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:12px;font-size:12.5px;color:var(--ink2)}
+#app .bkc-facts>*{padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.07)}
+#app .bkc-facts b{color:var(--ink);font-weight:600}
+#app .bkc-facts button{font:inherit;color:var(--ink2);background:rgba(143,211,168,.14)}
+#app .bkc-ds{flex:1 1 0;min-height:44px;margin:14px 0 0;max-width:46ch;text-align:center;font-size:15px;line-height:1.5;color:rgba(255,255,255,.88);display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+#app .bkc-acts{display:flex;gap:10px;width:100%;max-width:420px;margin-top:auto;padding-top:16px}
+#app .bkc-acts .btn{flex:1;min-width:0;padding-left:6px;padding-right:6px;font-size:14.5px;white-space:nowrap}
+#app .bkc-where{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;max-width:420px;margin-top:10px;padding:12px;border-radius:16px;border:1px solid rgba(255,255,255,.16);font-size:15px;font-weight:600;color:var(--ink)}
+#app .bkc-where svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9}
+@media (max-height:700px){#app .bkc-cv{height:32vh}#app .bkc h2{font-size:26px}}
+/* где найти */
+#app .wh-ch{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+#app .wh-ch button{padding:16px 12px;border-radius:18px;background:rgba(255,255,255,.07);text-align:left}
+#app .wh-ch button.on{background:#F5F5F7;color:#0B0B10}#app .wh-ch button.on small{color:rgba(11,11,16,.6)}
+#app .wh-ch b{display:block;font-size:16px}#app .wh-ch small{display:block;margin-top:4px;font-size:12.5px;color:var(--ink3)}
+#app .wh-l{display:flex;flex-direction:column;gap:2px;margin-top:14px}
+#app .wh-l button{display:flex;align-items:center;gap:12px;padding:13px 4px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left}
+#app .wh-l b{font-size:15.5px}#app .wh-l small{flex:1;font-size:13px;color:var(--ink3)}#app .wh-l i{font-style:normal;color:var(--ink3);font-size:20px}
+#app .wh-l .ava{width:36px;height:36px;font-size:16px}
+/* друзья: удалить — значком в углу */
+#app .fr-delx{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.08);z-index:2}
+#app .fr-delx svg{width:21px;height:21px;fill:none;stroke:rgba(255,255,255,.75);stroke-width:1.8;stroke-linecap:round}
+#app .frdel-ask{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 46px 10px 0;padding:10px 12px;border-radius:14px;background:rgba(255,80,80,.1);font-size:13.5px}
+#app .frdel-ask span{flex:1 1 100%}
+#app .frdel-ask button{padding:7px 14px;border-radius:999px;background:rgba(255,255,255,.1);font-size:13px}
+#app .frdel-ask [data-fr-del]{background:#E5484D;color:#fff}
+#app .frdel-ask[hidden]{display:none}
+/* буква в кружке — ровно по центру */
+#app .ava{font-family:var(--f);font-weight:600;line-height:1;padding:0;text-align:center}
+#app .ava.big{font-size:32px}
+/* регистрация: «Дальше» всегда видна поверх книг */
+#app .onb .onb-bar{position:fixed;z-index:5;bottom:0}
+#app .onb .onb-grid{padding-bottom:150px}
+#app .dock .dsrch{background:#F5F5F7!important;color:#0B0B10!important;opacity:1!important;visibility:visible!important}
+#app .dock .dsrch svg{stroke:#0B0B10!important;stroke-width:2.2}
+#app .dock .dsrch{width:50px!important;min-width:0!important;height:50px!important;padding:0!important;display:grid!important;place-items:center;border-radius:50%!important}
+#app .ava{display:flex!important;align-items:center!important;justify-content:center!important;flex:none}

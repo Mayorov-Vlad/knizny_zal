@@ -8,8 +8,8 @@ const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
 const IMGFL=id=>"https://fantlab.ru/images/editions/big/"+id;
 const NOW7=()=>new Date().toISOString().slice(0,7);
 const r5=r=>r==null?null:Math.round(r/2);
-const T={books:{did:"Прочитала",read:"Прочитано",want:"Хочу прочитать",u:["книга","книги","книг"],what:"эту книгу"},
-         films:{did:"Посмотрела",read:"Посмотрено",want:"Хочу посмотреть",u:["фильм","фильма","фильмов"],what:"этот фильм"}};
+const T={books:{did:"Уже прочитано",read:"Прочитано",want:"Хочу прочитать",u:["книга","книги","книг"],what:"эту книгу"},
+         films:{did:"Уже посмотрено",read:"Посмотрено",want:"Хочу посмотреть",u:["фильм","фильма","фильмов"],what:"этот фильм"}};
 let REALM=LS.get("zal.realm","books")==="films"?"films":"books";
 const isF=()=>REALM==="films";
 const tgHaptic=t=>{try{TG&&TG.HapticFeedback&&TG.HapticFeedback.impactOccurred(t||"light")}catch(e){}};
@@ -135,7 +135,7 @@ function slideHTML(x,j){const meta=[x.a,x.y,x.c,x._f&&x.g?genreList(x.g).slice(0
   return `<article class="slide" data-j="${j}"><div class="wrap"><div class="fly gl"><div class="bg"></div><div class="lean r"><i>${IC.v}</i><b>Добавить</b></div><div class="lean l"><i>${IC.x}</i><b>Не предлагать</b></div><div class="obj">${cv(x,220)}</div><div class="info"><h2>${esc(x.t)}</h2><div class="meta">${esc(meta)}</div>${x.why||x.wy||x.ds?`<p>${esc(x.why||x.wy||x.ds)}</p>`:""}
   <div class="acts3"><button class="rb gl press" data-skip="${j}" aria-label="Не предлагать">${IC.x}</button><button class="rb sm gl press" data-undo aria-label="Отменить действие">${IC.u}</button><button class="rb w press" data-want="${j}" aria-label="Добавить">${IC.v}</button></div></div></div></div></article>`}
 function bgFill(sl,x){const u=imgOf(x),bg=sl.querySelector(".bg");if(u&&bg&&!bg.firstChild)bg.innerHTML=`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer">`}
-function endInner(){return `<h2>Пока всё</h2><p>Шуршуня подберёт новое, как только ты что-нибудь отметишь. А пока можно найти самой.</p><div class="acts"><button class="btn w" data-find>Найти через поиск</button></div>`}
+function endInner(){return `<h2>Пока всё</h2><p>Шуршуня подберёт новое, как только ты что-нибудь отметишь. А пока можно поискать через лупу.</p><div class="acts"><button class="btn w" data-find>Найти через поиск</button></div>`}
 function drawDots(){const n=$("#feed").children.length;$("#dots").innerHTML=Array.from({length:Math.min(n,30)},(_,k)=>`<i class="${k===Math.max(0,cur)?"on":""}"></i>`).join("")}
 function buildFeed(){acts=[];const f=$("#feed");$("#ffil").hidden=true;if(!VIEW)drawFbar();
   if(isF()&&!FILMS){f.innerHTML=`<article class="slide end" data-end><div class="card gl"><h2>Достаю плёнку…</h2><p>Загружаю киноархив.</p></div></article>`;loadFilms().then(()=>{if(isF())buildFeed()}).catch(()=>{f.innerHTML=`<article class="slide end" data-end><div class="card gl"><h2>Архив не загрузился</h2><p>Проверь интернет и открой ленту ещё раз.</p></div></article>`});return}
@@ -152,13 +152,13 @@ const slideEl=j=>$(`#feed .slide[data-j="${j}"]`);
 function decide(j,kind){const x=slides[j];if(!x||x._done)return;if(CO&&CO.step<3&&kind!==(CO.step===1?"want":"skip")){const sl=slideEl(j),fl=sl&&sl.querySelector(".fly");if(fl){leanTo(fl,0);fl.style.transition="transform .4s cubic-bezier(.2,1.3,.4,1)";fl.style.transform="";fl.style.opacity=""}tgHaptic("rigid");return}x._done=kind;const D=DATA();if(kind==="want")D.addWant(x);else D.skip(x);
   acts.push({j,kind,F:!!x._f});if(acts.length>3)acts.shift();const sl=slideEl(j),fl=sl.querySelector(".fly");
   fl.style.transition="transform .38s cubic-bezier(.4,0,.7,1),opacity .38s";fl.style.transform=`translateX(${kind==="want"?125:-125}%) rotate(${kind==="want"?10:-10}deg)`;fl.style.opacity=0;
-  toast(kind==="want"?"Добавила в избранное":"Больше не предложу");tgHaptic("medium");
+  toast(kind==="want"?"Добавлено в избранное":"Больше не предложу");tgHaptic("medium");
   setTimeout(()=>{sl.remove();cur=-1;onFeedScroll();drawDots();updUndo();if(CO)coachNext()},390)}
 function undo(){if(!acts.length)return;if(CO&&CO.step!==3)return;const {j,kind,F}=acts.pop(),x=slides[j],D=F?FM:BK;if(kind==="want")D.rmWant(x);else D.unskip(x);delete x._done;
   const f=$("#feed"),next=[...f.children].find(el=>el.dataset.end!=null||+el.dataset.j>j);next.insertAdjacentHTML("beforebegin",slideHTML(x,j));
   const sl=slideEl(j),fl=sl.querySelector(".fly"),pos=[...f.children].indexOf(sl);bgFill(sl,x);fl.style.transition="none";fl.style.opacity=0;fl.style.transform=`translateX(${kind==="want"?125:-125}%) rotate(${kind==="want"?10:-10}deg)`;
   f.scrollTo({top:pos*f.clientHeight});void fl.offsetWidth;fl.style.transition="transform .45s cubic-bezier(.2,.9,.3,1),opacity .3s";fl.style.transform="";fl.style.opacity="";
-  cur=-1;onFeedScroll();drawDots();updUndo();toast("Вернула");tgHaptic();if(CO)setTimeout(coachNext,500)}
+  cur=-1;onFeedScroll();drawDots();updUndo();toast("Возвращено");tgHaptic();if(CO)setTimeout(coachNext,500)}
 function updUndo(){document.querySelectorAll("#feed [data-undo]").forEach(b=>b.disabled=!acts.length)}
 function leanTo(fl,dx){const r=fl.querySelector(".lean.r"),l=fl.querySelector(".lean.l"),k=v=>Math.max(0,Math.min(1,(v-24)/70));
   r.style.opacity=k(dx);l.style.opacity=k(-dx);r.style.transform=`translate(-50%,-50%) scale(${.85+.15*k(dx)})`;l.style.transform=`translate(-50%,-50%) scale(${.85+.15*k(-dx)})`}
@@ -220,9 +220,9 @@ function stepFlow(d){const n=Math.min(60,flowList().length);if(n<2)return;fi=((f
   el.addEventListener("click",e=>{const c=e.target.closest(".cv");if(c&&!moved){flowHold=Date.now();const i=+c.dataset.i;if(i!==fi){fi=i;layoutFlow()}openItem(flowList()[i],colF==="want"?"top":"rec")}})})();
 (function tick(){if(!(document.hidden||!$("#s-col").classList.contains("on")||$("#vsheet").classList.contains("on")||sheetOpen||Date.now()-flowHold<6000))stepFlow(-1);setTimeout(tick,colF==="want"?5600:3600)})();
 function drawCol(){
-  $("#vbanner").hidden=!VIEW;if(VIEW)$("#vbanner").innerHTML=`<b>Полки${SHARED&&SHARED.n?" — "+esc(SHARED.n):" подруги"}</b><span> · только для просмотра</span>`;
+  $("#vbanner").hidden=!VIEW;if(VIEW)$("#vbanner").innerHTML=`<b>Полки${SHARED&&SHARED.n?" — "+esc(SHARED.n):""}</b><span> · только для просмотра</span>`;
   $("#pills").innerHTML=(VIEW?[["read",T[REALM].read]]:[["want",T[REALM].want],["read",T[REALM].read]]).map(([k,l])=>`<button class="gl ${colF===k?"on":""}" data-f="${k}">${l}</button>`).join("");
-  const G=gridList();$("#grid").innerHTML=G.map((x,i)=>`<button data-g="${i}">${cv(x,110)}<small>${esc(x.t)}</small>${x.r!=null&&colF==="read"?`<em>★ ${r5(x.r)}</em>`:""}</button>`).join("")||`<p class="gempty">${colF==="read"?(isF()?"Здесь появятся фильмы, которые ты посмотрела.":"Здесь появятся книги, которые ты прочитала."):""}</p>`;
+  const G=gridList();$("#grid").innerHTML=G.map((x,i)=>`<button data-g="${i}">${cv(x,110)}<small>${esc(x.t)}</small>${x.r!=null&&colF==="read"?`<em>★ ${r5(x.r)}</em>`:""}</button>`).join("")||`<p class="gempty">${colF==="read"?(isF()?"Здесь появятся просмотренные фильмы.":"Здесь появятся прочитанные книги."):""}</p>`;
   drawFlow()}
 $("#pills").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(b){colF=b.dataset.f;fi=0;drawCol();tgHaptic()}});
 $("#grid").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(b){flowHold=Date.now();openItem(gridList()[+b.dataset.g],colF)}});
@@ -253,7 +253,7 @@ function openItem(x,L){if(!x)return;
   if(VIEW)return;cardX=x;cardL=L;ambFor(x);vOpen(itemHTML())}
 $("#vshBody").addEventListener("click",e=>{const t=e.target;if(!cardX||$("#fres"))return;const D=cardX._f?FM:BK;
   if(t.closest("[data-cmv]")){const x=cardX;vClose();rmAsk(x,null,n=>{D.markRead(x,n*2);toast(x._f?"Отмечено как просмотренное":"Отмечено как прочитанное");refresh()},"Без оценки",()=>{D.markRead(x,null);refresh()});return}
-  if(t.closest("[data-cwant]")){D.addWant(cardX);vDirty=true;toast("Добавила в избранное");vClose();return}
+  if(t.closest("[data-cwant]")){D.addWant(cardX);vDirty=true;toast("Добавлено в избранное");vClose();return}
   if(t.closest("[data-crm]")){D.rmWant(cardX);vDirty=true;toast("Убрано из избранного");vClose();return}});
 
 // ---------- оценка: экран со звёздами ----------
@@ -276,7 +276,7 @@ const sxHas=x=>(SX.k==="films"?FM:BK).has(x);
 function hl(t,q){const s=String(t||""),nq=String(q||"").trim().toLowerCase().replace(/ё/g,"е");if(nq.length<2)return esc(s);const i=s.toLowerCase().replace(/ё/g,"е").indexOf(nq);
   return i<0?esc(s):esc(s.slice(0,i))+"<mark>"+esc(s.slice(i,i+nq.length))+"</mark>"+esc(s.slice(i+nq.length))}
 function sxRow(x,i){const st=sxHas(x),F=SX.k==="films";
-  return `<div class="fr" data-i="${i}">${cv(x,48)}<div class="tx"><b>${hl(x.t,SX.q)}</b><span>${hl([x.a,x.y,x.c,x.s?"сериал":"",F&&x.src&&x.src.hr===0?"не выходил в РФ":""].filter(Boolean).join(" · "),SX.q)}</span></div><div class="ac">${st?`<em>${st==="read"?(F?"Смотрела":"Читала"):"В избранном"}</em>`:`<button class="ib" data-sx="want" aria-label="В избранное">${PLUS}</button><button class="ib w" data-sx="read" aria-label="${F?"Смотрела":"Читала"}">${IC.v}</button>`}</div></div>`}
+  return `<div class="fr" data-i="${i}">${cv(x,48)}<div class="tx"><b>${hl(x.t,SX.q)}</b><span>${hl([x.a,x.y,x.c,x.s?"сериал":"",F&&x.src&&x.src.hr===0?"не выходил в РФ":""].filter(Boolean).join(" · "),SX.q)}</span></div><div class="ac">${st?`<em>${st==="read"?(F?"Просмотрено":"Прочитано"):"В избранном"}</em>`:`<button class="ib" data-sx="want" aria-label="В избранное">${PLUS}</button><button class="ib w" data-sx="read" aria-label="${F?"Смотрела":"Читала"}">${IC.v}</button>`}</div></div>`}
 const POPF=[["Интерстеллар",2014],["Во все тяжкие",2008,1],["Друзья",1994,1],["Форрест Гамп",1994],["Побег из Шоушенка",1994],["Шерлок",2010,1],["Зелёная миля",1999],["Начало",2010],["Игра престолов",2011,1],["Титаник",1997],
   ["Бойцовский клуб",1999],["Чернобыль",2019,1],["Криминальное чтиво",1994],["Матрица",1999],["Очень странные дела",2016,1],["1+1",2011],["Амели",2001],["Унесённые призраками",2001],["Паразиты",2019],["Ла-Ла Ленд",2016],
   ["Остров проклятых",2010],["Тьма",2017,1],["Брат",1997],["Москва слезам не верит",1979],["Король Лев",1994],["Аркейн",2021,1],["Властелин колец: Братство Кольца",2001],["Отступники",2006],["Джентльмены",2019],["Иван Васильевич меняет профессию",1973],["Достучаться до небес",1997],["Амадей",1984]];
@@ -326,12 +326,12 @@ $("#vshBody").addEventListener("click",e=>{const t=e.target;if(!$("#fres"))retur
   if(t.closest("[data-photo]")){vClose();setTimeout(()=>openAddBook(),300);return}
   const rq=t.closest("[data-rq]");if(rq){$("#fq").value=rq.dataset.rq;sxRun();return}
   const au=t.closest("[data-au]");if(au){recentAdd($("#fq").value);sxAuthor(SX.authors[+au.dataset.au]);tgHaptic();return}
-  if(t.closest("[data-man]")){const q=SX.q.trim();const x={_f:1,t:q.charAt(0).toUpperCase()+q.slice(1),id:"u"+Date.now(),kind:"man"};FM.addWant(x);vDirty=true;toast("Добавила в избранное");sxDraw("done");return}
+  if(t.closest("[data-man]")){const q=SX.q.trim();const x={_f:1,t:q.charAt(0).toUpperCase()+q.slice(1),id:"u"+Date.now(),kind:"man"};FM.addWant(x);vDirty=true;toast("Добавлено в избранное");sxDraw("done");return}
   const b=t.closest("[data-sx]");const row=t.closest(".fr");if(!row)return;const x=$("#fres")._l[+row.dataset.i];if(!x)return;
   if(!b){if(sxHas(x)==="read"){vClose();setTimeout(()=>openItem((SX.k==="films"?FM:BK).read().find(y=>norm(y.t)===norm(x.t)),"read"),300)}return}
   if(sxHas(x))return;recentAdd($("#fq").value);const D=SX.k==="films"?FM:BK,F=SX.k==="films";
-  const done=()=>{vDirty=true;row.querySelector(".ac").innerHTML=`<em>${sxHas(x)==="read"?(F?"Смотрела":"Читала"):"В избранном"}</em>`};
-  if(b.dataset.sx==="want"){D.addWant(x);done();toast("Добавила в избранное");tgHaptic("medium");return}
+  const done=()=>{vDirty=true;row.querySelector(".ac").innerHTML=`<em>${sxHas(x)==="read"?(F?"Просмотрено":"Прочитано"):"В избранном"}</em>`};
+  if(b.dataset.sx==="want"){D.addWant(x);done();toast("Добавлено в избранное");tgHaptic("medium");return}
   rmAsk(x,null,n=>{D.markRead(x,n*2);done();toast(F?"Отмечено как просмотренное":"Отмечено как прочитанное")},"Без оценки",()=>{D.markRead(x,null);done()})});
 
 // ---------- статистика ----------
@@ -409,7 +409,7 @@ $("#onbSkip").onclick=()=>onbFinish();
 // 1) светится правая половина карточки — смахни вправо или ✓; 2) левая — влево или ✕; 3) кнопка отмены — только нажатие.
 // Несколько быстрых нажатий в тёмной части — пропустить обучение.
 let CO=null;
-const coEl=document.createElement("div");coEl.className="co";coEl.innerHTML=`<div class="co-hole"></div><div class="co-b"></div><div class="co-b"></div><div class="co-b"></div><div class="co-b"></div><div class="co-txt"><b></b><small></small></div><div class="co-skip">Нажми несколько раз в любом месте, чтобы пропустить</div>`;
+const coEl=document.createElement("div");coEl.className="co";coEl.innerHTML=`<div class="co-hole"></div><div class="co-b"></div><div class="co-b"></div><div class="co-b"></div><div class="co-b"></div><div class="co-txt"><b></b><small></small></div>`;
 $("#app").appendChild(coEl);
 const CO_TXT={1:["Добавить","смахни вправо или нажми ✓"],2:["Не предлагать","смахни влево или нажми ✕"],3:["Отменить действие","нажми — и книга вернётся"]};
 function coRect(){const el=$("#feed").children[Math.max(0,cur)],fl=el&&el.querySelector(".fly");if(!fl)return null;const r0=fl.getBoundingClientRect(),fb=$("#fbar"),top=Math.max(r0.top,fb&&fb.offsetHeight?fb.getBoundingClientRect().bottom+8:0),r={left:r0.left,right:r0.right,top,bottom:r0.bottom,width:r0.width},cx=r.left+r.width/2;
@@ -426,7 +426,7 @@ function coDraw(){if(!CO)return;const R=coRect();if(!R){setTimeout(coDraw,300);r
   else Object.assign(tx.style,{left:"0px",width:W+"px",top:(R.t-90)+"px",bottom:""});
   coEl.classList.add("on");coEl.dataset.step=CO.step}
 function coachNext(){if(!CO)return;CO.step++;if(CO.step>3){coachEnd(true);return}tgHaptic("medium");coEl.classList.remove("on");setTimeout(coDraw,280)}
-function coachEnd(done){CO=null;coEl.classList.remove("on");LS.set("zal.coach",1);if(done)setTimeout(()=>toast("Всё, дальше — сама"),300)}
+function coachEnd(done){CO=null;coEl.classList.remove("on");LS.set("zal.coach",1);}
 function coach(){if(LS.get("zal.coach",0)||!slides.length||VIEW||CO)return;CO={step:1,taps:[]};setTimeout(coDraw,500)}
 coEl.addEventListener("click",e=>{if(!CO||!e.target.classList.contains("co-b"))return;const now=Date.now();CO.taps=CO.taps.filter(t=>now-t<1500);CO.taps.push(now);
   coEl.classList.add("nudge");setTimeout(()=>coEl.classList.remove("nudge"),250);if(CO.taps.length>=3){tgHaptic();coachEnd(false)}});
@@ -619,7 +619,7 @@ function syncClick(t){
   if(t.closest("[data-sy-login]")){loginSheet();return true}
   return false}
 function mailSheet(mode){const L=mode==="link";
-  vOpen(`<h3 class="vh">${L?"Привязать почту":"Войти по почте"}</h3><p class="sy-note">${L?"Придумай пароль — с почтой и паролем Нору можно открыть в любом браузере, даже без Telegram.":"Почта и пароль, которые ты привязала к Норе."}</p>
+  vOpen(`<h3 class="vh">${L?"Привязать почту":"Войти по почте"}</h3><p class="sy-note">${L?"Придумай пароль — с почтой и паролем Нору можно открыть в любом браузере, даже без Telegram.":"Почта и пароль, привязанные к Норе."}</p>
    <input class="sy-in" id="syE" type="email" autocomplete="email" placeholder="Почта" inputmode="email">
    <input class="sy-in" id="syP" type="password" autocomplete="${L?"new-password":"current-password"}" placeholder="${L?"Пароль, от 6 символов":"Пароль"}">
    <p class="sy-msg" id="syM"></p><div class="one"><button class="btn w" id="syGo">${L?"Привязать":"Войти"}</button></div>${L?"":`<button class="sy-link" id="syR">Забыли пароль?</button>`}`);
@@ -627,13 +627,13 @@ function mailSheet(mode){const L=mode==="link";
   const go=$("#syGo"),msg=$("#syM");
   go.onclick=async()=>{const e=$("#syE").value.trim(),p=$("#syP").value;if(!e||!p){msg.textContent="Заполни почту и пароль";return}go.disabled=true;go.textContent=L?"Привязываю…":"Вхожу…";msg.textContent="";
     try{if(L){try{await NS.signUp(e,p)}catch(x){if(/уже есть Нора/.test(x.message))await NS.signIn(e,p);else throw x}}else await NS.signIn(e,p);
-      vClose();toast(L?"Почта привязана":"Вошла — загружаю полки");if(SCREEN==="sum")drawSum()}
+      vClose();toast(L?"Почта привязана":"Вход выполнен — загружаю полки");if(SCREEN==="sum")drawSum()}
     catch(x){msg.textContent=x.message;go.disabled=false;go.textContent=L?"Привязать":"Войти"}};
   const r=$("#syR");if(r)r.onclick=async()=>{const e=$("#syE").value.trim();if(!e){msg.textContent="Впиши почту — пришлю ссылку для нового пароля";return}
     try{await NS.reset(e);msg.textContent="Письмо отправлено. Задай новый пароль по ссылке и возвращайся."}catch(x){msg.textContent=x.message}}}
 const loginSheet=()=>mailSheet("login");
 addEventListener("nsync",()=>{if(SCREEN==="sum"&&!$("#vsheet").classList.contains("on"))drawSum()});
-try{if(sessionStorage.getItem("nsync.applied")){sessionStorage.removeItem("nsync.applied");setTimeout(()=>toast("Подтянула изменения с другого устройства"),600);
+try{if(sessionStorage.getItem("nsync.applied")){sessionStorage.removeItem("nsync.applied");setTimeout(()=>toast("Подтянуты изменения с другого устройства"),600);
   if(TG){try{saveMine();saveEdits();saveWant();saveF();saveNow()}catch(e){}}}}catch(e){}
 
 // ---------- запуск ----------

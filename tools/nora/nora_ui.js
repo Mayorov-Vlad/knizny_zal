@@ -823,8 +823,15 @@ async function reqAnswer(id,yes){const q=REQS.find(x=>x.id===id);if(!q)return;RE
   try{await NS.reqSet(id,yes?"a":"d")}catch(e){}if(yes){addFriend(q.f,q.n);toast((q.n||"Друг")+" теперь в друзьях");frLoad()}frReqDot();if($("#vsheet").classList.contains("on"))vClose();if(SCREEN==="fr")drawFr()}
 function frFind(){vOpen(`<h3 class="vh">Добавить друга</h3><p class="sy-note">Почта, с которой друг вошёл в Нору, или ник в Telegram — придёт заявка прямо в приложение.</p>
    <input class="sy-in" id="frQ" placeholder="почта или @ник" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"><p class="sy-msg" id="frM"></p>
-   <button class="btn w fr-go" data-fr-go>Найти</button><div id="frRes"></div>
+   <button class="btn w fr-go" data-fr-go>Найти</button>${CONTACTS_OK?`<button class="btn fr-go" data-fr-contacts>Найти среди контактов телефона</button>`:""}<div id="frRes"></div>
    <button class="fr-link" data-fr-inv>Друга ещё нет в Норе? Отправить приглашение ссылкой</button>`);setTimeout(()=>{const i=$("#frQ");if(i){i.focus();i.onkeydown=e=>{if(e.key==="Enter")$("[data-fr-go]").click()}}},80)}
+// контакты телефона: браузер даёт выбрать контакты только в Chrome на Android (на iPhone и внутри Telegram — нет)
+const CONTACTS_OK=!!(navigator.contacts&&navigator.contacts.select&&window.ContactsManager);
+async function frContacts(){const res=$("#frRes"),msg=$("#frM");let L=[];try{L=await navigator.contacts.select(["name","email"],{multiple:true})}catch(e){return}
+  const em=[];L.forEach(c=>(c.email||[]).forEach(e=>em.push({n:(c.name||[])[0]||e,e})));if(!em.length){msg.textContent="У выбранных контактов нет почты — по ней Нора ищет друзей.";return}
+  msg.textContent="Ищу…";const found=[];for(const c of em.slice(0,40)){try{const uid=await NS.lookup(c.e);if(uid&&uid!==NS.uid()&&!FRIENDS.some(f=>f.uid===uid)&&!found.some(x=>x.uid===uid))found.push({uid,n:c.n})}catch(e){}}
+  msg.textContent=found.length?"":"Никого из выбранных пока нет в Норе — можно отправить приглашение ссылкой.";
+  res.innerHTML=found.map(f=>`<div class="frq one-r">${avatar(f.n,f.uid)}<span><b>${esc(f.n)}</b><small>есть в Норе</small></span><button class="btn w" data-fr-send="${esc(f.uid)}" data-n="${esc(f.n)}">Отправить заявку</button></div>`).join("")}
 async function frFindGo(){const q=$("#frQ").value.trim(),msg=$("#frM"),res=$("#frRes");if(!q){msg.textContent="Впиши почту или ник";return}msg.textContent="Ищу…";res.innerHTML="";
   try{const uid=await NS.lookup(q);if(!uid){msg.textContent="В Норе такого пока нет — можно отправить приглашение ссылкой.";return}
     if(uid===NS.uid()){msg.textContent="Это ваш собственный аккаунт.";return}if(FRIENDS.some(f=>f.uid===uid)){msg.textContent="Уже в друзьях.";return}
@@ -835,6 +842,7 @@ document.addEventListener("click",e=>{const t=e.target;
   if(t.closest("[data-fr-inv]")){tgHaptic();frInvite();return}
   if(t.closest("[data-fr-find]")){tgHaptic();if(needAuth()){authShow();return}frFind();return}
   if(t.closest("[data-fr-go]")){frFindGo();return}
+  if(t.closest("[data-fr-contacts]")){frContacts();return}
   const sd=t.closest("[data-fr-send]");if(sd){const uid=sd.dataset.frSend,n=sd.dataset.n;sd.disabled=true;sd.textContent="Отправляю…";
     NS.reqSend(uid,myName(),"p").then(ok=>{if(ok){FROUT=[...FROUT.filter(o=>o.uid!==uid),{uid,n,ts:Date.now()}];froutSave();sd.textContent="Заявка отправлена";toast("Заявка отправлена — "+n+" увидит её в Норе")}else{sd.disabled=false;sd.textContent="Не получилось, ещё раз"}}).catch(()=>{sd.disabled=false;sd.textContent="Не получилось, ещё раз"});return}
   const qy=t.closest("[data-frq-yes]");if(qy){reqAnswer(qy.dataset.frqYes,true);return}

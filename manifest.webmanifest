@@ -1,6 +1,6 @@
 {
-  "name": "Нора",
-  "short_name": "Нора",
+  "name": "Моя Нора",
+  "short_name": "Моя Нора",
   "description": "Книжная нора: полки, лента находок и статистика прочитанного",
   "lang": "ru",
   "start_url": "/",
@@ -10,8 +10,21 @@
   "background_color": "#05060A",
   "theme_color": "#05060A",
   "icons": [
-    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
-    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
-    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
   ]
 }

@@ -23,25 +23,52 @@ const palOf=t=>PAL[hsh(String(t))%PAL.length];
 // ---------- обложки: настоящие (Фантлаб/Википедия) поверх рисованных ----------
 const IMG=LS.get("zal.img",{});let imgT=0;const imgSave=()=>{clearTimeout(imgT);imgT=setTimeout(()=>LS.set("zal.img",IMG),500)};
 const ikey=x=>x._f?"f:"+(x.id||norm(x.t)+(x.y||"")):norm(x.t)+"|"+norm(x.a||"");
-const imgOf=x=>x.img||IMG[ikey(x)]||"";
+// IMG[k]: адрес картинки; "!время" — источник ответил «нет обложки» (повторим через 2 недели)
+const NOIMG_TTL=14*864e5;
+const imgOf=x=>{const v=x.img||IMG[ikey(x)]||"";return v&&v[0]!=="!"?v:""};
+const imgKnown=k=>{const v=IMG[k];if(!v)return false;if(v[0]!=="!")return true;return Date.now()-(+v.slice(1)||0)<NOIMG_TTL};
+const imgTag=u=>`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer" decoding="async" onload="this.classList.add('ok')" onerror="NORA_IMGERR(this)">`;
 function cv(x,w){const k=ikey(x),u=imgOf(x);let inner="";
   if(x._f)inner=`<span class="L">${poster({...(x.src||{}),id:x.id||x.t,t:x.t,y:x.y,g:x.g||0},w||120)}</span>`;
   else{const s=x.src&&x.src.bg?x.src:null,c=catOf(x),p=palOf(x.t),b=s||{id:x.id||x.t,t:x.t,a:x.a||"",g:x.g||(c&&c.g)||"modern",bg:(c&&c.bg)||p[0],fg:(c&&c.fg)||p[1],tags:c&&c.tags};
     inner=`<span class="L">${cover({...b,a:b.a||""},w||120)}</span>`}
   if(!u&&x.t)wantImg(x);
-  return `<div class="cv lg" data-ik="${esc(k)}" style="--lw:${w||120}px">${inner}${u?`<img class="ok" src="${esc(u)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">`:""}</div>`}
-const IQ=[];let iqn=0;
-function wantImg(x){const k=ikey(x);if(IMG[k]!==undefined||IQ.some(q=>q.k===k))return;IQ.push({x,k});pump()}
-function pump(){while(iqn<3&&IQ.length){const {x,k}=IQ.shift();iqn++;findImg(x).then(u=>{IMG[k]=u||"";imgSave();if(u)document.querySelectorAll(`#app [data-ik="${CSS.escape(k)}"]`).forEach(el=>{if(!el.querySelector("img")){el.insertAdjacentHTML("beforeend",`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer" onload="this.classList.add('ok')" onerror="this.remove()">`)}});
-  if(u&&curImgKey===k)ambient(u)}).catch(()=>{}).finally(()=>{iqn--;pump()})}}
+  return `<div class="cv lg" data-ik="${esc(k)}" style="--lw:${w||120}px">${inner}${u?imgTag(u):""}</div>`}
+// картинка не загрузилась (сеть) — пробуем ещё раз с паузой; после 4 неудач ищем обложку заново
+const IERR={};
+window.NORA_IMGERR=function(img){const box=img.closest("[data-ik]"),k=box&&box.dataset.ik,u=img.getAttribute("src");img.remove();if(!k)return;
+  const n=IERR[k]=(IERR[k]||0)+1;
+  if(n<=4)setTimeout(()=>{document.querySelectorAll(`#app [data-ik="${CSS.escape(k)}"]`).forEach(el=>{if(!el.querySelector("img"))el.insertAdjacentHTML("beforeend",imgTag(u))})},[2e3,6e3,15e3,4e4][n-1]);
+  else if(IMG[k]===u){delete IMG[k];imgSave()}};
+const IQ=[],IX={};let iqn=0,iretry=0;
+function wantImg(x){const k=ikey(x);if(imgKnown(k)||IX[k])return;IX[k]=1;IQ.push({x,k});pump()}
+function putImg(k,u){document.querySelectorAll(`#app [data-ik="${CSS.escape(k)}"]`).forEach(el=>{if(!el.querySelector("img"))el.insertAdjacentHTML("beforeend",imgTag(u))});
+  const sl=document.querySelector(`.slide [data-ik="${CSS.escape(k)}"]`);if(sl){const bg=sl.closest(".slide").querySelector(".bg");if(bg&&!bg.firstChild)bg.innerHTML=`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer">`}
+  if(curImgKey===k)ambient(u);const pre=new Image();pre.referrerPolicy="no-referrer";pre.src=u}
+function pump(){while(iqn<6&&IQ.length){const {x,k}=IQ.shift();iqn++;
+  findImg(x).then(u=>{delete IX[k];
+    if(u===null){IQ.push({x,k});IX[k]=1;if(Date.now()-(pump._f||0)>1500){iretry=Math.min(iretry+1,6);pump._f=Date.now()}return}   // сеть подвела — встанет в очередь снова
+    iretry=0;IMG[k]=u||"!"+Date.now();imgSave();if(u)putImg(k,u)})
+  .finally(()=>{iqn--;if(iretry&&IQ.length){clearTimeout(pump._t);pump._t=setTimeout(pump,[0,2e3,5e3,1e4,2e4,3e4,6e4][iretry])}else pump()})}}
+addEventListener("online",()=>{iretry=0;pump()});
+document.addEventListener("visibilitychange",()=>{if(!document.hidden){iretry=0;pump()}});
 async function flj(path){const r=await fetch("https://api.fantlab.ru"+path);if(!r.ok)throw new Error(r.status);return r.json()}
 const flClean=d=>{d=String(d||"").replace(/\[[^\]]*\]/g,"").replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim();return d.length>260?d.slice(0,d.lastIndexOf(" ",250))+"…":d};
+async function wikiImg(q){const j=await (await fetch("https://ru.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=5&gsrsearch="+encodeURIComponent(q)+"&prop=pageimages&piprop=thumbnail&pithumbsize=500&pilicense=any")).json();
+  const p=Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index).find(p=>p.thumbnail);return p?p.thumbnail.source:""}
+// null — не удалось связаться (повторим), "" — обложки нет, иначе адрес
 async function findImg(x){try{
-  if(!x._f){const s=await flj("/search-works?q="+encodeURIComponent(x.t)+"&page=1&onlymatches=1");const sur=norm(String(x.a||"").split(" ").slice(-1)[0]);
-    const w=(Array.isArray(s)?s:[]).find(w=>(w.pic_edition_id||w.pic_edition_id_auto)&&(!sur||norm(w.autor_rusname||"").includes(sur)));return w?IMGFL(w.pic_edition_id||w.pic_edition_id_auto):""}
-  const q=(x.t+" "+(x.y||"")+(x.s?" сериал":" фильм")).trim();
-  const j=await (await fetch("https://ru.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=5&gsrsearch="+encodeURIComponent(q)+"&prop=pageimages&piprop=thumbnail&pithumbsize=500&pilicense=any")).json();
-  const p=Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index).find(p=>p.thumbnail);return p?p.thumbnail.source:""}catch(e){return ""}}
+  if(!x._f){const sur=norm(String(x.a||"").split(" ").slice(-1)[0]),pic=w=>w.pic_edition_id||w.pic_edition_id_auto;
+    const pick=s=>{const L=(Array.isArray(s)?s:[]).filter(pic);return L.find(w=>!sur||norm(w.autor_rusname||"").includes(sur)||norm(w.autor_name||"").includes(sur))};
+    let w=pick(await flj("/search-works?q="+encodeURIComponent(x.t)+"&page=1&onlymatches=1"));
+    if(!w){const t2=String(x.t).replace(/[«»"'’.,:;!?()—–-]+/g," ").replace(/\s+/g," ").trim();if(t2!==x.t||x.a)w=pick(await flj("/search-works?q="+encodeURIComponent(t2+(x.a?" "+String(x.a).split(" ").slice(-1)[0]:""))+"&page=1"))}
+    if(w)return IMGFL(pic(w));
+    return await wikiImg(x.t+" "+(x.a||"")+" роман книга")}
+  return await wikiImg((x.t+" "+(x.y||"")+(x.s?" сериал":" фильм")).trim())}catch(e){return null}}
+// рисованная обложка рисуется в своём размере и подгоняется под ячейку
+const RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>{const el=e.target,lw=parseFloat(el.style.getPropertyValue("--lw"))||120,w=e.contentRect.width;if(w)el.style.setProperty("--k",(w/lw).toFixed(4))})):null;
+const fitAll=root=>{if(!RO)return;(root||document).querySelectorAll(".cv.lg:not([data-ro])").forEach(el=>{el.dataset.ro=1;RO.observe(el)})};
+new MutationObserver(()=>fitAll($("#app"))).observe(document.getElementById("app"),{childList:true,subtree:true});
 
 // ---------- единый вид записи для интерфейса ----------
 function bItem(b,kind){const c=catOf(b)||{};
@@ -427,7 +454,10 @@ const _closeSheet=closeSheet;closeSheet=function(){_closeSheet();setTimeout(refr
 
 // ---------- запуск ----------
 if(VIEW){document.body.classList.add("viewing");REALM="books"}
-setRealmUI(REALM);pickCol();buildFeed();show("col");moveLens();document.fonts&&document.fonts.ready.then(moveLens);
+setRealmUI(REALM);pickCol();buildFeed();show("col");
+// заранее подтягиваем обложки всего, что лежит на полках (обеих)
+setTimeout(()=>{try{[BK,FM].forEach(D=>{D.want().forEach(wantImg);D.read().forEach(wantImg)})}catch(e){}},1200);
+moveLens();document.fonts&&document.fonts.ready.then(moveLens);
 if(REALM==="films")loadFilms().then(()=>{if(isF()){buildFeed();refresh()}}).catch(()=>{});
 const emptyAll=()=>!BOOKS.length&&!want.length&&!FSEEN.length&&!FWANT.length&&!nowBook;
 if(!VIEW&&!LS.get("zal.onb",0)){if(!emptyAll())LS.set("zal.onb",1);else setTimeout(()=>{if(emptyAll()&&!LS.get("zal.onb",0))introShow()},900)}

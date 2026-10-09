@@ -36,13 +36,9 @@
 /* ---------- обложки: типографская обложка старой Норы под настоящей картинкой ---------- */
 #app .cv.lg{background:#1a1b22}
 #app .cv.lg>.L{position:absolute;inset:0;display:block}
+/* типографская обложка рисуется в своём размере (--lw) и масштабируется под ячейку (--k ставит скрипт) */
+#app .cv.lg>.L{right:auto;bottom:auto;width:var(--lw,120px);height:calc(var(--lw,120px) * 1.5);transform-origin:0 0;transform:scale(var(--k,1))}
 #app .cv.lg>.L>.cover,#app .cv.lg>.L>.poster{width:100%!important;height:100%!important;border-radius:0;box-shadow:none;margin:0}
-/* типографская обложка рисуется в своём размере и масштабируется под ячейку */
-@supports (width:calc(tan(atan2(1px,1px)) * 1px)){
-  #app .cv.lg{container-type:inline-size}
-  #app .cv.lg>.L{right:auto;bottom:auto;width:var(--lw);height:calc(var(--lw) * 1.5);transform-origin:0 0;transform:scale(tan(atan2(100cqw,var(--lw))))}
-  #app .cv.lg>.L>.cover,#app .cv.lg>.L>.poster{width:var(--lw)!important;height:calc(var(--lw) * 1.5)!important}
-}
 #app .cv.lg>img{z-index:1}
 
 /* ---------- фильтры ленты фильмов ---------- */

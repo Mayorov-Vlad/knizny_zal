@@ -79,6 +79,21 @@ S.signUp=async(email,pw)=>{if(!key)setKey(gen());const j=await idt("signUp",{ema
 S.signIn=async(email,pw)=>{const j=await idt("signInWithPassword",{email,password:pw,returnSecureToken:true});keepTok(j);const k=await userDoc(j,"GET");
   if(k){if(k!==key)setKey(k)}else{if(!key)setKey(gen());await userDoc(j,"PATCH",key)}keep(email);ready=true;booting=false;await sync();emit()};
 S.reset=email=>idt("sendOobCode",{requestType:"PASSWORD_RESET",email});
+
+// ---- друзья: поиск по почте/нику и заявки ----
+const sha=async s=>{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,"0")).join("")};
+const hkey=h=>{h=String(h||"").trim().toLowerCase();if(!h)return "";if(h.includes("@")&&!h.startsWith("@"))return "e:"+h;return "t:"+h.replace(/^@/,"").replace(/^https?:\/\/t\.me\//,"")};
+async function authed(path,opt={}){const t=await S.token();if(!t)throw new Error("noauth");const r=await fetch((path[0]===":"?base().slice(0,-1):base())+path,{...opt,headers:{"Content-Type":"application/json",Authorization:"Bearer "+t,...(opt.headers||{})}});return r}
+S.lookupPut=async handles=>{if(!tok.uid)return;for(const h of handles){const k=hkey(h);if(!k||k==="t:")continue;const id=await sha(k);
+  await authed("lookup/"+id,{method:"PATCH",body:JSON.stringify({fields:{u:{stringValue:tok.uid}}})}).catch(()=>{})}};
+S.lookup=async h=>{const k=hkey(h);if(!k)return null;const r=await fetch(base()+"lookup/"+(await sha(k))+"?key="+FB.apiKey,{cache:"no-store"});if(r.status===404)return null;if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();return j.fields&&j.fields.u&&j.fields.u.stringValue||null};
+const reqDoc=f=>({f:f.f.stringValue,t:f.t.stringValue,n:f.n?f.n.stringValue:"",s:f.s.stringValue,k:f.k?f.k.stringValue:"",ts:f.ts?+f.ts.integerValue:0});
+S.reqSend=async(to,name,s,k)=>{const fields={f:{stringValue:tok.uid},t:{stringValue:to},n:{stringValue:name||""},s:{stringValue:s||"p"},ts:{integerValue:String(Date.now())}};if(k)fields.k={stringValue:k};
+  const r=await authed("requests/"+to+"_"+tok.uid,{method:"PATCH",body:JSON.stringify({fields})});return r.ok};
+S.reqGet=async id=>{const r=await authed("requests/"+id);if(r.status===404)return null;if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();return reqDoc(j.fields)};
+S.reqIncoming=async()=>{if(!tok.uid)return [];const q={structuredQuery:{from:[{collectionId:"requests"}],where:{fieldFilter:{field:{fieldPath:"t"},op:"EQUAL",value:{stringValue:tok.uid}}},limit:50}};
+  const r=await authed(":runQuery",{method:"POST",body:JSON.stringify(q)});if(!r.ok)throw new Error("HTTP "+r.status);const L=await r.json();return (L||[]).filter(x=>x.document).map(x=>({id:x.document.name.split("/").pop(),...reqDoc(x.document.fields)}))};
+S.reqSet=async(id,s)=>{const r=await authed("requests/"+id+"?updateMask.fieldPaths=s",{method:"PATCH",body:JSON.stringify({fields:{s:{stringValue:s}}})});return r.ok};
 S.link=()=>key?"https://moya-nora.github.io/#k="+key:"";
 S.now=()=>sync();
 window.NSYNC=S;

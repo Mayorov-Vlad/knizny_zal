@@ -1442,6 +1442,81 @@ html[data-theme="light"] #app .hsb{background:rgba(250,249,246,.95)}
 #app .dock .dsrch svg{stroke:#0B0B10!important;stroke-width:2.2}
 #app .dock .dsrch{width:50px!important;min-width:0!important;height:50px!important;padding:0!important;display:grid!important;place-items:center;border-radius:50%!important}
 #app .ava{display:flex!important;align-items:center!important;justify-content:center!important;flex:none}
+/* карточка: выезжает снизу целиком, без просвечивания */
+#app .bkc{opacity:1;visibility:hidden;transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.9,.3,1),visibility 0s .32s;background:#07080C}
+#app .bkc.on{visibility:visible;transform:none;transition:transform .32s cubic-bezier(.2,.9,.3,1),visibility 0s}
+#app .bkc-bg{display:none}
+#app .bkc-cv .cv:has(img) .L{opacity:0}
+#app .bkc-cov{bottom:10px;padding:6px 11px 6px 9px;background:rgba(10,10,14,.62);color:rgba(255,255,255,.92);font-size:12px;font-weight:500;box-shadow:none;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#app .bkc-cov svg{width:15px;height:15px}
+#app .bkc-cov.on{background:rgba(255,255,255,.9);color:#0B0B10}
+#app .bkc-covsw{margin-top:12px}
+#app .bkc h2{margin-top:18px}
+#app .bkc-facts button{display:inline-flex;gap:5px;align-items:center}
+#app .sk-f{width:90px;height:26px;padding:0!important;border-radius:999px;background:rgba(255,255,255,.07);animation:skp 1.2s ease-in-out infinite}
+#app .sk-f.w{width:150px}
+@keyframes skp{50%{opacity:.45}}
+#app .bkc-dw{flex:1 1 0;min-height:52px;width:100%;max-width:46ch;margin-top:14px;display:flex;flex-direction:column;align-items:center;overflow:hidden}
+#app .bkc-dw .bkc-ds{flex:none;margin:0;min-height:0}
+#app .bkc-dw.open{overflow-y:auto;-webkit-overflow-scrolling:touch;-webkit-mask:linear-gradient(transparent,#000 10px,#000 calc(100% - 14px),transparent);mask:linear-gradient(transparent,#000 10px,#000 calc(100% - 14px),transparent)}
+#app .bkc-dw.open .bkc-ds{display:block;padding:6px 0 14px}
+#app .bkc-more{flex:none;margin-top:4px;font-size:14px;font-weight:600;color:#8FD3A8}
+/* отзывы */
+#app .rv{padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+#app .rv-h{display:flex;align-items:baseline;gap:8px;font-size:14px}
+#app .rv-h span{color:#E9C46A;font-weight:600}#app .rv-h small{margin-left:auto;color:var(--ink3);font-size:12px}
+#app .rv-t{margin:6px 0 0;font-size:14.5px;line-height:1.5;color:rgba(255,255,255,.86);white-space:pre-line;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+#app .rv.open .rv-t{display:block}
+#app .rv-more{margin-top:4px;font-size:13.5px;font-weight:600;color:#8FD3A8}
+/* заставка: книги всё время приглушены, название — главное */
+#app .sp-reel>i{background:#0E0F14!important;animation:none!important}
+#app .sp-reel>i.spt{position:relative;overflow:hidden}
+#app .sp-reel>i.spt img{width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .5s}
+#app .sp-reel>i.spt.ok img{opacity:1}
+#app .sp-fade,#app .splash.frozen .sp-fade{background:radial-gradient(110% 70% at 50% 47%,rgba(5,6,10,.62),rgba(5,6,10,.82) 60%,rgba(5,6,10,.94))!important}
+/* лента: «переслать» — в правом верхнем углу карточки */
+#app .fly .shr{position:absolute;top:14px;right:14px;z-index:5;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:rgba(10,10,14,.45);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+#app .fly .shr svg{width:19px;height:19px;fill:none;stroke:#fff;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+/* книга встаёт на полку */
+#app .shput{position:fixed;inset:0;z-index:94;pointer-events:none;opacity:0;background:rgba(4,5,8,.82);transition:opacity .3s}
+#app .shput.go{opacity:1;pointer-events:auto;animation:shpOut .4s ease 1.9s forwards}
+@keyframes shpOut{to{opacity:0}}
+#app .shp-cv{position:absolute;left:50%;top:38%;width:150px;margin-left:-75px;aspect-ratio:2/3;transform:translateY(-50%)}
+#app .shp-cv .cv{width:100%;height:100%;box-shadow:0 30px 60px -20px rgba(0,0,0,.8)}
+#app .shput.go .shp-cv{animation:shpCv 1.15s cubic-bezier(.5,0,.3,1) forwards}
+@keyframes shpCv{0%{transform:translateY(-40%) scale(.85);opacity:0}22%{transform:translateY(-50%) scale(1);opacity:1}55%{transform:translateY(-50%) scale(1) rotateY(0)}85%{transform:translateY(40%) scale(.75) rotateY(88deg);opacity:1}100%{transform:translateY(60%) scale(.7) rotateY(90deg);opacity:0}}
+#app .shp-row{position:absolute;left:0;right:0;top:calc(62% - 154px);height:154px;display:flex;justify-content:center;align-items:flex-end;gap:3px;opacity:0}
+#app .shput.go .shp-row{animation:shpIn .35s ease .55s forwards}
+@keyframes shpIn{to{opacity:1}}
+#app .shp-row .sp{display:block;width:26px;border-radius:3px 3px 1px 1px;box-shadow:inset -3px 0 0 rgba(0,0,0,.2);position:relative;font-style:normal}
+#app .shp-row .sp span{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) rotate(-90deg);white-space:nowrap;font:600 10px var(--serif);max-width:110px;overflow:hidden;text-overflow:ellipsis}
+#app .shp-row .sp.new{width:0;transform:translateY(-180px);opacity:0}
+#app .shput.go .shp-row .sp.new{animation:shpNew .5s cubic-bezier(.3,1.5,.5,1) .95s forwards}
+@keyframes shpNew{0%{width:0;transform:translateY(-180px);opacity:0}40%{width:34px;opacity:1}100%{width:34px;transform:none;opacity:1}}
+#app .shp-plank{position:absolute;left:12%;right:12%;top:62%;height:8px;border-radius:2px;background:linear-gradient(#6B5440,#43342A);box-shadow:0 12px 24px -8px rgba(0,0,0,.8);opacity:0}
+#app .shput.go .shp-plank{animation:shpIn .35s ease .55s forwards}
+#app .shp-t{position:absolute;left:0;right:0;top:calc(62% + 28px);text-align:center;font-family:var(--serif);font-size:26px;font-weight:600;opacity:0}
+#app .shput.go .shp-t{animation:shpIn .4s ease 1.3s forwards}
+/* заявки в друзья */
+#app .frq{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;margin-bottom:10px}
+#app .frq>span{flex:1 1 140px;min-width:0}#app .frq b{display:block;font-size:15px}#app .frq small{display:block;color:var(--ink3);font-size:12.5px;margin-top:2px}
+#app .frq .ava{width:42px;height:42px;font-size:18px}
+#app .frq .btn{flex:1 1 40%;min-height:42px;font-size:14px}
+#app .frq.one-r{margin-top:12px;border-radius:18px;background:rgba(255,255,255,.06)}
+#app .fr-yn{display:flex;gap:10px;margin-top:14px}#app .fr-yn .btn{flex:1}
+#app .fr-link{display:block;width:100%;margin-top:16px;padding:12px;border-radius:14px;border:1px dashed rgba(255,255,255,.2);font-size:14px;color:var(--ink2)}
+#app .fr-go{display:block;width:100%;margin-top:6px}
+/* полка корешками */
+#app .spv{padding:6px 4px 10px}
+#app .spr{margin-bottom:26px}
+#app .spb{display:flex;align-items:flex-end;gap:3px;padding:0 6px}
+#app .spn{position:relative;flex:none;border-radius:4px 4px 2px 2px;background:var(--b);color:var(--f);box-shadow:inset -4px 0 0 rgba(0,0,0,.22),inset 2px 0 0 rgba(255,255,255,.1),0 6px 14px -6px rgba(0,0,0,.7);overflow:hidden;transition:transform .25s cubic-bezier(.3,1.4,.5,1)}
+#app .spn:active{transform:translateY(-8px)}
+#app .spn b{position:absolute;left:50%;top:12px;transform-origin:0 0;transform:rotate(90deg) translateY(-50%);white-space:nowrap;font-family:var(--serif);font-size:13px;font-weight:600;line-height:1;max-width:118px;overflow:hidden;text-overflow:ellipsis}
+#app .spn small{position:absolute;left:0;right:0;bottom:8px;text-align:center;font-size:7.5px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;opacity:.75;overflow:hidden;white-space:nowrap;padding:0 2px}
+#app .spn::after{content:"";position:absolute;left:4px;right:4px;bottom:24px;height:1.5px;background:currentColor;opacity:.35}
+#app .spn i{position:absolute;left:50%;top:-2px;width:8px;height:14px;margin-left:-4px;background:#E9C46A;clip-path:polygon(0 0,100% 0,100% 100%,50% 75%,0 100%)}
+#app .spk{display:block;height:6px;margin:0 2px;border-radius:3px;background:linear-gradient(rgba(255,255,255,.22),rgba(255,255,255,.06));box-shadow:0 10px 22px -6px rgba(0,0,0,.9),0 1px 0 rgba(255,255,255,.12) inset}
 
 </style>
 </head>
@@ -1623,6 +1698,21 @@ S.signUp=async(email,pw)=>{if(!key)setKey(gen());const j=await idt("signUp",{ema
 S.signIn=async(email,pw)=>{const j=await idt("signInWithPassword",{email,password:pw,returnSecureToken:true});keepTok(j);const k=await userDoc(j,"GET");
   if(k){if(k!==key)setKey(k)}else{if(!key)setKey(gen());await userDoc(j,"PATCH",key)}keep(email);ready=true;booting=false;await sync();emit()};
 S.reset=email=>idt("sendOobCode",{requestType:"PASSWORD_RESET",email});
+
+// ---- друзья: поиск по почте/нику и заявки ----
+const sha=async s=>{const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(s));return Array.from(new Uint8Array(b),x=>x.toString(16).padStart(2,"0")).join("")};
+const hkey=h=>{h=String(h||"").trim().toLowerCase();if(!h)return "";if(h.includes("@")&&!h.startsWith("@"))return "e:"+h;return "t:"+h.replace(/^@/,"").replace(/^https?:\/\/t\.me\//,"")};
+async function authed(path,opt={}){const t=await S.token();if(!t)throw new Error("noauth");const r=await fetch((path[0]===":"?base().slice(0,-1):base())+path,{...opt,headers:{"Content-Type":"application/json",Authorization:"Bearer "+t,...(opt.headers||{})}});return r}
+S.lookupPut=async handles=>{if(!tok.uid)return;for(const h of handles){const k=hkey(h);if(!k||k==="t:")continue;const id=await sha(k);
+  await authed("lookup/"+id,{method:"PATCH",body:JSON.stringify({fields:{u:{stringValue:tok.uid}}})}).catch(()=>{})}};
+S.lookup=async h=>{const k=hkey(h);if(!k)return null;const r=await fetch(base()+"lookup/"+(await sha(k))+"?key="+FB.apiKey,{cache:"no-store"});if(r.status===404)return null;if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();return j.fields&&j.fields.u&&j.fields.u.stringValue||null};
+const reqDoc=f=>({f:f.f.stringValue,t:f.t.stringValue,n:f.n?f.n.stringValue:"",s:f.s.stringValue,k:f.k?f.k.stringValue:"",ts:f.ts?+f.ts.integerValue:0});
+S.reqSend=async(to,name,s,k)=>{const fields={f:{stringValue:tok.uid},t:{stringValue:to},n:{stringValue:name||""},s:{stringValue:s||"p"},ts:{integerValue:String(Date.now())}};if(k)fields.k={stringValue:k};
+  const r=await authed("requests/"+to+"_"+tok.uid,{method:"PATCH",body:JSON.stringify({fields})});return r.ok};
+S.reqGet=async id=>{const r=await authed("requests/"+id);if(r.status===404)return null;if(!r.ok)throw new Error("HTTP "+r.status);const j=await r.json();return reqDoc(j.fields)};
+S.reqIncoming=async()=>{if(!tok.uid)return [];const q={structuredQuery:{from:[{collectionId:"requests"}],where:{fieldFilter:{field:{fieldPath:"t"},op:"EQUAL",value:{stringValue:tok.uid}}},limit:50}};
+  const r=await authed(":runQuery",{method:"POST",body:JSON.stringify(q)});if(!r.ok)throw new Error("HTTP "+r.status);const L=await r.json();return (L||[]).filter(x=>x.document).map(x=>({id:x.document.name.split("/").pop(),...reqDoc(x.document.fields)}))};
+S.reqSet=async(id,s)=>{const r=await authed("requests/"+id+"?updateMask.fieldPaths=s",{method:"PATCH",body:JSON.stringify({fields:{s:{stringValue:s}}})});return r.ok};
 S.link=()=>key?"https://moya-nora.github.io/#k="+key:"";
 S.now=()=>sync();
 window.NSYNC=S;
@@ -3640,8 +3730,8 @@ const SHR='<svg viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M6 
 function filmFeed(){if(!FILMS)return [];const res=filmList();let i=0;
   feedMore=()=>{const chunk=res.slice(i,i+25);i+=25;return chunk.map(f=>fItem(f,"feed"))};return feedMore()}
 function slideHTML(x,j){const meta=x.a||"";
-  return `<article class="slide" data-j="${j}"><div class="wrap"><div class="fly gl"><div class="bg"></div><div class="lean r"><i>${IC.v}</i><b>Добавить</b></div><div class="lean l"><i>${IC.x}</i><b>Не предлагать</b></div><div class="obj">${cv(x,220)}</div><div class="info"><h2>${esc(x.t)}</h2><div class="meta">${esc(meta)}</div><p class="ds">${esc(descOf(x))}</p>
-  <div class="acts3"><button class="rb gl press" data-skip="${j}" aria-label="Не предлагать">${IC.x}</button><button class="rb sm gl press" data-undo aria-label="Отменить действие">${IC.u}</button><button class="rb sm gl press" data-shareb="${j}" aria-label="Переслать">${SHR}</button><button class="rb w press" data-want="${j}" aria-label="Добавить">${IC.v}</button></div></div></div></div></article>`}
+  return `<article class="slide" data-j="${j}"><div class="wrap"><div class="fly gl"><div class="bg"></div><button class="shr press" data-shareb="${j}" aria-label="Переслать">${SHR}</button><div class="lean r"><i>${IC.v}</i><b>Добавить</b></div><div class="lean l"><i>${IC.x}</i><b>Не предлагать</b></div><div class="obj">${cv(x,220)}</div><div class="info"><h2>${esc(x.t)}</h2><div class="meta">${esc(meta)}</div><p class="ds">${esc(descOf(x))}</p>
+  <div class="acts3"><button class="rb gl press" data-skip="${j}" aria-label="Не предлагать">${IC.x}</button><button class="rb sm gl press" data-undo aria-label="Отменить действие">${IC.u}</button><button class="rb w press" data-want="${j}" aria-label="Добавить">${IC.v}</button></div></div></div></div></article>`}
 function slideDesc(el,x){const upd=()=>{const p=el.querySelector(".info p.ds");if(p)p.textContent=descOf(x)};upd();wantDesc(x,upd);const nx=el.nextElementSibling;if(nx&&nx.dataset.j!=null){const y=slides[+nx.dataset.j];if(y)wantDesc(y,()=>{const p=nx.querySelector(".info p.ds");if(p)p.textContent=descOf(y)})}}
 function bgFill(sl,x){const u=imgOf(x),bg=sl.querySelector(".bg");if(u&&bg&&!bg.firstChild)bg.innerHTML=`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer">`}
 function endInner(){return `<h2>Пока всё</h2><p>Шуршуня подберёт новое, как только ты что-нибудь отметишь. А пока можно поискать через лупу.</p><div class="acts"><button class="btn w" data-find>Найти через поиск</button></div>`}
@@ -3753,7 +3843,7 @@ function authorsHTML(){const by={};BOOKS.forEach(b=>{const a=b.a&&b.a!=="Авт�
   return `<div class="authors">${Object.entries(by).sort((x,y)=>(y[1].length-x[1].length)||x[0].localeCompare(y[0],"ru")).map(([a,bs])=>`<div class="au-card"><h3>${esc(a)}</h3><div class="sub">${esc(bs[0].c&&!NOCOUNTRY.has(bs[0].c)?bs[0].c:"")}</div><div class="au-books">${bs.map(b=>`<button class="au-book" data-id="${b.id}">${cover(b,34)}<b>${esc(b.t)}</b></button>`).join("")}</div></div>`).join("")}</div>`}
 const SHV=()=>LS.get("zal.shelfv","covers");
 function drawViews(){cvw.hidden=true;const sp=SHV()==="spines"&&gridList().length&&!isF();$("#grid").hidden=sp;oldv.hidden=!sp;
-  if(sp){oldv.innerHTML=`<div id="shelfAll">${colF==="want"&&!VIEW?spinesHTML(want.map((b,i)=>({b:{...(catOf(b)||{}),...b,bg:b.bg||(catOf(b)||{}).bg||palOf(b.t)[0],fg:b.fg||(catOf(b)||{}).fg||palOf(b.t)[1]},i})),"want"):spinesHTML(BOOKS.map((b,i)=>({b,i})))}</div>`;requestAnimationFrame(()=>{try{fitAll(oldv)}catch(e){}})}else oldv.innerHTML="";return;const L=VIEW?[["grid","Обложки"],["shelves","Полки"],["cent","Века"],["map","Карта"]]:VIEWS[colF]||VIEWS.read,v=L.some(x=>x[0]===colV[colF])?colV[colF]:"grid";
+  if(sp)spDraw();else oldv.innerHTML="";return;const L=VIEW?[["grid","Обложки"],["shelves","Полки"],["cent","Века"],["map","Карта"]]:VIEWS[colF]||VIEWS.read,v=L.some(x=>x[0]===colV[colF])?colV[colF]:"grid";
   const empty=!gridList().length;cvw.hidden=empty;
   cvw.innerHTML=L.map(([k,l])=>`<button class="${v===k?"on":""}" data-cv="${k}">${l}</button>`).join("");
   $("#grid").hidden=v!=="grid"&&!empty;oldv.hidden=v==="grid"||empty;
@@ -3763,6 +3853,15 @@ function drawViews(){cvw.hidden=true;const sp=SHV()==="spines"&&gridList().lengt
   else if(v==="map")oldv.innerHTML=mapHTML();
   else if(v==="authors")oldv.innerHTML=authorsHTML();
   requestAnimationFrame(()=>{try{fitAll(oldv)}catch(e){}})}
+
+// ---------- вид полки «корешки»: книги стоят в ряд на полках, в стиле Норы ----------
+function spDraw(){const L=gridList(),W=Math.max(260,Math.min(oldv.clientWidth||innerWidth,innerWidth-36)-16);
+  const items=L.map((x,i)=>{const c=catOf(x)||{},pg=x.pg||LENPG[c.len]||360,p=palOf(x.t);
+    return {i,x,w:Math.round(Math.min(48,Math.max(26,20+pg/26))),h:Math.round(150+((hsh(x.t)%40))),bg:x.bg||c.bg||p[0],fg:x.fg||c.fg||p[1]}});
+  const rows=[];let row=[],acc=0;items.forEach(s=>{if(acc+s.w+3>W&&row.length){rows.push(row);row=[];acc=0}row.push(s);acc+=s.w+3});if(row.length)rows.push(row);
+  const sur=a=>{a=String(a||"");return a&&a!=="Автор не указан"?a.split(" ").slice(-1)[0]:""};
+  oldv.innerHTML=`<div class="spv">${rows.map(r=>`<div class="spr"><div class="spb">${r.map(s=>`<button class="spn" data-spn="${s.i}" style="width:${s.w}px;height:${s.h}px;--b:${s.bg};--f:${s.fg}" aria-label="${esc(s.x.t)}"><b>${esc(s.x.t)}</b><small>${esc(sur(s.x.a))}</small>${s.x.r!=null&&colF==="read"&&r5(s.x.r)>=5?`<i></i>`:""}</button>`).join("")}</div><i class="spk"></i></div>`).join("")}</div>`}
+oldv.addEventListener("click",e=>{const s=e.target.closest("[data-spn]");if(!s)return;e.stopPropagation();flowHold=Date.now();const x=gridList()[+s.dataset.spn];if(x)openItem(x,colF==="want"?"top":colF)},true);
 oldv.addEventListener("click",e=>{const s=e.target.closest(".spine[data-w]");if(!s)return;e.stopPropagation();flowHold=Date.now();const w=want[+s.dataset.w];if(w)bkcOpen(bItem(w,"want"),"top")},true);
 cvw.addEventListener("click",e=>{const b=e.target.closest("[data-cv]");if(!b)return;colV[colF]=b.dataset.cv;LS.set("zal.colv",colV);tgHaptic();drawViews()});
 $("#grid").addEventListener("click",e=>{const b=e.target.closest("[data-g]");if(b){flowHold=Date.now();openItem(gridList()[+b.dataset.g],colF)}});
@@ -3889,7 +3988,8 @@ function drawSum(){const F=isF(),r=DATA().read(),u=T[REALM].u,known=r.filter(x=>
   const cs=cntBy(known,x=>x.c),au=F?[]:cntBy(r.filter(x=>x.a&&x.a!=="Автор не указан"),x=>x.a),dated=r.filter(x=>x.y);
   const eras=F?cntBy(dated,x=>Math.floor(x.y/10)*10+"-е"):cntBy(dated,x=>(ROMAN[centuryOf(x.y)]||centuryOf(x.y))+" век");
   const gens=F?cntBy(r,x=>{const g=genreList(x.g||0);return g[0]||""}):cntBy(r,x=>GEN[x.g]);const vol=F?Math.round(r.reduce((a,x)=>a+(x.m||0),0)/60):r.reduce((a,x)=>a+(x.pg||0),0);const wn=DATA().want().length;
-  const links=VIEW?"":`<div class="sc gl s3"><div class="themes" style="border-top:0;margin-top:0"><span>Вид полки</span>${[["covers","обложки"],["spines","корешки"]].map(([v,l])=>`<button data-shv="${v}" class="${SHV()===v?"on":""}">${l}</button>`).join("")}</div></div>`;
+  const inst=!VIEW&&!TG&&!standalone()?`<button class="sx-hid" data-install style="margin-top:12px"><svg viewBox="0 0 24 24"><path d="M12 4v11M7.5 10.5L12 15l4.5-4.5M5 19h14"/></svg><span>Установить Нору на телефон — открывается как обычное приложение, без Telegram</span><u>как</u></button>`:"";
+  const links=VIEW?"":inst+`<div class="sc gl s3"><div class="themes" style="border-top:0;margin-top:0"><span>Вид полки</span>${[["covers","обложки"],["spines","корешки"]].map(([v,l])=>`<button data-shv="${v}" class="${SHV()===v?"on":""}">${l}</button>`).join("")}</div></div>`;
   if(!r.length){$("#sumMore").innerHTML=`<div class="sc gl"><p style="margin:0;color:var(--ink2)">Статистика появится, когда на полке будет что-то ${F?"просмотренное":"прочитанное"}.</p></div>${links}`;return}
   const avgS=rated.length?avg.toFixed(1).replace(".",","):"—";
   const head=`<div class="sc gl s1"><div class="big"><b>${r.length}</b><span>${plural(r.length,...u)}<br>${F?"посмотрено":"прочитано"}</span></div>
@@ -3924,6 +4024,7 @@ $("#sumMore").addEventListener("click",e=>{const t=e.target;
   if(t.closest("[data-import]")){importOpen();return}
   if(t.closest("[data-qadd]")){openQuoteForm();return}if(t.closest("[data-qall]")){openSheet(`<h3 class="sheet-h">Цитаты</h3><div class="qlist" id="qlist">${quotesListHTML()}</div>`);return}
   if(t.closest("[data-share]")){openShare();return}if(t.closest("[data-backup]")){openBackup();return}
+  if(t.closest("[data-install]")){hsShow("web");return}
   const sv=t.closest("[data-shv]");if(sv){LS.set("zal.shelfv",sv.dataset.shv);drawSum();tgHaptic();toast(sv.dataset.shv==="spines"?"Полка — корешками":"Полка — обложками");return}
   const th=t.closest("[data-theme-set]");if(th){const v=th.dataset.themeSet;try{v?localStorage.setItem("zal.theme",v):localStorage.removeItem("zal.theme")}catch(x){}if(TG&&TG.CloudStorage){try{TG.CloudStorage.setItem("theme",v||"")}catch(x){}}applyTheme();drawSum();tgHaptic();return}
   const o=t.closest("[data-open]");if(o){const x=DATA().read().find(y=>String(y.id)===o.dataset.open);if(x)openItem(x,"read")}});
@@ -4190,12 +4291,15 @@ try{if(sessionStorage.getItem("nsync.applied")){sessionStorage.removeItem("nsync
 
 // ---------- заставка при каждом открытии: обложки мелькают, пока всё грузится, потом замирают ----------
 const SPL={stop:false,k:0};
+// в заставке — только настоящие обложки (из кэша), без пустых рисованных; пока картинка не готова, ячейка просто тёмная
 function splashRun(){const sp=$("#splash"),reel=$("#spReel");if(!sp||!reel)return;
-  const own=[...BOOKS.map(b=>bItem(b,"read")),...want.map(w=>bItem(w,"want"))],L=own.length>=8?own.sort(()=>Math.random()-.5):[...own,...popBooks()];
-  const cells=reel.children.length;for(let c=0;c<cells;c++){reel.children[c].outerHTML=cv(L[c%L.length],130)}SPL.k=cells;
-  let delay=70;const tick=()=>{if(SPL.stop)return;const n=2+Math.floor(Math.random()*4);for(let m=0;m<n;m++){const c=reel.children[Math.floor(Math.random()*cells)];if(c)c.outerHTML=cv(L[(SPL.k++)%L.length],130)}
-    setTimeout(tick,delay)};setTimeout(tick,90)}
-function splashReady(){const imgs=[...document.querySelectorAll("#flow .cv.mid img,#flow .cv img,#grid .cv img")].slice(0,9);
+  const own=[...BOOKS.map(b=>bItem(b,"read")),...want.map(w=>bItem(w,"want"))].map(imgOf).filter(Boolean);
+  const rest=Object.values(IMG).filter(u=>u&&u[0]!=="!"&&!own.includes(u));const U=[...own.sort(()=>Math.random()-.5),...rest.sort(()=>Math.random()-.5)].slice(0,60);
+  const tile=u=>`<i class="spt"><img src="${esc(u)}" alt="" referrerpolicy="no-referrer" onload="this.parentNode.classList.add('ok')"></i>`;
+  const cells=reel.children.length;if(!U.length)return;for(let c=0;c<cells;c++){reel.children[c].outerHTML=tile(U[c%U.length])}SPL.k=cells;
+  const tick=()=>{if(SPL.stop||U.length<=cells)return;const n=1+Math.floor(Math.random()*3);for(let m=0;m<n;m++){const c=reel.children[Math.floor(Math.random()*cells)];if(c&&c.classList.contains("ok")){const u=U[(SPL.k++)%U.length],im=new Image();im.referrerPolicy="no-referrer";im.onload=()=>{c.querySelector("img").src=u};im.src=u}}
+    setTimeout(tick,160)};setTimeout(tick,300)}
+function splashReady(){const imgs=[...document.querySelectorAll("#flow .cv.mid img,#flow .cv img,#grid .cv img,#spReel img")].slice(0,15);
   const one=im=>im.complete?Promise.resolve():new Promise(r=>{im.addEventListener("load",r,{once:true});im.addEventListener("error",r,{once:true})});
   return Promise.all([document.fonts?document.fonts.ready:0,...imgs.map(one)])}
 function splashEnd(){const sp=$("#splash");if(!sp||SPL.done)return;SPL.done=true;SPL.stop=true;sp.classList.add("frozen");tgHaptic("medium");
@@ -4213,7 +4317,8 @@ const FRP={};   // загруженные профили друзей
 const hueOf=s=>hsh(String(s))%360;
 const avatar=(n,uid,cls="")=>`<i class="ava ${cls}" style="--h:${hueOf(uid)}">${esc((n||"?").trim().charAt(0).toUpperCase())}</i>`;
 function snapNow(){return {read:BOOKS.map(b=>({t:b.t,a:b.a||"",r:b.r??null,rd:b.rd||"",ds:(b.ann||"").slice(0,300)})),want:want.map(w=>({t:w.t,a:w.a||""})),now:nowBook&&nowBook.t?{t:nowBook.t,a:nowBook.a||""}:null}}
-function pubCheck(){if(!NS.on||VIEW||!(NS.hasTok&&NS.hasTok()))return;const cur=snapNow(),name=myName(),sig=JSON.stringify([name,cur]);const prev=LS.get("zal.sync.pub",null);
+function pubCheck(){if(!NS.on||VIEW||!(NS.hasTok&&NS.hasTok()))return;
+  {const u=TG&&TG.initDataUnsafe&&TG.initDataUnsafe.user,hs=[NS.email,u&&u.username?"@"+u.username:""].filter(Boolean),sig=hs.join("|")+"|"+NS.uid();if(hs.length&&NS.lookupPut&&localStorage.getItem("zal.sync.lk")!==sig)NS.lookupPut(hs).then(()=>localStorage.setItem("zal.sync.lk",sig)).catch(()=>{})}const cur=snapNow(),name=myName(),sig=JSON.stringify([name,cur]);const prev=LS.get("zal.sync.pub",null);
   if(prev&&prev.sig===sig)return;const ev=prev?prev.ev||[]:[],now=Date.now(),add=[];
   if(prev&&prev.snap){const pr=new Map(prev.snap.read.map(b=>[norm(b.t),b])),pw=new Set(prev.snap.want.map(w=>norm(w.t)));
     cur.read.forEach(b=>{const o=pr.get(norm(b.t));if(!o)add.push({k:"read",t:b.t,a:b.a,r:b.r,ts:now});else if(b.r!=null&&o.r!==b.r)add.push({k:"rate",t:b.t,a:b.a,r:b.r,ts:now})});
@@ -4224,16 +4329,19 @@ function pubCheck(){if(!NS.on||VIEW||!(NS.hasTok&&NS.hasTok()))return;const cur=
 setInterval(pubCheck,20000);document.addEventListener("visibilitychange",()=>{if(document.hidden)pubCheck()});setTimeout(pubCheck,6000);
 async function frLoad(){if(!NS.on)return;await Promise.all(FRIENDS.map(f=>NS.getProfile(f.uid).then(p=>{if(p){FRP[f.uid]=p;if(p.n&&p.n!==f.n){f.n=p.n;frSave()}}}).catch(()=>{})));frDotUpd();if(SCREEN==="fr")drawFr()}
 const frNew=f=>{const p=FRP[f.uid];return p&&(p.ev||[]).some(e=>e.ts>(FSEEN2[f.uid]||0))};
-function frDotUpd(){const d=$("#frDot");if(d)d.hidden=!FRIENDS.some(frNew)}
+function frDotUpd(){const d=$("#frDot");if(d)d.hidden=!((typeof REQS!=="undefined"&&REQS.length)||FRIENDS.some(frNew))}
 const evLabel=e=>e.k==="read"?(e.r!=null?"прочитано ★"+r5(e.r):"прочитано"):e.k==="rate"?"оценка ★"+r5(e.r):e.k==="want"?"хочет прочитать":"читает сейчас";
 const whenTxt=ts=>{const d=new Date(ts),t=new Date();const days=Math.floor((new Date(t.toDateString())-new Date(d.toDateString()))/864e5);return days<=0?"сегодня":days===1?"вчера":days<7?days+" "+plural(days,"день","дня","дней")+" назад":d.toLocaleDateString("ru-RU",{day:"numeric",month:"long"})};
 const fbItem=b=>{const it=bItem({...b,id:b.id||"f"+hsh(norm(b.t)).toString(36)},"friend");it.ds=b.ds||it.ds;return it};
-function inviteLink(){const u=NS.uid&&NS.uid();if(!u)return "";return TG?`https://t.me/${SHARE_BOT}?startapp=f_${u}`:`https://moya-nora.github.io/#f=${u}`}
+// своя метка приглашения: по ней Нора узнаёт, что заявку приняли именно по нашей ссылке
+const frTok=()=>{let k=LS.get("zal.frtok","");if(!k){k=Math.random().toString(36).slice(2,10);LS.set("zal.frtok",k)}return k};
+function inviteLink(){const u=NS.uid&&NS.uid();if(!u)return "";return TG?`https://t.me/${SHARE_BOT}?startapp=f_${u}_${frTok()}`:`https://moya-nora.github.io/#f=${u}&fk=${frTok()}`}
 function drawFr(){const box=$("#frBox");if(!box)return;const me=myName();
   const list=FRIENDS.map(f=>({f,p:FRP[f.uid]})),news=list.filter(x=>x.p&&(x.p.ev||[]).length).sort((a,b)=>(b.p.ev[0].ts||0)-(a.p.ev[0].ts||0));
   box.innerHTML=`<h1 class="fr-h">Друзья</h1>
-   <div class="fr-row"><button class="fr-add" data-fr-inv><i class="ava plus">+</i><span>Пригласить</span></button>${list.map(({f})=>`<button class="fr-av" data-fr-open="${esc(f.uid)}">${avatar(f.n,f.uid,frNew(f)?"new":"")}<span>${esc(f.n||"Друг")}</span></button>`).join("")}</div>
-   ${FRIENDS.length?"":`<div class="sc gl fr-empty"><h3>Полки друзей</h3><p>Пригласи друга — и вы будете видеть полки друг друга: что прочитано, какие оценки, что хочется прочитать. Ссылкой-снимком делиться больше не нужно: всё обновляется само.</p><button class="btn w" data-fr-inv>Пригласить друга</button></div>`}
+   ${REQS.length?`<h3 class="fr-sec">Заявки в друзья</h3>`+REQS.map(q=>`<div class="sc gl frq">${avatar(q.n,q.f)}<span><b>${esc(q.n||"Кто-то")}</b><small>хочет добавить в друзья</small></span><button class="btn w" data-frq-yes="${esc(q.id)}">Принять</button><button class="btn" data-frq-no="${esc(q.id)}">Отклонить</button></div>`).join(""):""}
+   <div class="fr-row"><button class="fr-add" data-fr-find><i class="ava plus">+</i><span>Добавить</span></button>${list.map(({f})=>`<button class="fr-av" data-fr-open="${esc(f.uid)}">${avatar(f.n,f.uid,frNew(f)?"new":"")}<span>${esc(f.n||"Друг")}</span></button>`).join("")}</div>
+   ${FRIENDS.length?"":`<div class="sc gl fr-empty"><h3>Полки друзей</h3><p>Найди друга по почте или нику в Telegram — придёт заявка прямо в Нору. Когда заявку примут, вы будете видеть полки друг друга: что прочитано, оценки, что хочется прочитать.</p><button class="btn w" data-fr-find>Добавить друга</button></div>`}
    ${news.length?`<h3 class="fr-sec">Что нового</h3>`+news.map(({f,p})=>{const ev=(p.ev||[]).slice(0,10),fresh=ev.filter(e=>e.ts>(FSEEN2[f.uid]||0)).length;
      return `<div class="sc gl frc"><button class="frh" data-fr-open="${esc(f.uid)}">${avatar(f.n,f.uid)}<b>${esc(f.n||"Друг")}</b><span>${whenTxt(ev[0].ts)}${fresh?` · новых: ${fresh}`:""}</span></button>
        <div class="frs">${ev.map((e,i)=>`<button class="fre" data-fr-ev="${esc(f.uid)}|${i}">${cv(fbItem(e),84)}<em>${esc(evLabel(e))}</em><small>${esc(e.t)}</small></button>`).join("")}</div></div>`}).join(""):FRIENDS.length?`<p class="fr-note">Когда друзья что-нибудь прочитают или оценят, это появится здесь.</p>`:""}
@@ -4254,12 +4362,44 @@ function frBook(uid,b){const f=FRIENDS.find(x=>x.uid===uid)||{},x=fbItem(b);x.fr
   vOpen(`<div class="dt">${cv(x,150)}<h2>${esc(x.t)}</h2><div class="meta">${esc(x.a||"")}</div>${b.r!=null?`<p class="dd q">У ${esc(f.n||"друга")}: ★ ${r5(b.r)}</p>`:""}<p class="dd" id="cardDesc">${esc(descOf(x))}</p>
    <div class="one">${has?`<button class="btn" disabled>${has==="read"?"Уже прочитано":"Уже в «Хочу прочитать»"}</button>`:`<button class="btn w" data-fr-want>Хочу прочитать</button>`}</div></div>`);
   wantDesc(x,()=>{const d=$("#cardDesc");if(d&&cardX===x)d.textContent=descOf(x)})}
-async function frAddFlow(uid){if(!uid||uid===(NS.uid&&NS.uid()))return;if(FRIENDS.some(f=>f.uid===uid)){show("fr");return}
+async function frAddFlow(inv){const uid=inv&&inv.uid;if(!uid||uid===(NS.uid&&NS.uid()))return;if(FRIENDS.some(f=>f.uid===uid)){show("fr");return}
   let p=null;try{p=await NS.getProfile(uid)}catch(e){}const n=p&&p.n||"Друг";
-  vOpen(`<div class="frp">${avatar(n,uid,"big")}<h3 class="vh">${esc(n)} приглашает в друзья</h3><p class="sy-note">Будете видеть полки друг друга.</p></div><button class="btn w fr-yes" data-fr-yes="${esc(uid)}">Добавить в друзья</button>`);
-  if(p)FRP[uid]=p;$("#vshBody")._addn=n}
+  vOpen(`<div class="frp">${avatar(n,uid,"big")}<h3 class="vh">${esc(n)} приглашает в друзья</h3><p class="sy-note">Будете видеть полки друг друга.</p></div><div class="fr-yn"><button class="btn w" data-fr-yes="${esc(uid)}">Принять</button><button class="btn" data-fr-no>Отклонить</button></div>`);
+  if(p)FRP[uid]=p;$("#vshBody")._addn=n;$("#vshBody")._inv=inv}
+// ---- заявки в друзья внутри Норы ----
+let REQS=[];let FROUT=LS.get("zal.frout",[]);const froutSave=()=>LS.set("zal.frout",FROUT);
+const addFriend=(uid,n)=>{if(!FRIENDS.some(f=>f.uid===uid)){FRIENDS.push({uid,n:n||"",added:Date.now()});frSave()}FROUT=FROUT.filter(o=>o.uid!==uid);froutSave()};
+async function frReqPoll(){if(!NS.on||!NS.reqIncoming||!(NS.hasTok&&NS.hasTok()))return;let changed=false;
+  try{const L=await NS.reqIncoming(),me=frTok();
+    L.forEach(q=>{if(q.s==="a"&&!FRIENDS.some(f=>f.uid===q.f)&&(q.k===me||FROUT.some(o=>o.uid===q.f))){addFriend(q.f,q.n);changed=true;toast((q.n||"Друг")+" теперь в друзьях")}});
+    const was=REQS.map(q=>q.id).join();REQS=L.filter(q=>q.s==="p"&&!FRIENDS.some(f=>f.uid===q.f));if(REQS.map(q=>q.id).join()!==was)changed=true;
+    const seen=LS.get("zal.frrq",[]),fresh=REQS.find(q=>!seen.includes(q.id));
+    if(fresh&&!$("#vsheet").classList.contains("on")&&!$("#onb").classList.contains("on")&&!$("#intro").classList.contains("on")&&!$("#auth").classList.contains("on")){LS.set("zal.frrq",[...seen,fresh.id].slice(-50));reqPopup(fresh)}}catch(e){}
+  for(const o of FROUT.slice()){try{const d=await NS.reqGet(o.uid+"_"+NS.uid());if(d&&d.s==="a"){addFriend(o.uid,o.n);changed=true;toast((o.n||"Друг")+" принимает заявку — теперь в друзьях")}else if(d&&d.s==="d"){FROUT=FROUT.filter(x=>x.uid!==o.uid);froutSave()}}catch(e){}}
+  frReqDot();if(changed){frLoad();if(SCREEN==="fr")drawFr()}}
+function frReqDot(){const d=$("#frDot");if(d)d.hidden=!(REQS.length||FRIENDS.some(frNew))}
+function reqPopup(q){tgHaptic("medium");vOpen(`<div class="frp">${avatar(q.n,q.f,"big")}<h3 class="vh">${esc(q.n||"Кто-то")} хочет добавить вас в друзья</h3><p class="sy-note">Будете видеть полки друг друга.</p></div><div class="fr-yn"><button class="btn w" data-frq-yes="${esc(q.id)}">Принять</button><button class="btn" data-frq-no="${esc(q.id)}">Отклонить</button></div>`)}
+async function reqAnswer(id,yes){const q=REQS.find(x=>x.id===id);if(!q)return;REQS=REQS.filter(x=>x.id!==id);
+  try{await NS.reqSet(id,yes?"a":"d")}catch(e){}if(yes){addFriend(q.f,q.n);toast((q.n||"Друг")+" теперь в друзьях");frLoad()}frReqDot();if($("#vsheet").classList.contains("on"))vClose();if(SCREEN==="fr")drawFr()}
+function frFind(){vOpen(`<h3 class="vh">Добавить друга</h3><p class="sy-note">Почта, с которой друг вошёл в Нору, или ник в Telegram — придёт заявка прямо в приложение.</p>
+   <input class="sy-in" id="frQ" placeholder="почта или @ник" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="search"><p class="sy-msg" id="frM"></p>
+   <button class="btn w fr-go" data-fr-go>Найти</button><div id="frRes"></div>
+   <button class="fr-link" data-fr-inv>Друга ещё нет в Норе? Отправить приглашение ссылкой</button>`);setTimeout(()=>{const i=$("#frQ");if(i){i.focus();i.onkeydown=e=>{if(e.key==="Enter")$("[data-fr-go]").click()}}},80)}
+async function frFindGo(){const q=$("#frQ").value.trim(),msg=$("#frM"),res=$("#frRes");if(!q){msg.textContent="Впиши почту или ник";return}msg.textContent="Ищу…";res.innerHTML="";
+  try{const uid=await NS.lookup(q);if(!uid){msg.textContent="В Норе такого пока нет — можно отправить приглашение ссылкой.";return}
+    if(uid===NS.uid()){msg.textContent="Это ваш собственный аккаунт.";return}if(FRIENDS.some(f=>f.uid===uid)){msg.textContent="Уже в друзьях.";return}
+    let p=null;try{p=await NS.getProfile(uid)}catch(e){}const n=p&&p.n||"Без имени";msg.textContent="";
+    res.innerHTML=`<div class="frq one-r">${avatar(n,uid)}<span><b>${esc(n)}</b><small>${p?(p.read||[]).length+" "+plural((p.read||[]).length,"книга","книги","книг")+" на полке":""}</small></span><button class="btn w" data-fr-send="${esc(uid)}" data-n="${esc(n)}">Отправить заявку</button></div>`}
+  catch(e){msg.textContent="Не получилось — проверь интернет."}}
 document.addEventListener("click",e=>{const t=e.target;
   if(t.closest("[data-fr-inv]")){tgHaptic();frInvite();return}
+  if(t.closest("[data-fr-find]")){tgHaptic();if(needAuth()){authShow();return}frFind();return}
+  if(t.closest("[data-fr-go]")){frFindGo();return}
+  const sd=t.closest("[data-fr-send]");if(sd){const uid=sd.dataset.frSend,n=sd.dataset.n;sd.disabled=true;sd.textContent="Отправляю…";
+    NS.reqSend(uid,myName(),"p").then(ok=>{if(ok){FROUT=[...FROUT.filter(o=>o.uid!==uid),{uid,n,ts:Date.now()}];froutSave();sd.textContent="Заявка отправлена";toast("Заявка отправлена — "+n+" увидит её в Норе")}else{sd.disabled=false;sd.textContent="Не получилось, ещё раз"}}).catch(()=>{sd.disabled=false;sd.textContent="Не получилось, ещё раз"});return}
+  const qy=t.closest("[data-frq-yes]");if(qy){reqAnswer(qy.dataset.frqYes,true);return}
+  const qn=t.closest("[data-frq-no]");if(qn){reqAnswer(qn.dataset.frqNo,false);return}
+  if(t.closest("[data-fr-no]")){vClose();return}
   const o=t.closest("[data-fr-open]");if(o){tgHaptic();frShelf(o.dataset.frOpen);return}
   const ev=t.closest("[data-fr-ev]");if(ev){const [uid,i]=ev.dataset.frEv.split("|");const e2=(FRP[uid].ev||[])[+i];if(e2)frBook(uid,e2);return}
   const tb=t.closest("[data-frt]");if(tb){const fr=$("#vshBody")._fr;if(fr)frShelf(fr.uid,tb.dataset.frt);return}
@@ -4268,13 +4408,14 @@ document.addEventListener("click",e=>{const t=e.target;
   if(t.closest("[data-fr-delask]")){const a=$(".frdel-ask");if(a)a.hidden=false;tgHaptic();return}
   if(t.closest("[data-fr-delno]")){const a=$(".frdel-ask");if(a)a.hidden=true;return}
   if(t.closest("[data-fr-del]")){const fr=$("#vshBody")._fr;if(fr){FRIENDS=FRIENDS.filter(x=>x.uid!==fr.uid);frSave();vClose();drawFr();toast("Удалено из друзей")}return}
-  const y=t.closest("[data-fr-yes]");if(y){const uid=y.dataset.frYes;FRIENDS.push({uid,n:$("#vshBody")._addn||"",added:Date.now()});frSave();vClose();show("fr");frLoad();toast("Теперь в друзьях");return}
+  const y=t.closest("[data-fr-yes]");if(y){const uid=y.dataset.frYes,inv=$("#vshBody")._inv||{};addFriend(uid,$("#vshBody")._addn||"");NS.reqSend&&NS.reqSend(uid,myName(),"a",inv.k||"").catch(()=>{});vClose();show("fr");frLoad();toast("Теперь в друзьях");return}
   if(t.closest("[data-fr-name]")){vOpen(`<h3 class="vh">Как тебя зовут?</h3><p class="sy-note">Это имя увидят друзья.</p><input class="sy-in" id="frN" value="${esc(myName())}" maxlength="40"><div class="one"><button class="btn w" data-fr-nsave>Сохранить</button></div>`);return}
   if(t.closest("[data-fr-nsave]")){const v=$("#frN").value.trim();if(v){LS.set("zal.name",v.slice(0,40));pubCheck()}vClose();drawFr();return}});
 // приглашение по ссылке: #f=<uid> или startapp=f_<uid>
-const INV=(()=>{const h=location.hash.match(/[#&]f=([\w-]{10,})/);if(h){history.replaceState(null,"",location.pathname+location.search);return h[1]}const sp=TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param||"";const m=sp.match(/^f_([\w-]{10,})$/);return m?m[1]:""})();
+const INV=(()=>{const h=location.hash.match(/[#&]f=([A-Za-z0-9]{10,})(?:&fk=([A-Za-z0-9]+))?/);if(h){history.replaceState(null,"",location.pathname+location.search);return {uid:h[1],k:h[2]||""}}
+  const sp=TG&&TG.initDataUnsafe&&TG.initDataUnsafe.start_param||"";const m=sp.match(/^f_([A-Za-z0-9]{10,})(?:_([A-Za-z0-9]{4,16}))?$/);return m?{uid:m[1],k:m[2]||""}:null})();
 function inviteCheck(){if(INV&&!needAuth()&&!$("#onb").classList.contains("on")&&!$("#intro").classList.contains("on"))setTimeout(()=>frAddFlow(INV),400)}
-setTimeout(frLoad,2500);
+setTimeout(frLoad,2500);setTimeout(frReqPoll,3500);setInterval(()=>{if(!document.hidden)frReqPoll()},30000);document.addEventListener("visibilitychange",()=>{if(!document.hidden)setTimeout(frReqPoll,800)});
 
 
 // ---------- подсказка «Нора на экране „Домой“» ----------
@@ -4287,7 +4428,9 @@ let bip=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();bip=e
 addEventListener("appinstalled",()=>HS.set("done",1));
 const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent),isAndroid=/Android/.test(navigator.userAgent);
 function hsDue(){if(VIEW||HS.get("done")||HS.get("never"))return false;if((HS.get("shows")||0)>=3)return false;
-  const days=(Date.now()-HS.get("first"))/864e5;if(days<7||(HS.get("opens")||0)<4)return false;if(Date.now()-(HS.get("last")||0)<21*864e5)return false;return true}
+  const days=(Date.now()-HS.get("first"))/864e5;
+  if(!TG){if((HS.get("opens")||0)<2)return false}   // без Telegram установка особенно нужна — предлагаем уже со второго захода
+  else if(days<7||(HS.get("opens")||0)<4)return false;if(Date.now()-(HS.get("last")||0)<21*864e5)return false;return true}
 function hsCheck(){if(!hsDue())return;if(standalone()){HS.set("done",1);return}
   if(TG&&TG.checkHomeScreenStatus){try{TG.checkHomeScreenStatus(st=>{if(st==="added"){HS.set("done",1);return}if(st==="missed")hsShow("tg");else if(st==="unsupported")return;else hsShow("tg")})}catch(e){}return}
   if(TG)return;hsShow("web")}
@@ -4334,7 +4477,7 @@ function afterSplash(){setTimeout(inviteCheck,300);setTimeout(()=>{if(!$("#auth"
 // ---------- смена обложки вручную: фото / рисунок / другое издание ----------
 let COVX=null;
 function covRow(x){COVX=x;const c=COV[ikey(x)];const mode=c==="draw"?"draw":c?"pick":"auto";
-  return `<div class="covsw"><span>Обложка</span><button data-cov="auto" class="${mode==="auto"?"on":""}">авто</button><button data-cov="draw" class="${mode==="draw"?"on":""}">рисунок</button><button data-cov="next" class="${mode==="pick"?"on":""}">другое издание ↻</button></div>`}
+  return `<div class="covsw"><button data-cov="auto" class="${mode==="auto"?"on":""}">авто</button><button data-cov="draw" class="${mode==="draw"?"on":""}">рисунок</button><button data-cov="next" class="${mode==="pick"?"on":""}">другое издание ↻</button></div>`}
 async function covNext(x){const k=ikey(x);const s=await flj("/search-works?q="+encodeURIComponent(x.t)+"&page=1&onlymatches=1");const sur=norm(String(x.a||"").split(" ").slice(-1)[0]);
   const w=(Array.isArray(s)?s:[]).find(w=>!sur||norm(w.autor_rusname||"").includes(sur)||norm(w.autor_name||"").includes(sur))||(Array.isArray(s)?s[0]:null);if(!w)throw new Error("none");
   const L=await editionsOf(w.work_id);if(!L.length)throw new Error("none");const cur=imgOf(x),i=L.findIndex(e=>IMGFL(e.edition_id)===cur);
@@ -4351,15 +4494,18 @@ const _openBook=openBook;openBook=function(id){_openBook(id);const b=BOOKS.find(
 
 // ---------- карточка книги на весь экран: без прокрутки ----------
 // страницы и оценка читателей — с Фантлаба (оценка работы, страницы лучшего издания), друзья — из их полок
-const META=LS.get("zal.meta",{});let metaT=0;const metaSave=()=>{clearTimeout(metaT);metaT=setTimeout(()=>LS.set("zal.meta",META),600)};
+const META=LS.get("zal.meta2",{});let metaT=0;const metaSave=()=>{clearTimeout(metaT);metaT=setTimeout(()=>LS.set("zal.meta2",META),600)};try{localStorage.removeItem("zal.meta")}catch(e){}
 const MQ=[],MX={};let mqn=0;
 function wantMeta(x,cb){if(!x||x._f)return;const k=ikey(x);if(META[k]!==undefined){cb&&cb();return}if(MX[k]){MX[k].push(cb);return}MX[k]=[cb];MQ.push({x,k});mpump()}
 function mpump(){while(mqn<2&&MQ.length){const {x,k}=MQ.shift();mqn++;
   (async()=>{const s=await flj("/search-works?q="+encodeURIComponent(x.t)+"&page=1&onlymatches=1");const sur=norm(String(x.a||"").split(" ").slice(-1)[0]);const L=Array.isArray(s)?s:[];
     const w=L.find(w=>!sur||norm(w.autor_rusname||"").includes(sur)||norm(w.autor_name||"").includes(sur))||L.find(w=>norm(w.rusname||w.name||"")===norm(x.t));if(!w)return {};
-    const j=await flj("/work/"+w.work_id),m={};const rt=j.rating||{};if(+rt.voters>=5){m.r=+rt.rating;m.v=+rt.voters}
+    const j=await flj("/work/"+w.work_id),m={w:w.work_id};const rt=j.rating||{};if(+rt.voters>=5){m.r=+rt.rating;m.v=+rt.voters}m.rc=+j.val_responsecount||0;
     if(DESC[k]===undefined){DESC[k]=dClean(j.work_description||"");descSave()}
-    try{const eds=await editionsOf(w.work_id);const e=eds.find(e=>e.type===10)||eds[0];if(e){const ed=await flj("/edition/"+e.edition_id);if(+ed.pages>30)m.pg=+ed.pages}}catch(e){}
+    // страницы: полное русское издание с тем же названием (а не том из двух); иначе самое толстое русское
+    try{const ex=await flj("/work/"+w.work_id+"/extended");const L=[];Object.values(ex.editions_blocks||{}).forEach(b=>(b.list||[]).forEach(e=>L.push(e)));
+      const ru=L.filter(e=>(!e.lang_code||e.lang_code==="ru")&&+e.pages>30&&e.type!==11),same=ru.filter(e=>norm(e.name||"")===norm(x.t)),pick=(same.length?same:ru).map(e=>+e.pages).sort((a,b)=>b-a);
+      if(pick.length)m.pg=pick[0]}catch(e){}
     return m})()
   .then(m=>{META[k]=m;metaSave()}).catch(()=>{}).finally(()=>{const cbs=MX[k]||[];delete MX[k];mqn--;cbs.forEach(f=>{try{f&&f()}catch(e){}});mpump()})}}
 const frReaders=x=>FRIENDS.map(f=>{const p=FRP[f.uid];const b=p&&(p.read||[]).find(y=>norm(y.t)===norm(x.t));return b?{f,b}:null}).filter(Boolean);
@@ -4367,9 +4513,10 @@ const bkcEl=document.createElement("div");bkcEl.className="bkc";bkcEl.id="bkc";$
 let BKC=null;
 const IC2={x:'<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',cov:'<svg viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"/><path d="M9 3.5v17"/><path d="M15.5 9.5l2-2 2 2M17.5 7.5V13"/></svg>',
   pin:'<svg viewBox="0 0 24 24"><path d="M12 21s-6-5.6-6-10.5a6 6 0 0 1 12 0C18 15.4 12 21 12 21z"/><circle cx="12" cy="10.5" r="2.2"/></svg>'};
-function bkcFacts(x){const m=META[ikey(x)]||{},pg=m.pg||x.pg,fr=frReaders(x),out=[];
-  if(pg)out.push(`<span><b>${m.pg?"":"≈ "}${pg}</b> ${plural(pg,"страница","страницы","страниц")}</span>`);
-  if(m.r)out.push(`<span><b>★ ${(m.r/2).toFixed(1).replace(".",",")}</b> у читателей · ${m.v.toLocaleString("ru-RU")} ${plural(m.v,"оценка","оценки","оценок")}</span>`);
+function bkcFacts(x){const m=META[ikey(x)],fr=frReaders(x),out=[];
+  if(m===undefined)return `<span class="sk-f"></span><span class="sk-f w"></span>`;   // пока грузится — без прыжков цифр
+  if(m.pg)out.push(`<span><b>${m.pg}</b> ${plural(m.pg,"страница","страницы","страниц")}</span>`);
+  if(m.r)out.push(`<button data-bkc-rv><b>★ ${(m.r/2).toFixed(1).replace(".",",")}</b> ${m.v.toLocaleString("ru-RU")} ${plural(m.v,"оценка","оценки","оценок")}${m.rc?` · ${m.rc} ${plural(m.rc,"отзыв","отзыва","отзывов")}`:""} ›</button>`);
   if(fr.length)out.push(`<button data-bkc-fr>Читали друзья: <b>${fr.length}</b> ›</button>`);
   if(x.frR&&x.frR.r!=null)out.push(`<span>У ${esc(x.frR.n||"друга")}: <b>★ ${r5(x.frR.r)}</b></span>`);
   return out.join("")}
@@ -4378,21 +4525,35 @@ function bkcActs(x,L){const st=BK.has(x);
   if(st==="read")return `<button class="btn" disabled>Уже на полке «Прочитано»</button>`;
   return `<button class="btn w" data-bkc="want">Хочу прочитать</button><button class="btn" data-bkc="read">Поставить на полку</button>`}
 function bkcDraw(){const {x,L}=BKC;
-  const u=imgOf(x);bkcEl.innerHTML=`<div class="bkc-bg">${u?`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer">`:""}</div><div class="bkc-in"><button class="bkc-x" data-bkc="close" aria-label="Закрыть">${IC2.x}</button>
-   <div class="bkc-cv">${cv(x,190)}<button class="bkc-cov" data-bkc="cov">${IC2.cov}<span>Сменить обложку</span></button></div>
+  bkcEl.innerHTML=`<div class="bkc-in"><button class="bkc-x" data-bkc="close" aria-label="Закрыть">${IC2.x}</button>
+   <div class="bkc-cv">${cv(x,190)}<button class="bkc-cov" data-bkc="cov">${IC2.cov}<span>сменить обложку</span></button></div>
    <div class="bkc-covsw" hidden>${covRow(x)}</div>
    <h2>${esc(x.t)}</h2><div class="bkc-a">${esc(x.a||"")}</div>
    <div class="bkc-facts" id="bkcFacts">${bkcFacts(x)}</div>
-   <p class="bkc-ds" id="bkcDs">${esc(descOf(x))}</p>
+   <div class="bkc-dw"><p class="bkc-ds" id="bkcDs">${esc(descOf(x))}</p><button class="bkc-more" data-bkc="more" hidden>читать далее…</button></div>
    <div class="bkc-acts">${bkcActs(x,L)}</div>
    <button class="bkc-where" data-bkc="where">${IC2.pin}Где найти?</button></div>`}
-function bkcOpen(x,L){if(!x||VIEW)return;BKC={x,L};cardX=x;cardL=L;ambFor(x);bkcDraw();bkcEl.classList.add("on");tgHaptic("medium");syncBack();
+function bkcOpen(x,L){if(!x||VIEW)return;BKC={x,L};cardX=x;cardL=L;ambFor(x);bkcDraw();
+  // обложка уже в кэше браузера — ждём её расшифровки (до 250 мс), чтобы не мелькала рисованная
+  const im=bkcEl.querySelector(".bkc-cv img"),show=()=>{if(BKC&&BKC.x===x){bkcEl.classList.add("on");syncBack()}};
+  if(im&&im.decode)Promise.race([im.decode().catch(()=>{}),new Promise(r=>setTimeout(r,250))]).then(show);else show();tgHaptic("medium");
   const upd=()=>{if(!BKC||BKC.x!==x)return;const f=$("#bkcFacts");if(f)f.innerHTML=bkcFacts(x);const d=$("#bkcDs");if(d)d.textContent=descOf(x);bkcFit()};requestAnimationFrame(bkcFit);
   wantMeta(x,upd);if(!x.ds)wantDesc(x,upd);if(FRIENDS.length&&!Object.keys(FRP).length)frLoad().then(upd)}
 // описание занимает всё свободное место и аккуратно обрезается — карточку не нужно листать
-function bkcFit(){const d=$("#bkcDs");if(!d)return;d.style.webkitLineClamp="";const lh=parseFloat(getComputedStyle(d).lineHeight)||22,n=Math.max(2,Math.floor(d.clientHeight/lh));d.style.webkitLineClamp=n;d.style.maxHeight=n*lh+"px"}
+function bkcFit(){const d=$("#bkcDs"),w=d&&d.parentNode;if(!d||w.classList.contains("open"))return;d.style.webkitLineClamp="";d.style.maxHeight="";
+  const lh=parseFloat(getComputedStyle(d).lineHeight)||22,room=w.clientHeight-lh-6,n=Math.max(2,Math.floor(room/lh));d.style.webkitLineClamp=n;d.style.maxHeight=n*lh+"px";
+  const more=w.querySelector(".bkc-more");more.hidden=d.scrollHeight<=d.clientHeight+2}
 addEventListener("resize",()=>{if(BKC)bkcFit()});
 function bkcClose(){bkcEl.classList.remove("on");BKC=null;syncBack();if(vDirty){vDirty=false;setTimeout(refresh,300)}}
+// отзывы читателей Фантлаба
+const rvClean=s=>String(s||"").replace(/\[(\/?)(b|i|u|s|p|q|spoiler|center|right|left)[^\]]*\]/gi,"").replace(/\[[^\]]*\]/g,"").replace(/<[^>]+>/g,"").replace(/\r/g,"").replace(/\n{3,}/g,"\n\n").trim();
+async function reviewsOpen(x){const m=META[ikey(x)]||{};if(!m.w)return;tgHaptic();
+  vOpen(`<h3 class="vh">Отзывы о «${esc(x.t)}»</h3><p class="sy-note">${m.r?`★ ${(m.r/2).toFixed(1).replace(".",",")} — средняя оценка ${m.v.toLocaleString("ru-RU")} ${plural(m.v,"читателя","читателей","читателей")} Фантлаба`:""}</p><div id="rvList"><div class="sk"></div><div class="sk"></div></div>`,true);$("#vsheet").classList.add("ontop");
+  try{const j=await flj("/work/"+m.w+"/responses?page=1&sort=rating");const L=(j.items||[]).slice(0,20),box=$("#rvList");if(!box)return;
+    box.innerHTML=L.length?L.map(r=>`<div class="rv"><div class="rv-h"><b>${esc(r.user_name||"Читатель")}</b>${r.mark?`<span>★ ${(r.mark/2).toFixed(1).replace(".",",")}</span>`:""}<small>${esc(String(r.response_date||"").slice(0,4))}</small></div><p class="rv-t">${esc(rvClean(r.response_text))}</p><button class="rv-more" data-rvmore>читать далее…</button></div>`).join(""):`<p class="sy-note">Отзывов пока нет.</p>`;
+    box.querySelectorAll(".rv").forEach(el=>{const p=el.querySelector(".rv-t");if(p.scrollHeight<=p.clientHeight+2)el.querySelector(".rv-more").remove()})}
+  catch(e){const box=$("#rvList");if(box)box.innerHTML=`<p class="sy-note">Отзывы не загрузились — проверь интернет.</p>`}}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-rvmore]");if(!b)return;b.closest(".rv").classList.add("open");b.remove()});
 const openLink=u=>{try{TG&&TG.openLink?TG.openLink(u,{try_instant_view:false}):window.open(u,"_blank")}catch(e){window.open(u,"_blank")}};
 function whereOpen(x,mode){const q=encodeURIComponent(x.t+(x.a?" "+String(x.a).split(" ").slice(-1)[0]:"")),qt=encodeURIComponent(x.t);
   const ON=[["ЛитРес","электронная и аудиокнига",`https://www.litres.ru/search/?q=${q}`],["Яндекс Книги","читать по подписке",`https://books.yandex.ru/search?text=${q}`],
@@ -4402,15 +4563,16 @@ function whereOpen(x,mode){const q=encodeURIComponent(x.t+(x.a?" "+String(x.a).s
   const choose=`<div class="wh-ch"><button data-wh="on" class="${mode==="on"?"on":""}"><b>Онлайн</b><small>купить или читать в приложении</small></button><button data-wh="off" class="${mode==="off"?"on":""}"><b>Офлайн</b><small>магазины и библиотеки</small></button></div>`;
   const list=mode?`<div class="wh-l">${(mode==="on"?ON:OFF).map(([n,d,u])=>`<button data-whu="${esc(u)}"><b>${n}</b><small>${d}</small><i>›</i></button>`).join("")}</div>`:"";
   vOpen(`<h3 class="vh">Где найти «${esc(x.t)}»</h3>${choose}${list}`);$("#vsheet").classList.add("ontop");$("#vshBody")._wx=x}
-bkcEl.addEventListener("click",e=>{const t=e.target,b=t.closest("[data-bkc]");if(t.closest("[data-bkc-fr]")){const fr=frReaders(BKC.x);
+bkcEl.addEventListener("click",e=>{const t=e.target,b=t.closest("[data-bkc]");if(t.closest("[data-bkc-rv]")){reviewsOpen(BKC.x);return}if(t.closest("[data-bkc-fr]")){const fr=frReaders(BKC.x);
     vOpen(`<h3 class="vh">Читали «${esc(BKC.x.t)}»</h3><div class="wh-l">${fr.map(({f,b})=>`<button data-fr-open="${esc(f.uid)}">${avatar(f.n,f.uid)}<b>${esc(f.n||"Друг")}</b><small>${b.r!=null?"★ "+r5(b.r):"без оценки"}</small><i>›</i></button>`).join("")}</div>`);$("#vsheet").classList.add("ontop");return}
   if(!b||!BKC)return;const {x,L}=BKC,a=b.dataset.bkc;tgHaptic();
   if(a==="close"){bkcClose();return}
+  if(a==="more"){const w=b.parentNode,d=$("#bkcDs");w.classList.add("open");d.style.webkitLineClamp="";d.style.maxHeight="";b.hidden=true;return}
   if(a==="cov"){const sw=bkcEl.querySelector(".bkc-covsw");sw.hidden=!sw.hidden;b.classList.toggle("on",!sw.hidden);return}
   if(a==="where"){whereOpen(x,"");return}
   if(a==="want"){BK.addWant(x);vDirty=true;toast("Добавлено в избранное");bkcClose();return}
   if(a==="rm"){BK.rmWant(x);vDirty=true;toast("Убрано из избранного");bkcClose();return}
-  if(a==="read"){bkcClose();rmAsk(x,null,n=>{BK.markRead(x,n*2);toast("Поставлено на полку «Прочитано»");refresh()},"Без оценки",()=>{BK.markRead(x,null);toast("Поставлено на полку «Прочитано»");refresh()})}});
+  if(a==="read"){bkcClose();rmAsk(x,null,n=>{BK.markRead(x,n*2);refresh()},"Без оценки",()=>{BK.markRead(x,null);refresh()})}});
 document.addEventListener("click",e=>{const t=e.target;if(!t.closest("#vshBody"))return;
   const w=t.closest("[data-wh]");if(w){whereOpen($("#vshBody")._wx,w.dataset.wh);tgHaptic();return}
   const u=t.closest("[data-whu]");if(u){openLink(u.dataset.whu);return}});
@@ -4418,6 +4580,19 @@ document.addEventListener("click",e=>{const t=e.target;if(!t.closest("#vshBody")
   bkcEl.addEventListener("touchmove",e=>{if(y0==null)return;dy=Math.max(0,e.touches[0].clientY-y0);bkcEl.firstElementChild.style.transform=`translateY(${dy*.6}px)`},{passive:true});
   bkcEl.addEventListener("touchend",()=>{if(y0==null)return;y0=null;bkcEl.firstElementChild.style.transform="";if(dy>110)bkcClose()})})();
 if(TG&&TG.BackButton)try{TG.BackButton.onClick(()=>{if(bkcEl.classList.contains("on")&&!$("#vsheet").classList.contains("on"))bkcClose()})}catch(e){}
+
+// ---------- фишка: книга встаёт на полку ----------
+// обложка поворачивается корешком и задвигается на полку между уже прочитанными книгами
+const shEl=document.createElement("div");shEl.className="shput";$("#app").appendChild(shEl);
+function shelfAnim(x){if(RM)return;const c=catOf(x)||{},bg=x.bg||c.bg||palOf(x.t)[0],fg=x.fg||c.fg||palOf(x.t)[1];
+  const nb=BOOKS.slice(-7).map(b=>{const cc=catOf(b)||{};return [b.bg||cc.bg||palOf(b.t)[0],b.fg||cc.fg||palOf(b.t)[1],b.t]});
+  const sp=(b,f,tt,cls="")=>`<i class="sp ${cls}" style="background:${b};color:${f};height:${120+hsh(tt)%34}px"><span>${esc(tt)}</span></i>`;
+  const half=Math.ceil(nb.length/2);
+  shEl.innerHTML=`<div class="shp-cv">${cv(x,150)}</div><div class="shp-row">${nb.slice(0,half).map(z=>sp(...z)).join("")}${sp(bg,fg,x.t,"new")}${nb.slice(half).map(z=>sp(...z)).join("")}</div><div class="shp-plank"></div><b class="shp-t">На полке</b>`;
+  shEl.classList.remove("go");void shEl.offsetWidth;shEl.classList.add("go");tgHaptic("rigid");setTimeout(()=>tgHaptic("medium"),1050);
+  clearTimeout(shEl._t);shEl._t=setTimeout(()=>shEl.classList.remove("go"),2300)}
+shEl.addEventListener("click",()=>shEl.classList.remove("go"));
+{const _mr=BK.markRead;BK.markRead=function(x,r10,silent){const out=_mr.call(BK,x,r10,silent);if(!silent)setTimeout(()=>shelfAnim(x),120);return out}}
 
 
 // ---------- перенос книг из Литрес, Яндекс Книг, LiveLib и других ----------

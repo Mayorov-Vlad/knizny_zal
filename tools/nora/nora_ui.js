@@ -776,6 +776,37 @@ const INV=(()=>{const h=location.hash.match(/[#&]f=([\w-]{10,})/);if(h){history.
 function inviteCheck(){if(INV&&!needAuth()&&!$("#onb").classList.contains("on")&&!$("#intro").classList.contains("on"))setTimeout(()=>frAddFlow(INV),400)}
 setTimeout(frLoad,2500);
 
+
+// ---------- подсказка «Нора на экране „Домой“» ----------
+// Не в первые дни: через неделю и после нескольких открытий; «Не сейчас» — снова через 3 недели, максимум 3 раза.
+// Если уже установлено (Telegram сообщает статус, браузер — режим «приложения»), не показываем.
+const HS={get:k=>{try{return JSON.parse(localStorage.getItem("zal.sync.hs")||"{}")[k]}catch(e){}},set(k,v){let o={};try{o=JSON.parse(localStorage.getItem("zal.sync.hs")||"{}")}catch(e){}o[k]=v;localStorage.setItem("zal.sync.hs",JSON.stringify(o))}};
+if(!HS.get("first"))HS.set("first",Date.now());HS.set("opens",(HS.get("opens")||0)+1);
+const standalone=()=>!!(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone===true;
+let bip=null;addEventListener("beforeinstallprompt",e=>{e.preventDefault();bip=e});
+addEventListener("appinstalled",()=>HS.set("done",1));
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent),isAndroid=/Android/.test(navigator.userAgent);
+function hsDue(){if(VIEW||HS.get("done")||HS.get("never"))return false;if((HS.get("shows")||0)>=3)return false;
+  const days=(Date.now()-HS.get("first"))/864e5;if(days<7||(HS.get("opens")||0)<4)return false;if(Date.now()-(HS.get("last")||0)<21*864e5)return false;return true}
+function hsCheck(){if(!hsDue())return;if(standalone()){HS.set("done",1);return}
+  if(TG&&TG.checkHomeScreenStatus){try{TG.checkHomeScreenStatus(st=>{if(st==="added"){HS.set("done",1);return}if(st==="missed")hsShow("tg");else if(st==="unsupported")return;else hsShow("tg")})}catch(e){}return}
+  if(TG)return;hsShow("web")}
+const hsEl=document.createElement("div");hsEl.className="hsb";$("#app").appendChild(hsEl);
+function hsShow(mode){HS.set("last",Date.now());HS.set("shows",(HS.get("shows")||0)+1);
+  hsEl.innerHTML=`<img src="icons/icon-192.png" alt=""><div class="hs-tx"><b>Нора на экране «Домой»</b><span>Открывается в одно касание, как обычное приложение.</span></div>
+   <div class="hs-acts"><button class="btn w" data-hs-go>${mode==="tg"||bip?"Добавить":"Как добавить"}</button><button class="hs-no" data-hs-later>Не сейчас</button></div><button class="hs-x" data-hs-never aria-label="Больше не показывать">Больше не показывать</button>`;
+  hsEl.dataset.mode=mode;setTimeout(()=>hsEl.classList.add("on"),50)}
+const hsHide=()=>hsEl.classList.remove("on");
+hsEl.addEventListener("click",async e=>{const t=e.target;
+  if(t.closest("[data-hs-later]")){hsHide();return}
+  if(t.closest("[data-hs-never]")){HS.set("never",1);hsHide();return}
+  if(!t.closest("[data-hs-go]"))return;hsHide();
+  if(hsEl.dataset.mode==="tg"&&TG.addToHomeScreen){try{TG.onEvent&&TG.onEvent("homeScreenAdded",()=>HS.set("done",1));TG.addToHomeScreen()}catch(x){}return}
+  if(bip){bip.prompt();try{const r=await bip.userChoice;if(r.outcome==="accepted")HS.set("done",1)}catch(x){}bip=null;return}
+  vOpen(`<h3 class="vh">Нора на экране «Домой»</h3><ol class="hs-steps">${isIOS?`<li>Нажми кнопку «Поделиться» <span class="hs-ic">⬆</span> внизу экрана Safari.</li><li>Пролистай вниз и выбери «На экран „Домой“».</li><li>Нажми «Добавить» — иконка Норы появится рядом с другими приложениями.</li>`
+    :isAndroid?`<li>Открой меню браузера — три точки вверху справа.</li><li>Выбери «Добавить на главный экран» или «Установить приложение».</li><li>Подтверди — иконка Норы появится на рабочем столе.</li>`
+    :`<li>Открой меню браузера.</li><li>Выбери «Установить» или «Добавить на главный экран».</li><li>Подтверди — Нора появится среди приложений.</li>`}</ol>`)});
+
 // ---------- обязательная регистрация ----------
 const needAuth=()=>!!(NS.on&&!VIEW&&!(NS.hasTok&&NS.hasTok()));
 const authEl=document.createElement("div");authEl.className="auth";authEl.id="auth";$("#app").appendChild(authEl);
@@ -797,7 +828,7 @@ function authDraw(){const up=authMode==="up";
       authEl.classList.remove("on");tgHaptic("medium");toast(up?"Аккаунт создан":"Вход выполнен");const n=authNext;authNext=null;if(n)n();setTimeout(()=>{pubCheck();inviteCheck()},800)}
     catch(x){msg.textContent=x.message;go.disabled=false;go.textContent=up?"Создать аккаунт":"Войти"}};
   $("#auP").onkeydown=e=>{if(e.key==="Enter")go.click()}}
-function afterSplash(){setTimeout(inviteCheck,300);if(needAuth()&&!$("#intro").classList.contains("on")&&!$("#onb").classList.contains("on")&&LS.get("zal.onb",0))authShow()}
+function afterSplash(){setTimeout(inviteCheck,300);setTimeout(()=>{if(!$("#auth").classList.contains("on")&&!$("#onb").classList.contains("on")&&!$("#intro").classList.contains("on")&&!$("#vsheet").classList.contains("on"))hsCheck()},4000);if(needAuth()&&!$("#intro").classList.contains("on")&&!$("#onb").classList.contains("on")&&LS.get("zal.onb",0))authShow()}
 
 
 // ---------- смена обложки вручную: фото / рисунок / другое издание ----------

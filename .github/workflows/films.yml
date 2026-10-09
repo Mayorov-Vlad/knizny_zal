@@ -3,6 +3,9 @@ on:
   schedule:
     - cron: "17 2 1 * *"   # 1-го числа каждого месяца
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths: [tools/build_films.py]
 permissions:
   contents: write
 jobs:
@@ -20,4 +23,4 @@ jobs:
           git config user.email "vladislav15333@gmail.com"
           git add films/films.json
           git diff --cached --quiet || git commit -m "Киноархив: обновление $(date +%Y-%m-%d)"
-          git push
+          git pull --rebase -q && git push

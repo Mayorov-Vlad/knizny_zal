@@ -1122,6 +1122,35 @@ body.viewing #app .dock button[data-s=feed],body.viewing #app #srchB,body.viewin
 .L .rate.r5 .none{min-width:auto;padding-inline:12px}
 .legacy-over .btn{border-radius:999px;font-weight:600}
 
+/* ---------- строка фильтров над лентой ---------- */
+#app .fbar{position:absolute;left:0;right:0;top:calc(66px + env(safe-area-inset-top,0px));z-index:8;display:flex;gap:6px;overflow-x:auto;padding:0 14px;scrollbar-width:none;-webkit-mask:linear-gradient(90deg,#000 88%,transparent)}
+#app .fbar::-webkit-scrollbar{display:none}
+#app .fbar:empty{display:none}
+#app .fc{flex:none;height:34px;padding:0 13px;border-radius:17px;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--ink2);white-space:nowrap}
+#app .fc svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+#app .fc.on{color:var(--ink)}
+#app .fc[data-fdrop]{background:rgba(255,255,255,.92);color:#0B0C11}
+#app .fc[data-fdrop]::before{display:none}
+#app .fc[data-fdrop] svg{width:13px;height:13px;opacity:.6}
+#app .fc.main i{font-style:normal;min-width:18px;height:18px;border-radius:9px;background:#fff;color:#0B0C11;font-size:11px;font-weight:700;display:grid;place-items:center;padding:0 5px}
+body.viewing #app .fbar{display:none}
+/* ---------- лист фильтров ---------- */
+#app .fsec{margin:18px 0 0}
+#app .fsec h4{margin:0 0 9px;font-size:13px;font-weight:600;color:var(--ink2);display:flex;align-items:baseline;gap:8px}
+#app .fsec h4 small{font-weight:400;font-size:12px;color:var(--ink3)}
+#app .fch{display:flex;flex-wrap:wrap;gap:6px}
+#app .fk{font-size:13.5px;padding:8px 13px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--ink);box-shadow:inset 0 0 0 .5px rgba(255,255,255,.12);transition:background .2s,color .2s}
+#app .fk.on{background:#F5F5F7;color:#0B0B10;box-shadow:none}
+#app .fwrap{padding-bottom:84px}
+#app .ffoot{position:sticky;bottom:-20px;margin:0 -18px -20px;padding:12px 18px calc(16px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;background:linear-gradient(transparent,rgba(16,16,24,.96) 30%)}
+#app .ffoot .btn{flex:1}
+#app .ffoot .btn.w{flex:2}
+#app .ffoot .btn[disabled]{opacity:.5}
+html[data-theme="light"] #app .fc[data-fdrop],html[data-theme="light"] #app .fk.on,html[data-theme="light"] #app .fc.main i{background:#14151B;color:#F3F1EC}
+html[data-theme="light"] #app .fk{background:rgba(20,21,27,.06);color:var(--ink);box-shadow:inset 0 0 0 .5px rgba(20,21,27,.1)}
+html[data-theme="light"] #app .ffoot{background:linear-gradient(transparent,rgba(250,249,246,.97) 30%)}
+#app .acts.col{flex-direction:column}#app .acts.col .btn{width:100%}
+
 </style>
 </head>
 <body>
@@ -2886,7 +2915,7 @@ const fmtR=r=>r?(r/10).toFixed(1).replace(".",","):"";
 let FILMS=null,FILMS_MAP=null,FILMS_META=null,filmsLoading=null;
 function loadFilms(){if(FILMS)return Promise.resolve(FILMS);if(filmsLoading)return filmsLoading;
   filmsLoading=fetch("films/films.json").then(r=>{if(!r.ok)throw new Error(r.status);return r.json()}).then(j=>{FILMS_META=j.meta;
-    FILMS=j.f.map(a=>({id:"tt"+String(a[0]).padStart(7,"0"),o:a[1],ru:a[2],y:a[3],m:a[4],g:a[5],r:a[6],v:a[7],c:a[8]?a[8].split(","):[],l:a[9]?a[9].split(","):[],hr:a[10]}));
+    FILMS=j.f.map(a=>({id:"tt"+String(a[0]).padStart(7,"0"),o:a[1],ru:a[2],y:a[3],m:a[4],g:a[5],r:a[6],v:a[7],c:a[8]?a[8].split(","):[],l:a[9]?a[9].split(","):[],hr:a[10],s:a[11]||0}));
     FILMS_MAP=new Map(FILMS.map(f=>[f.id,f]));return FILMS}).catch(e=>{filmsLoading=null;throw e});return filmsLoading}
 
 let FSEEN=LS.get("zal.fseen",[]),FWANT=LS.get("zal.fwant",[]);
@@ -3135,7 +3164,7 @@ new MutationObserver(()=>fitAll($("#app"))).observe(document.getElementById("app
 function bItem(b,kind){const c=catOf(b)||{};
   return {t:b.t,a:b.a||c.a||"",y:b.y||c.y||null,c:b.c||c.c||"",g:b.g||c.g||"modern",pg:b.pg||LENPG[c.len]||null,rd:b.rd,r:b.r,
     ds:b.ann||c.ann||"",wy:b.why||b.when||c.when||"",tags:b.tags||c.tags||[],src:b,kind,id:b.id||c.id,bg:b.bg||c.bg,fg:b.fg||c.fg}}
-function fItem(f,kind){return {_f:1,t:fTitle(f),a:f.o&&f.o!==fTitle(f)?f.o:"",y:f.y||null,c:(f.c||[]).map(cName)[0]||"",cs:f.c||[],g:f.g||0,m:f.m||0,
+function fItem(f,kind){return {s:f.s||undefined,_f:1,t:fTitle(f),a:f.o&&f.o!==fTitle(f)?f.o:"",y:f.y||null,c:(f.c||[]).map(cName)[0]||"",cs:f.c||[],g:f.g||0,m:f.m||0,
     rd:f.d,r:f.r,ds:f.ds||"",wy:f.wy||"",s:f.s,src:f,kind,id:f.id,img:f.img}}
 const descOf=x=>x.ds||x.wy||"";
 
@@ -3186,10 +3215,11 @@ function tasteQ(){const q={tags:{},says:[]};BOOKS.filter(b=>(b.r??IMPLIED[b.id]?
   q.tags=Object.fromEntries(Object.entries(q.tags).sort((a,b)=>b[1]-a[1]).slice(0,14).map(([t,w])=>[t,Math.min(3,w)]));return q}
 function whyBook(b){const loved=BOOKS.filter(x=>(x.r??0)>=8);let best=null,bc=0;loved.forEach(l=>{const c=tagsOf(l).filter(t=>(b.tags||[]).includes(t)).length;if(c>bc){bc=c;best=l}});
   return best&&bc>=2?`Похоже на «${best.t}»: ${(b.tags||[]).filter(t=>tagsOf(best).includes(t)).slice(0,2).join(", ")}.`:""}
-function bookFeed(){const q=tasteQ();let rank=rankFor(q);if(rank.length<40){const extra=rankFor({tags:{},says:[]}).filter(b=>!rank.includes(b));rank=[...rank,...extra]}
+function bookFeed(){const q=tasteQ();let rank=rankFor(q);{const extra=rankFor({tags:{},says:[]}).filter(b=>!rank.includes(b));rank=[...rank,...extra]}
+  rank=rank.filter(b=>bookPass(b));if(NF.mood.length>1)rank=rank.map((b,k)=>({b,k:k-bookMoodHits(b)*40})).sort((x,y)=>x.k-y.k).map(x=>x.b);
   const out=[],au=new Set(),later=[];for(const b of rank){if(au.has(b.a)){later.push(b);continue}au.add(b.a);out.push(b)}
   const all=[...out,...later];let i=0;feedMore=()=>{const chunk=all.slice(i,i+25);i+=25;return chunk.map(b=>{const it=bItem(b,"feed");it.why=whyBook(b);return it})};return feedMore()}
-function filmFeed(){if(!FILMS)return [];const res=tevoFilter().filter(f=>!FSKIP.has(f.id));let i=0;
+function filmFeed(){if(!FILMS)return [];const res=filmList();let i=0;
   feedMore=()=>{const chunk=res.slice(i,i+25);i+=25;return chunk.map(f=>fItem(f,"feed"))};return feedMore()}
 function slideHTML(x,j){const meta=[x.a,x.y,x.c,x._f&&x.g?genreList(x.g).slice(0,2).join(", ").toLowerCase():"",x.s?"сериал":""].filter(Boolean).join(" · ");
   return `<article class="slide" data-j="${j}"><div class="wrap"><div class="fly gl"><div class="bg"></div><div class="lean r"><i>${IC.v}</i><b>Добавить</b></div><div class="lean l"><i>${IC.x}</i><b>Не предлагать</b></div><div class="obj">${cv(x,220)}</div><div class="info"><h2>${esc(x.t)}</h2><div class="meta">${esc(meta)}</div>${x.why||x.wy||x.ds?`<p>${esc(x.why||x.wy||x.ds)}</p>`:""}
@@ -3197,11 +3227,11 @@ function slideHTML(x,j){const meta=[x.a,x.y,x.c,x._f&&x.g?genreList(x.g).slice(0
 function bgFill(sl,x){const u=imgOf(x),bg=sl.querySelector(".bg");if(u&&bg&&!bg.firstChild)bg.innerHTML=`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer">`}
 function endInner(){return `<h2>Пока всё</h2><p>Шуршуня подберёт новое, как только ты что-нибудь отметишь. А пока можно найти самой.</p><div class="acts"><button class="btn w" data-find>Найти через поиск</button></div>`}
 function drawDots(){const n=$("#feed").children.length;$("#dots").innerHTML=Array.from({length:Math.min(n,30)},(_,k)=>`<i class="${k===Math.max(0,cur)?"on":""}"></i>`).join("")}
-function buildFeed(){acts=[];const f=$("#feed");$("#ffil").hidden=!isF();
+function buildFeed(){acts=[];const f=$("#feed");$("#ffil").hidden=true;if(!VIEW)drawFbar();
   if(isF()&&!FILMS){f.innerHTML=`<article class="slide end" data-end><div class="card gl"><h2>Достаю плёнку…</h2><p>Загружаю киноархив.</p></div></article>`;loadFilms().then(()=>{if(isF())buildFeed()}).catch(()=>{f.innerHTML=`<article class="slide end" data-end><div class="card gl"><h2>Архив не загрузился</h2><p>Проверь интернет и открой ленту ещё раз.</p></div></article>`});return}
   slides=isF()?filmFeed():bookFeed();
-  f.innerHTML=slides.map(slideHTML).join("")+`<article class="slide end" data-end><div class="card gl">${endInner()}</div></article>`;
-  f.scrollTop=0;cur=-1;drawDots();onFeedScroll();updUndo();$("#ffil").innerHTML=isF()?`<span>${esc(tevoSummary())}</span><b>Фильтры</b>`:""}
+  f.innerHTML=slides.map(slideHTML).join("")+`<article class="slide end" data-end><div class="card gl">${slides.length?endInner():emptyInner()}</div></article>`;
+  f.scrollTop=0;cur=-1;drawDots();onFeedScroll();updUndo();}
 function moreSlides(){if(!feedMore)return;const add=feedMore();if(!add.length)return;const base=slides.length;slides.push(...add);
   $("#feed [data-end]").insertAdjacentHTML("beforebegin",add.map((x,i)=>slideHTML(x,base+i)).join(""));drawDots();updUndo()}
 function onFeedScroll(){const f=$("#feed");if(!f.clientHeight)return;const j=Math.round(f.scrollTop/f.clientHeight);if(j===cur)return;cur=j;
@@ -3246,17 +3276,6 @@ $("#feed").addEventListener("pointerup",e=>{const o=e.target.closest(".obj");if(
 function tilt(x,y){document.querySelectorAll("#feed .obj .cv").forEach(c=>{c.style.setProperty("--ry",(x*24)+"deg");c.style.setProperty("--rx",(-y*18)+"deg")})}
 addEventListener("pointermove",e=>{if(!RM&&$("#s-feed").classList.contains("on"))tilt(e.clientX/innerWidth-.5,e.clientY/innerHeight-.5)},{passive:true});
 addEventListener("deviceorientation",e=>{if(RM||e.gamma==null)return;tilt(Math.max(-.5,Math.min(.5,e.gamma/40)),Math.max(-.5,Math.min(.5,(e.beta-50)/50)))},{passive:true});
-// фильтры кино
-$("#ffil").onclick=()=>{vOpen(`<h3 class="vh">Фильтры</h3><div class="L ffwrap">${tevoFilters()}</div><div class="L"><div class="f-sort">${[["pop","Популярные"],["rating","Рейтинг"],["new","Новые"],["old","Старые"],["rnd","Случайно"]].map(([v,l])=>chip("data-ts",v,TF.sort===v,l)).join("")}</div></div><div class="one"><button class="btn w" data-vclose>Показать</button></div>`,true);
-  vDirty=true;$("#vshBody").querySelector(".f-filters").classList.remove("closed")};
-$("#vshBody").addEventListener("click",e=>{const t=e.target.closest("[data-tg],[data-tc],[data-ty],[data-tr],[data-tf],[data-tl],[data-tlg],[data-tru],[data-ts]");if(!t)return;tgHaptic();const d=t.dataset;
-  if(d.tg!=null){const i=+d.tg;TF.genres=TF.genres.includes(i)?TF.genres.filter(x=>x!==i):[...TF.genres,i]}
-  else if(d.tc!=null){TF.countries=TF.countries.includes(d.tc)?TF.countries.filter(x=>x!==d.tc):[...TF.countries,d.tc]}
-  else if(d.ty!=null){const [a,b]=DECADES[+d.ty];TF.years=TF.years&&TF.years[0]===a&&TF.years[1]===b?null:[a,b]}
-  else if(d.tr!=null)TF.rating=+d.tr;else if(d.tf!=null)TF.fame=d.tf;else if(d.tl!=null)TF.len=d.tl;else if(d.tlg!=null)TF.lang=d.tlg;else if(d.tru!=null)TF.ru=d.tru;else if(d.ts!=null)TF.sort=d.ts;
-  saveTF();const box=t.closest(".f-chips,.f-sort");if(box){const attr=Object.keys(d)[0];const sel={tg:"data-tg",tc:"data-tc",ty:"data-ty",tr:"data-tr",tf:"data-tf",tl:"data-tl",tlg:"data-tlg",tru:"data-tru",ts:"data-ts"}[attr];
-    const single=["tr","tf","tl","tlg","tru","ts"].includes(attr);if(single)box.querySelectorAll(`[${sel}]`).forEach(b=>b.classList.toggle("on",b===t));else t.classList.toggle("on");
-    if(attr==="ty")box.querySelectorAll("[data-ty]").forEach(b=>b.classList.toggle("on",b===t&&!!TF.years))}});
 document.addEventListener("change",e=>{if(e.target.id==="tHide"&&e.target.closest("#vshBody")){TF.hideWant=e.target.checked;saveTF()}});
 
 // ---------- полка ----------
@@ -3512,6 +3531,142 @@ applyTheme=function(){const pref=themePref();const dk=pref?pref==="dark":true;do
 applyTheme();
 // старые окна (карточка книги, обсуждения, факты) поверх нового интерфейса — после закрытия обновляем экран
 const _closeSheet=closeSheet;closeSheet=function(){_closeSheet();setTimeout(refresh,340)};
+
+// ---------- фильтры ленты: книги и кино ----------
+// Внутри одной группы — «или», между группами — «и». Настроение, подборки, «не показывать» — у книг и у кино.
+const NF=Object.assign({mood:[],len:"",pace:"",era:"",cty:[],acc:"",gen:[],hide:[],set:""},LS.get("zal.nfb",{}));
+const saveNF=()=>LS.set("zal.nfb",NF);
+TF=Object.assign({kind:"",mood:[],hide:[],set:""},TF);
+const has=(b,...t)=>t.some(x=>(b.tags||[]).includes(x));
+const B_MOOD=[["touch","Трогательные",b=>has(b,"грустное")],["warm","Светлые и тёплые",b=>has(b,"тёплое","светлое")],["cozy","Уютные",b=>has(b,"уют","тёплое")&&!has(b,"мрачное","жутковатое")],
+  ["fun","Смешные",b=>has(b,"смешное","юмор","сатира")],["grip","Захватывающие",b=>has(b,"напряжённое","динамичное","триллер")],["atm","Атмосферные",b=>has(b,"атмосферное")],
+  ["dark","Мрачные",b=>has(b,"мрачное","готика")],["insp","Вдохновляющие",b=>has(b,"вдохновляющее")],["think","Заставляют задуматься",b=>has(b,"интеллектуальное","философский роман")],
+  ["rom","Романтичные",b=>has(b,"романтичное","любовь")],["scary","Пугающие",b=>has(b,"жутковатое","хоррор","мистика")]];
+const YNOW=new Date().getFullYear();
+const B_LEN=[["short","Короткие"],["mid","Средние"],["long","Толстые"]];
+const B_PACE=[["slow","Неспешные",b=>has(b,"медленное","атмосферное")&&!has(b,"динамичное")],["fast","Динамичные",b=>has(b,"динамичное","напряжённое")]];
+const B_ERA=[["old","Классика до XX века",b=>b.y&&b.y<1900],["xx","XX век",b=>b.y>=1900&&b.y<2000],["now","Современные",b=>b.y>=2000],["new","Новинки",b=>b.y>=YNOW-2]];
+const B_ACC=[["prize","С премиями",b=>(b.acclaim||[]).length>0],["nobel","Нобелевские лауреаты",b=>(b.acclaim||[]).some(a=>/нобел/i.test(a))]];
+const B_GEN=["classic","modern","detective","fantasy","scifi","kids","nonfic"];
+const B_CTY=(()=>{const c={};CAT.forEach(b=>{if(b.c)c[b.c]=(c[b.c]||0)+1});return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,18).map(x=>x[0])})();
+const B_SET=[["evening","На один вечер",b=>b.len==="short"],["calm","Если на душе неспокойно",b=>has(b,"тёплое","светлое","уют")&&!has(b,"мрачное","жутковатое","война")&&b.heavy<2],
+  ["away","Чтобы отвлечься",b=>has(b,"напряжённое","динамичное","смешное","приключения")&&b.heavy<2],["road","В дорогу",b=>has(b,"приключения","путешествия","динамичное","детектив")&&b.len!=="long"],
+  ["night","Перед сном",b=>has(b,"уют","тёплое","светлое","сказка")&&!has(b,"жутковатое","хоррор","напряжённое")],["weekend","Для долгих выходных",b=>b.len==="long"],
+  ["classic","Классика, до которой всё не доходят руки",b=>b.g==="classic"&&b.q>=3]];
+function bookPass(b,skip){const F=NF,find=(L,id)=>(L.find(x=>x[0]===id)||[])[2];
+  if(skip!=="mood"&&F.mood.length&&!F.mood.some(m=>find(B_MOOD,m)(b)))return false;
+  if(skip!=="len"&&F.len&&b.len!==F.len)return false;
+  if(skip!=="pace"&&F.pace&&!find(B_PACE,F.pace)(b))return false;
+  if(skip!=="era"&&F.era&&!find(B_ERA,F.era)(b))return false;
+  if(skip!=="cty"&&F.cty.length&&!F.cty.includes(b.c))return false;
+  if(skip!=="acc"&&F.acc&&!find(B_ACC,F.acc)(b))return false;
+  if(skip!=="gen"&&F.gen.length&&!F.gen.includes(b.g))return false;
+  if(skip!=="hide"&&F.hide.length&&F.hide.includes(b.g))return false;
+  if(skip!=="set"&&F.set&&!find(B_SET,F.set)(b))return false;return true}
+const bookMoodHits=b=>NF.mood.filter(m=>(B_MOOD.find(x=>x[0]===m)||[])[2](b)).length;
+const bookPool=()=>CAT.filter(b=>score(b,{tags:{},says:[]})!=null);
+
+// кино: настроение и подборки — из жанров IMDb (номера как в FG_RU)
+const G=n=>1<<n,GA=(f,...n)=>n.some(i=>f.g&G(i)),GN=(f,...n)=>!n.some(i=>f.g&G(i));
+const F_MOOD=[["fun","Смешные",f=>GA(f,4)&&GN(f,12)],["touch","Трогательные",f=>GA(f,7)&&GA(f,16,8,3)&&GN(f,12,19,0)],["cozy","Уютные",f=>GA(f,8,2)&&GN(f,12,19,5,20)],
+  ["grip","Захватывающие",f=>GA(f,19,0,15,5)],["scary","Пугающие",f=>GA(f,12)],["rom","Романтичные",f=>GA(f,16)],
+  ["think","Заставляют задуматься",f=>GA(f,7,6,3,11)&&f.r>=75],["pretty","Красивые",f=>GA(f,9,1,2,17)&&f.r>=70]];
+const F_SET=[["two","На вечер вдвоём",f=>GA(f,16,4)&&GN(f,12)&&(!f.m||f.m<=150)&&f.r>=65],["family","Посмотреть всей семьёй",f=>GA(f,8,2)&&GN(f,12,19)],
+  ["short","Короче полутора часов",f=>f.m&&f.m<90],["gems","Неочевидные находки",f=>f.v<20000&&f.r>=72],["must","Классика, которую стыдно не видеть",f=>f.y&&f.y<1990&&f.v>=100000&&f.r>=78]];
+function filmExtra(f,skip){const T=TF;if(skip!=="kind"&&T.kind&&((T.kind==="series")!==!!f.s))return false;
+  if(skip!=="mood"&&T.mood.length&&!T.mood.some(m=>(F_MOOD.find(x=>x[0]===m)||[])[2](f)))return false;
+  if(skip!=="hide"&&T.hide.length&&T.hide.some(i=>f.g&G(i)))return false;
+  if(skip!=="set"&&T.set&&!(F_SET.find(x=>x[0]===T.set)||[])[2](f))return false;return true}
+function filmList(){if(!FILMS)return [];return tevoFilter().filter(f=>!FSKIP.has(f.id)&&filmExtra(f))}
+// без сортировки — для быстрого подсчёта
+function filmCount(skipTF,skip){const T=TF,save={};if(skipTF){save[skipTF]=T[skipTF];T[skipTF]=Array.isArray(T[skipTF])?[]:skipTF==="years"?null:skipTF==="rating"?0:["fame","len","ru"].includes(skipTF)?"any":""}
+  const s=T.sort;T.sort="none";let n=0;try{n=tevoFilter().filter(f=>!FSKIP.has(f.id)&&filmExtra(f,skip)).length}finally{T.sort=s;Object.assign(T,save)}return n}
+
+// активные фильтры — подписи и сброс по одному
+function activeList(){const out=[];
+  if(isF()){const T=TF,lab=(L,id)=>(L.find(x=>x[0]===id)||[])[1];
+    if(T.set)out.push(["set",lab(F_SET,T.set)]);if(T.kind)out.push(["kind",T.kind==="series"?"Сериалы":"Фильмы"]);
+    T.mood.forEach(m=>out.push(["mood:"+m,lab(F_MOOD,m)]));T.genres.forEach(i=>out.push(["tg:"+i,FG_RU[i]]));T.countries.forEach(c=>out.push(["tc:"+c,cName(c)]));
+    if(T.years){const d=DECADES.find(x=>x[0]===T.years[0]);out.push(["years",d?d[2]:T.years.join("–")])}if(T.rating)out.push(["rating","IMDb "+fmtR(T.rating)+"+"]);
+    if(T.fame!=="any")out.push(["fame",{hit:"Хиты",known:"Известные",rare:"Малоизвестные"}[T.fame]]);if(T.len!=="any")out.push(["len",{short:"До 90 минут",mid:"90–150 минут",long:"Дольше 150 минут"}[T.len]]);
+    if(T.lang)out.push(["lang",lName(T.lang)]);if(T.ru!=="any")out.push(["ru",T.ru==="yes"?"Выходили в России":"Не выходили в России"]);T.hide.forEach(i=>out.push(["hide:"+i,"Без: "+FG_RU[i].toLowerCase()]))}
+  else{const F=NF,lab=(L,id)=>(L.find(x=>x[0]===id)||[])[1];
+    if(F.set)out.push(["set",lab(B_SET,F.set)]);F.mood.forEach(m=>out.push(["mood:"+m,lab(B_MOOD,m)]));F.gen.forEach(g=>out.push(["gen:"+g,GEN[g]]));
+    if(F.len)out.push(["len",lab(B_LEN,F.len)]);if(F.pace)out.push(["pace",lab(B_PACE,F.pace)]);if(F.era)out.push(["era",lab(B_ERA,F.era)]);
+    F.cty.forEach(c=>out.push(["cty:"+c,c]));if(F.acc)out.push(["acc",lab(B_ACC,F.acc)]);F.hide.forEach(g=>out.push(["hide:"+g,"Без: "+GEN[g].toLowerCase()]))}
+  return out}
+function dropFilter(key){const [k,v]=key.split(":");
+  if(isF()){const T=TF;if(k==="mood")T.mood=T.mood.filter(x=>x!==v);else if(k==="tg")T.genres=T.genres.filter(x=>x!==+v);else if(k==="tc")T.countries=T.countries.filter(x=>x!==v);
+    else if(k==="hide")T.hide=T.hide.filter(x=>x!==+v);else if(k==="years")T.years=null;else if(k==="rating")T.rating=0;else if(["fame","len","ru"].includes(k))T[k]="any";else T[k]="";saveTF()}
+  else{const F=NF;if(k==="mood")F.mood=F.mood.filter(x=>x!==v);else if(k==="gen")F.gen=F.gen.filter(x=>x!==v);else if(k==="cty")F.cty=F.cty.filter(x=>x!==v);
+    else if(k==="hide")F.hide=F.hide.filter(x=>x!==v);else F[k]="";saveNF()}}
+function resetAll(){if(isF()){Object.assign(TF,{genres:[],countries:[],years:null,rating:0,fame:"any",len:"any",lang:"",ru:"any",kind:"",mood:[],hide:[],set:""});saveTF()}
+  else{Object.assign(NF,{mood:[],len:"",pace:"",era:"",cty:[],acc:"",gen:[],hide:[],set:""});saveNF()}}
+function countNow(){return isF()?filmCount():bookPool().filter(b=>bookPass(b)).length}
+// какой один фильтр снять, чтобы нашлось больше всего
+function bestDrop(){let best=null,bn=0;activeList().forEach(([key,label])=>{const saveB=JSON.stringify(NF),saveT=JSON.stringify(TF);dropFilter(key);const n=countNow();
+  Object.assign(NF,JSON.parse(saveB));Object.assign(TF,JSON.parse(saveT));if(n>bn){bn=n;best=[key,label,n]}});saveNF();saveTF();return best}
+
+// строка над лентой: «Фильтры», выбранное с крестиком, быстрые настроения
+const fbar=document.createElement("div");fbar.className="fbar";fbar.id="fbar";$("#s-feed").appendChild(fbar);
+function drawFbar(){const act=activeList(),moods=isF()?F_MOOD:B_MOOD,sel=isF()?TF.mood:NF.mood;
+  fbar.innerHTML=`<button class="fc gl main${act.length?" on":""}" data-fopen><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Фильтры${act.length?` <i>${act.length}</i>`:""}</button>`+
+    act.map(([k,l])=>`<button class="fc gl on" data-fdrop="${esc(k)}">${esc(l)}<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button>`).join("")+
+    moods.filter(m=>!sel.includes(m[0])).map(m=>`<button class="fc gl" data-fmood="${m[0]}">${m[1]}</button>`).join("")}
+function applyFilters(){vDirty=false;buildFeed()}
+fbar.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;tgHaptic();
+  if(t.dataset.fopen!=null){openFilters();return}
+  if(t.dataset.fdrop){dropFilter(t.dataset.fdrop);applyFilters();return}
+  if(t.dataset.fmood){(isF()?TF.mood:NF.mood).push(t.dataset.fmood);isF()?saveTF():saveNF();applyFilters();fbar.scrollLeft=0}});
+
+// лист со всеми фильтрами
+const fsec=(title,html,note)=>`<div class="fsec"><h4>${title}${note?`<small>${note}</small>`:""}</h4><div class="fch">${html}</div></div>`;
+const fchip=(grp,val,on,label)=>`<button type="button" class="fk${on?" on":""}" data-fg="${grp}" data-fv="${esc(String(val))}">${esc(label)}</button>`;
+function filtersHTML(){if(isF()){const T=TF;
+  return fsec("Подборки",F_SET.map(([id,l])=>fchip("set",id,T.set===id,l)).join(""))+
+   fsec("Что смотрим",[["","Всё"],["film","Фильмы"],["series","Сериалы"]].map(([v,l])=>fchip("kind",v,T.kind===v,l)).join(""))+
+   fsec("Настроение",F_MOOD.map(([id,l])=>fchip("mood",id,T.mood.includes(id),l)).join(""),"можно несколько")+
+   fsec("Жанр",FG_RU.map((g,i)=>fchip("tg",i,T.genres.includes(i),g)).join(""),"можно несколько")+
+   fsec("Страна",TOPC.map(c=>fchip("tc",c,T.countries.includes(c),cName(c))).join(""))+
+   fsec("Годы",DECADES.map(([a,b,l],i)=>fchip("ty",i,!!T.years&&T.years[0]===a&&T.years[1]===b,l)).join(""))+
+   (T.kind==="series"?"":fsec("Длительность",[["any","Любая"],["short","До 90 минут"],["mid","90–150 минут"],["long","Дольше 150 минут"]].map(([v,l])=>fchip("tl",v,T.len===v,l)).join("")))+
+   fsec("Рейтинг IMDb",[[0,"Любой"],[60,"6+"],[70,"7+"],[75,"7,5+"],[80,"8+"]].map(([v,l])=>fchip("tr",v,T.rating===v,l)).join(""))+
+   fsec("Известность",[["any","Любая"],["hit","Хиты"],["known","Известные"],["rare","Малоизвестные"]].map(([v,l])=>fchip("tf",v,T.fame===v,l)).join(""))+
+   fsec("Язык оригинала",[["","Любой"],...TOPL.map(l=>[l,lName(l)])].map(([v,l])=>fchip("tlg",v,T.lang===v,l)).join(""))+
+   fsec("Прокат в России",[["any","Неважно"],["yes","Выходили"],["no","Не выходили"]].map(([v,l])=>fchip("tru",v,T.ru===v,l)).join(""))+
+   fsec("Не показывать",FG_RU.map((g,i)=>fchip("hide",i,T.hide.includes(i),g)).join(""))+
+   fsec("Сортировка",[["pop","Популярные"],["rating","По рейтингу"],["new","Новые"],["old","Старые"],["rnd","Вперемешку"]].map(([v,l])=>fchip("ts",v,T.sort===v,l)).join(""))}
+  const F=NF;
+  return fsec("Подборки",B_SET.map(([id,l])=>fchip("set",id,F.set===id,l)).join(""))+
+   fsec("Настроение",B_MOOD.map(([id,l])=>fchip("mood",id,F.mood.includes(id),l)).join(""),"можно несколько")+
+   fsec("Жанр",B_GEN.map(g=>fchip("gen",g,F.gen.includes(g),GEN[g])).join(""),"можно несколько")+
+   fsec("Объём",B_LEN.map(([id,l])=>fchip("len",id,F.len===id,l)).join(""))+
+   fsec("Темп",B_PACE.map(([id,l])=>fchip("pace",id,F.pace===id,l)).join(""))+
+   fsec("Эпоха",B_ERA.map(([id,l])=>fchip("era",id,F.era===id,l)).join(""))+
+   fsec("Страна автора",B_CTY.map(c=>fchip("cty",c,F.cty.includes(c),c)).join(""))+
+   fsec("Признание",B_ACC.map(([id,l])=>fchip("acc",id,F.acc===id,l)).join(""))+
+   fsec("Не показывать",B_GEN.map(g=>fchip("hide",g,F.hide.includes(g),GEN[g])).join(""))}
+function filtersFoot(){const n=countNow();return `<div class="ffoot"><button class="btn" data-freset>Сбросить</button><button class="btn w" data-fshow${n?"":" disabled"}>${n?"Показать "+n.toLocaleString("ru-RU"):"Ничего не нашлось"}</button></div>`}
+function openFilters(){vOpen(`<h3 class="vh">Фильтры</h3><div class="fwrap" id="fwrap">${filtersHTML()}</div>${filtersFoot()}`,true);vDirty=false;$("#vsheet").classList.add("filters")}
+function redrawFilters(){const w=$("#fwrap");if(!w)return;const top=$("#vsh").scrollTop;w.innerHTML=filtersHTML();$("#vshBody .ffoot").outerHTML=filtersFoot();$("#vsh").scrollTop=top}
+$("#vshBody").addEventListener("click",e=>{
+  if(e.target.closest("[data-freset]")){resetAll();redrawFilters();tgHaptic();return}
+  if(e.target.closest("[data-fshow]")){$("#vsheet").classList.remove("filters");vClose();applyFilters();return}
+  const t=e.target.closest("[data-fg]");if(!t)return;tgHaptic();const g=t.dataset.fg,v=t.dataset.fv;
+  const tog=(arr,x)=>arr.includes(x)?arr.filter(y=>y!==x):[...arr,x];
+  if(isF()){const T=TF;
+    if(g==="set")T.set=T.set===v?"":v;else if(g==="kind")T.kind=v;else if(g==="mood")T.mood=tog(T.mood,v);else if(g==="tg")T.genres=tog(T.genres,+v);else if(g==="tc")T.countries=tog(T.countries,v);
+    else if(g==="ty"){const [a,b]=DECADES[+v];T.years=T.years&&T.years[0]===a&&T.years[1]===b?null:[a,b]}else if(g==="tl")T.len=v;else if(g==="tr")T.rating=+v;else if(g==="tf")T.fame=v;
+    else if(g==="tlg")T.lang=v;else if(g==="tru")T.ru=v;else if(g==="hide")T.hide=tog(T.hide,+v);else if(g==="ts")T.sort=v;saveTF()}
+  else{const F=NF;if(["set","len","pace","era","acc"].includes(g))F[g]=F[g]===v?"":v;else F[g]=tog(F[g],v);saveNF()}
+  redrawFilters()});
+// при закрытии листа фильтров свайпом или тапом по фону — тоже применяем
+new MutationObserver(()=>{const sh=$("#vsheet");if(!sh.classList.contains("on")&&sh.classList.contains("filters")){sh.classList.remove("filters");applyFilters()}}).observe($("#vsheet"),{attributes:true,attributeFilter:["class"]});
+
+// пустая лента: подсказываем, какой фильтр ослабить
+function emptyInner(){const act=activeList();if(!act.length)return endInner();const d=bestDrop();
+  return `<h2>Ничего не нашлось</h2><p>С такими фильтрами ${isF()?"фильмов":"книг"} не осталось.${d?` Если убрать «${esc(d[1])}», найдётся ${d[2].toLocaleString("ru-RU")}.`:""}</p><div class="acts col">${d?`<button class="btn w" data-fdrop2="${esc(d[0])}">Убрать «${esc(d[1])}»</button>`:""}<button class="btn" data-freset2>Сбросить все фильтры</button></div>`}
+$("#feed").addEventListener("click",e=>{const d=e.target.closest("[data-fdrop2]");if(d){dropFilter(d.dataset.fdrop2);applyFilters();return}if(e.target.closest("[data-freset2]")){resetAll();applyFilters()}});
 
 // ---------- запуск ----------
 if(VIEW){document.body.classList.add("viewing");REALM="books"}

@@ -2,10 +2,13 @@
 """Сборка киноархива «Книжного зала».
 Источники: IMDb non-commercial datasets (названия, годы, жанры, длительность, рейтинги, русские названия)
 и Wikidata (страны производства, язык оригинала, русские названия).
-Результат: films/films.json — компактный список фильмов для вкладки «Кино»."""
+Результат: films/films.json — компактный список фильмов и сериалов для вкладки «Кино».
+Последнее поле записи: 0 — фильм, 1 — сериал, 2 — мини-сериал."""
 import csv, gzip, io, json, os, sys, time, urllib.request, urllib.parse
 
 MIN_VOTES = int(os.environ.get("MIN_VOTES", "300"))
+MIN_VOTES_SERIES = int(os.environ.get("MIN_VOTES_SERIES", "1500"))
+KINDS = {"movie": 0, "tvSeries": 1, "tvMiniSeries": 2}
 OUT = os.path.join(os.path.dirname(__file__), "..", "films", "films.json")
 UA = {"User-Agent": "knizny-zal-films/1.0 (https://github.com/Mayorov-Vlad/knizny_zal)"}
 csv.field_size_limit(10**8)
@@ -35,14 +38,16 @@ print("с голосами ≥", MIN_VOTES, ":", len(votes), flush=True)
 films = {}
 for row in tsv("https://datasets.imdbws.com/title.basics.tsv.gz"):
     tid, ttype, primary, orig, adult, start, end, runtime, genres = row[:9]
-    if ttype != "movie" or adult == "1" or tid not in votes:
+    if ttype not in KINDS or adult == "1" or tid not in votes:
+        continue
+    if KINDS[ttype] and votes[tid][1] < MIN_VOTES_SERIES:
         continue
     gm = 0
     for g in genres.split(","):
         if g in GI:
             gm |= 1 << GI[g]
     films[tid] = {"o": orig, "p": primary, "y": int(start) if start.isdigit() else 0,
-                  "m": int(runtime) if runtime.isdigit() else 0, "g": gm, "r": votes[tid][0], "v": votes[tid][1]}
+                  "m": int(runtime) if runtime.isdigit() else 0, "g": gm, "r": votes[tid][0], "v": votes[tid][1], "k": KINDS[ttype]}
 print("фильмов:", len(films), flush=True)
 
 # 3. русские названия из IMDb (регион RU / SUHH или язык ru)
@@ -72,9 +77,12 @@ def sparql(q, tries=4):
 
 wd = {}
 ranges = [(1870, 1950)] + [(y, y + 5) for y in range(1950, 1990, 5)] + [(y, y + 2) for y in range(1990, 2031, 2)]
-for a, b in ranges:
+# фильмы (Q11424) и телесериалы (Q5398426); у сериалов дата — P580 (начало) или P577
+passes = [("wd:Q11424", "wdt:P577", ranges), ("wd:Q5398426", "wdt:P580|wdt:P577", [(1930, 1990), (1990, 2005), (2005, 2012)] + [(y, y + 2) for y in range(2012, 2031, 2)])]
+for cls, dprop, rr in passes:
+  for a, b in rr:
     q = f"""SELECT ?imdb (GROUP_CONCAT(DISTINCT ?cx;separator=",") AS ?c) (GROUP_CONCAT(DISTINCT ?lc;separator=",") AS ?l) (SAMPLE(?ruL) AS ?ru) WHERE {{
-      ?f wdt:P345 ?imdb; wdt:P31/wdt:P279* wd:Q11424; wdt:P577 ?d.
+      ?f wdt:P345 ?imdb; wdt:P31/wdt:P279* {cls}; {dprop} ?d.
       FILTER(YEAR(?d) >= {a} && YEAR(?d) < {b})
       OPTIONAL {{ ?f wdt:P495 ?co. OPTIONAL {{ ?co wdt:P297 ?cc. }} BIND(COALESCE(?cc, STRAFTER(STR(?co), "entity/")) AS ?cx) }}
       OPTIONAL {{ ?f wdt:P364 ?la. ?la wdt:P218 ?lc. }}
@@ -83,9 +91,9 @@ for a, b in ranges:
     rows = sparql(q)
     for r in rows:
         tid = r["imdb"]["value"]
-        if tid in films:
+        if tid in films and tid not in wd:
             wd[tid] = (r.get("c", {}).get("value", ""), r.get("l", {}).get("value", ""), r.get("ru", {}).get("value", ""))
-    print(f"wikidata {a}-{b}: {len(rows)} (итого совпало {len(wd)})", flush=True)
+    print(f"wikidata {cls} {a}-{b}: {len(rows)} (итого совпало {len(wd)})", flush=True)
     time.sleep(2)
 
 # исторические страны без ISO-кода
@@ -106,10 +114,10 @@ for tid, f in films.items():
     if not rt and wru and wru != f["o"]:
         rt = wru
     # «вышел в России» — только если у IMDb есть русское прокатное название
-    out.append([int(tid[2:]), f["o"], rt if rt != f["o"] else "", f["y"], f["m"], f["g"], f["r"], f["v"], fix_c(c), l, 1 if tid in ru else 0])
+    out.append([int(tid[2:]), f["o"], rt if rt != f["o"] else "", f["y"], f["m"], f["g"], f["r"], f["v"], fix_c(c), l, 1 if tid in ru else 0, f["k"]])
 out.sort(key=lambda x: -x[7])
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
-meta = {"v": 1, "built": time.strftime("%Y-%m-%d"), "genres": GENRES, "fields": ["id", "orig", "ru", "year", "min", "genres", "rating10", "votes", "countries", "langs", "ruRelease"], "n": len(out)}
+meta = {"v": 1, "built": time.strftime("%Y-%m-%d"), "genres": GENRES, "fields": ["id", "orig", "ru", "year", "min", "genres", "rating10", "votes", "countries", "langs", "ruRelease", "kind"], "n": len(out)}
 with open(OUT, "w", encoding="utf-8") as fo:
     json.dump({"meta": meta, "f": out}, fo, ensure_ascii=False, separators=(",", ":"))
-print("готово:", len(out), "фильмов,", os.path.getsize(OUT) // 1024, "КБ")
+print("готово:", len(out), "записей (сериалов:", sum(1 for x in out if x[11]), "),", os.path.getsize(OUT) // 1024, "КБ")

@@ -60,6 +60,7 @@ for x, y in (('Тевосгинку', 'Шуршуне'), ('Тевосгинка'
     old_js = old_js.replace(x, y)
     old_body = old_body.replace(x, y)
 old_js = rep(old_js, 'const fs=Math.max(w*.1,Math.min(w*.22,w*11/Math.max(t.length,1)));', 'const fs=Math.max(w*.08,Math.min(w*.22,w*11/Math.max(t.length,1),w*.84/(mw*.66)));')
+old_js = rep(old_js, 'l:a[9]?a[9].split(","):[],hr:a[10]}));', 'l:a[9]?a[9].split(","):[],hr:a[10],s:a[11]||0}));')
 old_js = rep(old_js, '<b>${b.r}</b><span>/ 10</span>', '<b>${Math.round(b.r/2)}</b><span>/ 5</span>')
 
 # старая разметка: прячем, тост — новый

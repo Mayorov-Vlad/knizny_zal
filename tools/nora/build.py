@@ -117,8 +117,20 @@ v5_body = rep(v5_body, '<div class="sheet" id="sheet"><div class="sh-bg" data-cl
               '<div class="sheet" id="vsheet"><div class="sh-bg" data-close></div><div class="sh gl" id="vsh"><div class="grab"></div><div id="vshBody"></div></div></div>')
 v5_body = rep(v5_body, '<section class="screen" id="s-feed"><div class="feed" id="feed"></div>',
               '<section class="screen" id="s-feed"><div class="feed" id="feed"></div><button class="ffil gl press" id="ffil" hidden aria-label="Фильтры"></button>')
+v5_body = rep(v5_body, '<div class="seg gl" role="tablist"><i></i><button data-realm="books" class="on press">Книги</button><button data-realm="films" class="press">Кино</button></div>',
+              '<div class="seg" hidden><button data-realm="books" class="on">Книги</button></div><button class="addb gl press" id="addB" aria-label="Добавить книгу"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Добавить</button>')
+v5_body = rep(v5_body, 'отметь несколько книг и фильмов, которые ты уже знаешь', 'отметь несколько книг, которые уже прочитаны')
+v5_body = rep(v5_body, '<div class="stp" id="onbStep">1 из 2</div>', '<div class="stp" id="onbStep" hidden></div>')
 v5_body = rep(v5_body, '<div class="scroll" id="colScroll">', '<div class="scroll" id="colScroll"><div class="vbanner gl" id="vbanner" hidden></div>')
 
+
+
+def notL(sel):
+    """правило нового вида не должно задевать вставки старой Норы (.L внутри #app)"""
+    m = re.search(r'::?(?:before|after|placeholder|-webkit-scrollbar)\b', sel)
+    base, pe = (sel[:m.start()], sel[m.start():]) if m else (sel, '')
+    if base.endswith('#app') or base.endswith(' body') or base in ('*', 'html', 'body'): return sel
+    return base + ':not(.L *)' + pe
 
 def scope_v5(css):
     out, i, n = [], 0, len(css)
@@ -148,8 +160,9 @@ def scope_v5(css):
             else:
                 m = re.match(r'^((?:html|body)[^\s>+~]*)\s+(.*)$', x)
                 if m: sels.append(f'{m.group(1)} #app {m.group(2)}')
+                elif re.match(r'^[a-z][\w:()\-]*$', x): sels.append(':where(#app) ' + x)   # сбросы для тегов — слабые, как в оригинале
                 else: sels.append('#app ' + x)
-        out.append(','.join(sels) + '{' + body + '}')
+        out.append(','.join(notL(x) if '#app ' in x else x for x in sels) + '{' + body + '}')
     return '\n'.join(out)
 
 
@@ -200,7 +213,7 @@ def light_rules(css):
                 m = re.match(r'^((?:html|body)[^\s>+~]*)\s+(.*)$', x)
                 if m: sels.append(f'{L} {m.group(1)} #app {m.group(2)}')
                 else: sels.append(f'{L} #app {x}')
-        if sels: out.append(','.join(sels) + '{' + ';'.join(decls) + '}')
+        if sels: out.append(','.join(notL(x) for x in sels) + '{' + ';'.join(decls) + '}')
     return '\n'.join(out)
 light_css = light_rules(v5_css)
 # переменные v5 нужны и снаружи #app (например, для .L-листов) — дублируем на :root

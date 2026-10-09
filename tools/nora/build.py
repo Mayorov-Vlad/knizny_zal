@@ -207,12 +207,15 @@ light_css = light_rules(v5_css)
 root_vars = re.search(r':root\{[^}]*\}', v5_css).group(0)
 
 # ---------- сборка ----------
-fonts = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">'
+fonts = '<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>\n<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'">'
 
+tg_loader = r'''<script>/* Скрипт Telegram нужен только внутри Telegram; в обычном браузере он может грузиться десятки секунд и держать чёрный экран */
+(function(){var tg=/tgWebApp/.test(location.hash)||!!window.TelegramWebviewProxy||!!(window.external&&"notify" in window.external);try{tg=tg||!!sessionStorage.getItem("__telegram__initParams")}catch(e){}
+if(tg)document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>')})();</script>'''
 html = f'''<!doctype html>
 <html lang="ru" data-theme="dark">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<script src="https://telegram.org/js/telegram-web-app.js"></script><title>Нора</title>
+{tg_loader}<title>Нора</title>
 {fonts}
 <style>{font_block}</style>
 <style>

@@ -1338,7 +1338,7 @@ S.signUp=async(email,pw)=>{if(!key)setKey(gen());const j=await idt("signUp",{ema
 S.signIn=async(email,pw)=>{const j=await idt("signInWithPassword",{email,password:pw,returnSecureToken:true});const k=await userDoc(j,"GET");
   if(k){if(k!==key)setKey(k)}else{if(!key)setKey(gen());await userDoc(j,"PATCH",key)}keep(email);ready=true;booting=false;await sync();emit()};
 S.reset=email=>idt("sendOobCode",{requestType:"PASSWORD_RESET",email});
-S.link=()=>key?"https://mayorov-vlad.github.io/knizny_zal/#k="+key:"";
+S.link=()=>key?"https://moya-nora.github.io/#k="+key:"";
 S.now=()=>sync();
 window.NSYNC=S;
 })();
@@ -1480,7 +1480,7 @@ const _tgu=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe&&Te
 const GUEST=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)?(!_tgu||String(_tgu.username||"").toLowerCase()!==OWNER):!!(window.NSYNC&&NSYNC.on&&localStorage.getItem("zal.who")!=='"owner"');
 // «Полка подруги»: ссылка вида …/#s=<код> открывает чужие полки только для просмотра
 const SEED=Object.fromEntries(BOOKS.map(b=>[b.id,b]));
-const SHARE_BASE="https://mayorov-vlad.github.io/knizny_zal/";
+const SHARE_BASE="https://moya-nora.github.io/";
 const SHARE_BOT="Wonderbookworld_bot";// имя бота и короткое имя мини-аппа, напр. "MyBot/zal" — тогда ссылки будут вида t.me/MyBot/zal?startapp=…
 const shDec=s=>{s=s.replace(/-/g,"+").replace(/_/g,"/");const bin=atob(s+"===".slice((s.length+3)%4));return new TextDecoder().decode(Uint8Array.from(bin,c=>c.charCodeAt(0)))};
 const u64=str=>{let bin="";new TextEncoder().encode(str).forEach(x=>bin+=String.fromCharCode(x));return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")};

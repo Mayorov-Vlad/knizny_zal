@@ -64,6 +64,7 @@ old_js = rep(old_js, 'const fs=Math.max(w*.1,Math.min(w*.22,w*11/Math.max(t.leng
 old_js = rep(old_js, 'l:a[9]?a[9].split(","):[],hr:a[10]}));', 'l:a[9]?a[9].split(","):[],hr:a[10],s:a[11]||0}));')
 old_js = rep(old_js, 'const GUEST=!!(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)&&(!_tgu||String(_tgu.username||"").toLowerCase()!==OWNER);',
   'const GUEST=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)?(!_tgu||String(_tgu.username||"").toLowerCase()!==OWNER):!!(window.NSYNC&&NSYNC.on&&localStorage.getItem("zal.who")!==\'"owner"\');')
+old_js = rep(old_js, 'SHARE_BASE="https://mayorov-vlad.github.io/knizny_zal/"', 'SHARE_BASE="https://moya-nora.github.io/"')
 old_js = rep(old_js, '<b>${b.r}</b><span>/ 10</span>', '<b>${Math.round(b.r/2)}</b><span>/ 5</span>')
 
 # старая разметка: прячем, тост — новый

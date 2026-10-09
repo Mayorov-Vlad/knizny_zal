@@ -68,7 +68,7 @@ S.signUp=async(email,pw)=>{if(!key)setKey(gen());const j=await idt("signUp",{ema
 S.signIn=async(email,pw)=>{const j=await idt("signInWithPassword",{email,password:pw,returnSecureToken:true});const k=await userDoc(j,"GET");
   if(k){if(k!==key)setKey(k)}else{if(!key)setKey(gen());await userDoc(j,"PATCH",key)}keep(email);ready=true;booting=false;await sync();emit()};
 S.reset=email=>idt("sendOobCode",{requestType:"PASSWORD_RESET",email});
-S.link=()=>key?"https://mayorov-vlad.github.io/knizny_zal/#k="+key:"";
+S.link=()=>key?"https://moya-nora.github.io/#k="+key:"";
 S.now=()=>sync();
 window.NSYNC=S;
 })();

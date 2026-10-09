@@ -1248,6 +1248,22 @@ html[data-theme="light"] #app .oldv .tl-row .yr::before{background:#F3F1EC;borde
 #app .au-in .btn{width:100%;margin-top:6px}
 #app .au-sw{display:block;margin:16px auto 0;font-size:14px;color:rgba(255,255,255,.7);text-decoration:underline;text-underline-offset:3px}
 
+/* ---------- выбор обложки ---------- */
+.covsw{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;margin:10px 0 0;font-size:12px}
+.covsw span{color:var(--ink3,rgba(255,255,255,.5));margin-right:2px}
+.covsw button{font:inherit;font-size:12px;padding:5px 10px;border-radius:999px;border:0;background:rgba(255,255,255,.08);color:var(--ink2,rgba(255,255,255,.75));cursor:pointer}
+.covsw button.on{background:#F5F5F7;color:#0B0B10}
+.legacy-over .bk-meta .covsw{justify-content:flex-start;margin-top:12px}
+html[data-theme="light"] .covsw button{background:rgba(20,21,27,.07);color:rgba(20,21,27,.75)}
+html[data-theme="light"] .covsw button.on{background:#14151B;color:#F3F1EC}
+/* настоящая обложка в старом окне книги */
+.legacy-over .bk-cv{flex:none;width:112px}
+.legacy-over .bk-cv .cv{position:relative;aspect-ratio:2/3;overflow:hidden;border-radius:6px;background:#1a1b22;box-shadow:0 14px 28px -12px rgba(0,0,0,.7)}
+.legacy-over .bk-cv .cv>.L{position:absolute;left:0;top:0;width:var(--lw);height:calc(var(--lw) * 1.5);transform-origin:0 0;transform:scale(var(--k,1))}
+.legacy-over .bk-cv .cv>.L>.cover{width:100%!important;height:100%!important;border-radius:0;margin:0;box-shadow:none}
+.legacy-over .bk-cv .cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;z-index:1}
+.legacy-over .bk-cv .cv img.ok{opacity:1}
+
 </style>
 </head>
 <body>
@@ -3285,13 +3301,19 @@ const catOf=x=>{const c=CATT[norm(x.t)];return c&&(!x.a||!c.a||norm(c.a).include
 const palOf=t=>PAL[hsh(String(t))%PAL.length];
 
 // ---------- обложки: настоящие (Фантлаб/Википедия) поверх рисованных ----------
-const IMG=LS.get("zal.img",{});let imgT=0;const imgSave=()=>{clearTimeout(imgT);imgT=setTimeout(()=>LS.set("zal.img",IMG),500)};
+const IMG=LS.get("zal.img2",{});let imgT=0;const imgSave=()=>{clearTimeout(imgT);imgT=setTimeout(()=>LS.set("zal.img2",IMG),500)};
+try{localStorage.removeItem("zal.img")}catch(e){}
+// выбор обложки вручную: "draw" — рисованная, иначе адрес картинки (синхронизируется)
+let COV=LS.get("zal.cov",{});const covSave=()=>LS.set("zal.cov",COV);
 const ikey=x=>x._f?"f:"+(x.id||norm(x.t)+(x.y||"")):norm(x.t)+"|"+norm(x.a||"");
 // IMG[k]: адрес картинки; "!время" — источник ответил «нет обложки» (повторим через 2 недели)
 const NOIMG_TTL=14*864e5;
-const imgOf=x=>{const v=x.img||IMG[ikey(x)]||"";return v&&v[0]!=="!"?v:""};
+const imgOf=x=>{const c=COV[ikey(x)];if(c==="draw")return "";if(c)return c;const v=x.img||IMG[ikey(x)]||"";return v&&v[0]!=="!"?v:""};
 const imgKnown=k=>{const v=IMG[k];if(!v)return false;if(v[0]!=="!")return true;return Date.now()-(+v.slice(1)||0)<NOIMG_TTL};
-const imgTag=u=>`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer" decoding="async" onload="this.classList.add('ok')" onerror="NORA_IMGERR(this)">`;
+const imgTag=u=>`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer" decoding="async" onload="NORA_IMGOK(this)" onerror="NORA_IMGERR(this)">`;
+window.NORA_IMGOK=function(img){const w=img.naturalWidth,h=img.naturalHeight,r=h/Math.max(1,w),box=img.closest("[data-ik]"),k=box&&box.dataset.ik;
+  if(k&&!COV[k]&&(w<150||h<200||r<1.2||r>1.85)){img.remove();if(IMG[k]===img.getAttribute("src")){IMG[k]="!"+Date.now();imgSave()}document.querySelectorAll(`#app [data-ik="${CSS.escape(k)}"] img`).forEach(x=>x.remove());return}
+  img.classList.add("ok")};
 function cv(x,w){const k=ikey(x),u=imgOf(x);let inner="";
   if(x._f)inner=`<span class="L">${poster({...(x.src||{}),id:x.id||x.t,t:x.t,y:x.y,g:x.g||0},w||120)}</span>`;
   else{const s=x.src&&x.src.bg?x.src:null,c=catOf(x),p=palOf(x.t),b=s||{id:x.id||x.t,t:x.t,a:x.a||"",g:x.g||(c&&c.g)||"modern",bg:(c&&c.bg)||p[0],fg:(c&&c.fg)||p[1],tags:c&&c.tags};
@@ -3318,15 +3340,21 @@ addEventListener("online",()=>{iretry=0;pump()});
 document.addEventListener("visibilitychange",()=>{if(!document.hidden){iretry=0;pump()}});
 async function flj(path){const r=await fetch("https://api.fantlab.ru"+path);if(!r.ok)throw new Error(r.status);return r.json()}
 const flClean=d=>{d=String(d||"").replace(/\[[^\]]*\]/g,"").replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim();return d.length>260?d.slice(0,d.lastIndexOf(" ",250))+"…":d};
+// издания произведения: берём самое свежее русское с обложкой; если все старше 1995 — null (рисованная обложка смотрится лучше)
+const EDS={};
+async function editionsOf(id){if(EDS[id])return EDS[id];const j=await flj("/work/"+id+"/extended");const L=[];Object.values(j.editions_blocks||{}).forEach(b=>(b.list||[]).forEach(e=>L.push(e)));
+  const ok=L.filter(e=>e.pic_num>0&&(!e.lang_code||e.lang_code==="ru")&&!e.plandate).sort((a,b)=>(b.year||0)-(a.year||0)||(a.type===10?-1:1));return EDS[id]=ok}
+async function bestEdition(id){if(!id)return undefined;const L=await editionsOf(id);if(!L.length)return undefined;const fresh=L.filter(e=>(e.year||0)>=1995);
+  if(!fresh.length)return null;const single=fresh.filter(e=>e.type===10);return (single[0]||fresh[0]).edition_id}
 async function wikiImg(q){const j=await (await fetch("https://ru.wikipedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrlimit=5&gsrsearch="+encodeURIComponent(q)+"&prop=pageimages&piprop=thumbnail&pithumbsize=500&pilicense=any")).json();
   const p=Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index).find(p=>p.thumbnail);return p?p.thumbnail.source:""}
 // null — не удалось связаться (повторим), "" — обложки нет, иначе адрес
 async function findImg(x){try{
   if(!x._f){const sur=norm(String(x.a||"").split(" ").slice(-1)[0]),pic=w=>w.pic_edition_id||w.pic_edition_id_auto;
-    const pick=s=>{const L=(Array.isArray(s)?s:[]).filter(pic);return L.find(w=>!sur||norm(w.autor_rusname||"").includes(sur)||norm(w.autor_name||"").includes(sur))};
+    const pick=s=>{const L=(Array.isArray(s)?s:[]).filter(pic);return L.find(w=>!sur||norm(w.autor_rusname||"").includes(sur)||norm(w.autor_name||"").includes(sur))||L.find(w=>norm(w.rusname||w.name||"")===norm(x.t))};
     let w=pick(await flj("/search-works?q="+encodeURIComponent(x.t)+"&page=1&onlymatches=1"));
     if(!w){const t2=String(x.t).replace(/[«»"'’.,:;!?()—–-]+/g," ").replace(/\s+/g," ").trim();if(t2!==x.t||x.a)w=pick(await flj("/search-works?q="+encodeURIComponent(t2+(x.a?" "+String(x.a).split(" ").slice(-1)[0]:""))+"&page=1"))}
-    if(w)return IMGFL(pic(w));
+    if(w){const ed=await bestEdition(w.work_id).catch(()=>undefined);if(ed===null)return "";return IMGFL(ed||pic(w))}
     return await wikiImg(x.t+" "+(x.a||"")+" роман книга")}
   return await wikiImg((x.t+" "+(x.y||"")+(x.s?" сериал":" фильм")).trim())}catch(e){return null}}
 // рисованная обложка рисуется в своём размере и подгоняется под ячейку
@@ -3528,7 +3556,7 @@ $("#vsheet").addEventListener("click",e=>{if(e.target.closest("[data-close],[dat
 const starsHTML=(x,attr)=>`<div class="stars">${Array.from({length:6},(_,n)=>`<button ${attr}="${n}" class="${r5(x.r)===n?"on":""}">${n}</button>`).join("")}</div>`;
 function itemHTML(){const x=cardX,L=cardL,F=!!x._f;const meta=[x.a,x.y,x.c&&!NOCOUNTRY.has(x.c)?x.c:"",F&&x.g?genreList(x.g).slice(0,3).join(", ").toLowerCase():"",F&&x.m?x.m+" мин":"",x.s?"сериал":""].filter(Boolean).join(", ");
   const src=x.src||{},acc=(src.acclaim||[]).slice(0,3);
-  return `<div class="dt">${cv(x,150)}<h2>${esc(x.t)}</h2><div class="meta">${esc(meta)}</div>
+  return `<div class="dt">${cv(x,150)}${F?"":covRow(x)}<h2>${esc(x.t)}</h2><div class="meta">${esc(meta)}</div>
   ${x.ds?`<p class="dd">${esc(x.ds)}</p>`:""}${x.why||x.wy?`<p class="dd q">${esc(x.why||x.wy)}</p>`:""}
   ${acc.length?`<div class="acc">${acc.map(a=>`<span>${esc(a)}</span>`).join("")}</div>`:""}
   ${F&&src.r&&L!=="read"?`<p class="dd sm">IMDb ${fmtR(src.r)}${src.v?" · "+fmtVotes(src.v)+" оценок":""}${src.hr===0?" · не выходил в России":""}</p>`:""}
@@ -3963,6 +3991,25 @@ function authDraw(){const up=authMode==="up";
     catch(x){msg.textContent=x.message;go.disabled=false;go.textContent=up?"Создать аккаунт":"Войти"}};
   $("#auP").onkeydown=e=>{if(e.key==="Enter")go.click()}}
 function afterSplash(){if(needAuth()&&!$("#intro").classList.contains("on")&&!$("#onb").classList.contains("on")&&LS.get("zal.onb",0))authShow()}
+
+
+// ---------- смена обложки вручную: фото / рисунок / другое издание ----------
+let COVX=null;
+function covRow(x){COVX=x;const c=COV[ikey(x)];const mode=c==="draw"?"draw":c?"pick":"auto";
+  return `<div class="covsw"><span>Обложка</span><button data-cov="auto" class="${mode==="auto"?"on":""}">авто</button><button data-cov="draw" class="${mode==="draw"?"on":""}">рисунок</button><button data-cov="next" class="${mode==="pick"?"on":""}">другое издание ↻</button></div>`}
+async function covNext(x){const k=ikey(x);const s=await flj("/search-works?q="+encodeURIComponent(x.t)+"&page=1&onlymatches=1");const sur=norm(String(x.a||"").split(" ").slice(-1)[0]);
+  const w=(Array.isArray(s)?s:[]).find(w=>!sur||norm(w.autor_rusname||"").includes(sur)||norm(w.autor_name||"").includes(sur))||(Array.isArray(s)?s[0]:null);if(!w)throw new Error("none");
+  const L=await editionsOf(w.work_id);if(!L.length)throw new Error("none");const cur=imgOf(x),i=L.findIndex(e=>IMGFL(e.edition_id)===cur);
+  COV[k]=IMGFL(L[(i+1)%L.length].edition_id);covSave();return L.length}
+function covApply(x){const k=ikey(x),u=imgOf(x);document.querySelectorAll(`[data-ik="${CSS.escape(k)}"]`).forEach(el=>{el.querySelectorAll("img").forEach(i=>i.remove());if(u)el.insertAdjacentHTML("beforeend",imgTag(u))});
+  document.querySelectorAll(".covsw").forEach(r=>{const c=COV[k];r.querySelectorAll("[data-cov]").forEach(b=>b.classList.toggle("on",b.dataset.cov===(c==="draw"?"draw":c?"next":"auto")))});vDirty=true}
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-cov]");if(!b||!COVX)return;const x=COVX,k=ikey(x),m=b.dataset.cov;tgHaptic();
+  if(m==="auto"){delete COV[k];covSave();if(!imgOf(x)){delete IMG[k];wantImg(x)}covApply(x);return}
+  if(m==="draw"){COV[k]="draw";covSave();covApply(x);return}
+  b.textContent="ищу…";try{const n=await covNext(x);b.textContent=n>1?"другое издание ↻":"другого нет";covApply(x)}catch(err){b.textContent="не нашлось"}});
+// карточка прочитанной книги (старое окно) — настоящая обложка и выбор обложки
+const _openBook=openBook;openBook=function(id){_openBook(id);const b=BOOKS.find(x=>x.id===id),sh=$("#sheet");if(!b||!sh)return;const x=bItem(b,"read"),c=sh.querySelector(".bk .cover");
+  if(c)c.outerHTML=`<div class="bk-cv">${cv(x,112)}</div>`;const m=sh.querySelector(".bk-meta");if(m&&!VIEW)m.insertAdjacentHTML("beforeend",covRow(x))};
 
 // ---------- запуск ----------
 if(VIEW){document.body.classList.add("viewing");REALM="books"}

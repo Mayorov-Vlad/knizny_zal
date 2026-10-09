@@ -209,3 +209,19 @@ html[data-theme="light"] #app .oldv .tl-row .yr::before{background:#F3F1EC;borde
 #app .au-in>p{margin:12px 0 18px;font-size:15px;line-height:1.5;color:rgba(255,255,255,.7)}
 #app .au-in .btn{width:100%;margin-top:6px}
 #app .au-sw{display:block;margin:16px auto 0;font-size:14px;color:rgba(255,255,255,.7);text-decoration:underline;text-underline-offset:3px}
+
+/* ---------- выбор обложки ---------- */
+.covsw{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px;margin:10px 0 0;font-size:12px}
+.covsw span{color:var(--ink3,rgba(255,255,255,.5));margin-right:2px}
+.covsw button{font:inherit;font-size:12px;padding:5px 10px;border-radius:999px;border:0;background:rgba(255,255,255,.08);color:var(--ink2,rgba(255,255,255,.75));cursor:pointer}
+.covsw button.on{background:#F5F5F7;color:#0B0B10}
+.legacy-over .bk-meta .covsw{justify-content:flex-start;margin-top:12px}
+html[data-theme="light"] .covsw button{background:rgba(20,21,27,.07);color:rgba(20,21,27,.75)}
+html[data-theme="light"] .covsw button.on{background:#14151B;color:#F3F1EC}
+/* настоящая обложка в старом окне книги */
+.legacy-over .bk-cv{flex:none;width:112px}
+.legacy-over .bk-cv .cv{position:relative;aspect-ratio:2/3;overflow:hidden;border-radius:6px;background:#1a1b22;box-shadow:0 14px 28px -12px rgba(0,0,0,.7)}
+.legacy-over .bk-cv .cv>.L{position:absolute;left:0;top:0;width:var(--lw);height:calc(var(--lw) * 1.5);transform-origin:0 0;transform:scale(var(--k,1))}
+.legacy-over .bk-cv .cv>.L>.cover{width:100%!important;height:100%!important;border-radius:0;margin:0;box-shadow:none}
+.legacy-over .bk-cv .cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .4s;z-index:1}
+.legacy-over .bk-cv .cv img.ok{opacity:1}

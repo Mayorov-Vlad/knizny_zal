@@ -1,0 +1,92 @@
+#app{color:var(--ink);font-family:var(--f)}
+/* старые экраны не показываются — их заменил новый интерфейс */
+.legacy-views{display:none!important}
+#app #toast{z-index:95}
+
+/* ---------- старые листы (карточка книги, обсуждения, цитаты, поделиться…) в тёмном стекле ---------- */
+:root .L,:root[data-theme="dark"] .L{
+  color-scheme:dark;
+  --paper:#0B0C11; --card:#15161D; --ink:#F3F1EC; --ink-2:rgba(243,241,236,.78); --muted:rgba(243,241,236,.55); --line:rgba(255,255,255,.12);
+  --green:#3A3D4A; --green-soft:rgba(255,255,255,.08); --oak:#3A3530; --oak-dark:#26221E; --gold:#E2C285; --gold-deep:#F0D7A2; --gold-soft:rgba(226,194,133,.14); --slip:#1B1C24;
+  --warm-line:rgba(255,255,255,.14); --dash:rgba(255,255,255,.25); --env:linear-gradient(160deg,#1C1D26,#14151C); --lair:radial-gradient(90% 120% at 50% 0%,#23242E 0%,#15161D 55%,#0E0F14 100%);
+  --nav-bg:rgba(20,21,28,.94); --shelf:linear-gradient(#17181F,#121319); --danger-line:#6B2E28; --glow:rgba(255,255,255,.2); --nav-on:#fff; --label:#F3F1EC;
+  --map0:#22232B; --map1:#4A4C58; --map2:#8A8C99; --map3:#E8E6E0; --map-line:#0B0C11; --scrim:rgba(3,4,8,.72);
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Inter Tight',-apple-system,system-ui,sans-serif;
+}
+:root[data-theme="light"] .L{
+  color-scheme:light;
+  --paper:#F3F1EC; --card:#FFFFFF; --ink:#16171C; --ink-2:rgba(22,23,28,.78); --muted:rgba(22,23,28,.55); --line:rgba(0,0,0,.1);
+  --green:#16171C; --green-soft:rgba(0,0,0,.05); --gold:#9A7432; --gold-deep:#7A5A24; --gold-soft:rgba(154,116,50,.12); --slip:#FAF9F6;
+  --warm-line:rgba(0,0,0,.1); --dash:rgba(0,0,0,.25); --env:linear-gradient(160deg,#FFFFFF,#F4F2EE); --lair:radial-gradient(90% 120% at 50% 0%,#FFFFFF 0%,#F4F2EE 100%);
+  --nav-bg:rgba(255,255,255,.95); --shelf:linear-gradient(#F0EEE9,#F6F5F1); --glow:rgba(0,0,0,.08); --nav-on:#16171C; --label:#16171C;
+  --map0:#E3E1DC; --map1:#B5B3AD; --map2:#77756F; --map3:#16171C; --map-line:#F3F1EC; --scrim:rgba(20,20,25,.45);
+  --serif:'Cormorant Garamond',Georgia,serif; --sans:'Inter Tight',-apple-system,system-ui,sans-serif;
+}
+.legacy-over{font-family:var(--sans);font-size:15px;line-height:1.5;color:var(--ink);-webkit-font-smoothing:antialiased;font-variant-numeric:lining-nums}
+.legacy-over .scrim{z-index:55}
+.legacy-over .tev-modal{z-index:56}
+.legacy-over .rate-prompt{z-index:57}
+.legacy-over .stories{z-index:58}
+.legacy-over .disc{z-index:59}
+.legacy-over .sheet{border-radius:26px 26px 0 0;box-shadow:inset 0 .5px 0 rgba(255,255,255,.25),0 -20px 60px -20px rgba(0,0,0,.8)}
+.legacy-over .btn-gold,.legacy-over .btn.primary,.legacy-over .btn-main{background:var(--ink);color:var(--paper)}
+.legacy-over .btn-disc{background:var(--green-soft);color:var(--ink);border-color:var(--line)}
+.legacy-over h1,.legacy-over h2,.legacy-over h3{font-family:var(--serif);font-weight:600;letter-spacing:0}
+
+/* ---------- обложки: типографская обложка старой Норы под настоящей картинкой ---------- */
+#app .cv.lg{background:#1a1b22}
+#app .cv.lg>.L{position:absolute;inset:0;display:block}
+#app .cv.lg>.L>.cover,#app .cv.lg>.L>.poster{width:100%!important;height:100%!important;border-radius:0;box-shadow:none;margin:0}
+/* типографская обложка рисуется в своём размере и масштабируется под ячейку */
+@supports (width:calc(tan(atan2(1px,1px)) * 1px)){
+  #app .cv.lg{container-type:inline-size}
+  #app .cv.lg>.L{right:auto;bottom:auto;width:var(--lw);height:calc(var(--lw) * 1.5);transform-origin:0 0;transform:scale(tan(atan2(100cqw,var(--lw))))}
+  #app .cv.lg>.L>.cover,#app .cv.lg>.L>.poster{width:var(--lw)!important;height:calc(var(--lw) * 1.5)!important}
+}
+#app .cv.lg>img{z-index:1}
+
+/* ---------- фильтры ленты фильмов ---------- */
+#app .ffil{position:absolute;left:50%;transform:translateX(-50%);top:calc(66px + env(safe-area-inset-top,0px));z-index:8;height:34px;padding:0 14px;border-radius:17px;display:flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap;max-width:calc(100% - 32px)}
+#app .ffil[hidden]{display:none}
+#app .ffil span{color:var(--ink2);overflow:hidden;text-overflow:ellipsis}
+#app .ffil span::after{content:" ·"}
+#app .ffil b{font-weight:600}
+#app .ffwrap{color:var(--ink);font-family:var(--f)}
+#app .ffwrap .chips,#app .ffwrap .cchips{display:flex;flex-wrap:wrap;gap:6px}
+#app .ffwrap button,#app .f-sort button{font:inherit;font-size:13px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--ink2);border:0}
+#app .ffwrap button.on,#app .f-sort button.on{background:#fff;color:#0B0C11}
+#app .ffwrap h4,#app .ffwrap h5,#app .ffwrap .lbl{font-family:var(--f);font-size:12px;font-weight:600;color:var(--ink3);margin:14px 0 8px;text-transform:none;letter-spacing:0}
+#app .ffwrap select,#app .ffwrap input{font:inherit;background:rgba(255,255,255,.08);color:#fff;border:0;border-radius:10px;padding:8px 10px}
+#app .f-sort{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+#app .vh{font-family:var(--serif);font-size:28px;font-weight:600;margin:4px 0 8px}
+
+/* ---------- просмотр чужих полок ---------- */
+#app .vbanner{position:fixed;top:calc(14px + env(safe-area-inset-top,0px));left:16px;right:16px;width:max-content;max-width:calc(100% - 32px);z-index:21;margin:0;padding:10px 16px;border-radius:999px;font-size:13px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#app .vbanner[hidden]{display:none}
+#app .vbanner b{color:var(--ink);font-weight:600}
+body.viewing #app .dock button[data-s=feed],body.viewing #app #srchB,body.viewing #app .seg{display:none}
+
+/* ---------- пустые полки, карточка ---------- */
+#app .gempty{grid-column:1/-1;padding:26px 8px;color:var(--ink3);font-size:14px;line-height:1.45;text-align:center}
+#app .dd.q{font-style:italic;color:var(--ink2)}
+#app .dd.sm{font-size:12.5px;color:var(--ink3);margin-top:6px}
+#app .acc{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 0}
+#app .acc span{font-size:11.5px;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.08);color:var(--ink2)}
+#app .sx-manual,#app .sx-photo{display:block;width:100%;margin:12px 0 0;padding:13px 14px;border-radius:14px;background:rgba(255,255,255,.06);font-size:14px;color:var(--ink2);text-align:left}
+
+/* ---------- статистика: ссылки, тема, цитаты ---------- */
+#app .s3{display:flex;flex-direction:column;gap:2px;padding:6px 6px}
+#app .s3>button{text-align:left;padding:13px 12px;font-size:15px;font-weight:500;border-radius:12px}
+#app .s3>button:active{background:rgba(255,255,255,.06)}
+#app .themes{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:10px 12px 8px;border-top:.5px solid rgba(255,255,255,.1);margin-top:4px}
+#app .themes span{font-size:13px;color:var(--ink3);margin-right:auto}
+#app .themes button{font-size:12.5px;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.07);color:var(--ink2)}
+#app .themes button.on{background:#fff;color:#0B0C11}
+#app .qt{font-family:var(--serif);font-size:19px;line-height:1.25;margin:12px 0 0}
+#app .qt small{display:block;font-family:var(--f);font-size:12px;color:var(--ink3);margin-top:4px}
+
+/* ---------- старая выборка оценки (лист редактирования) — 0–5 ---------- */
+.L .rate.r5{display:flex;flex-wrap:wrap;gap:6px}
+.L .rate.r5 button{min-width:40px}
+.L .rate.r5 .none{min-width:auto;padding-inline:12px}
+.legacy-over .btn{border-radius:999px;font-weight:600}

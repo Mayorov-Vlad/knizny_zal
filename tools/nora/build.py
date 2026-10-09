@@ -14,6 +14,7 @@ H = os.path.join(ROOT, 'tools', 'nora')
 old = open(os.path.join(H, 'old_app.html'), encoding='utf-8').read()
 v5 = open(os.path.join(ROOT, 'v5', 'index.html'), encoding='utf-8').read()
 ui = open(os.path.join(H, 'nora_ui.js'), encoding='utf-8').read()
+sync_js = open(os.path.join(H, 'sync.js'), encoding='utf-8').read()
 extra = open(os.path.join(H, 'extra.css'), encoding='utf-8').read()
 
 
@@ -61,6 +62,8 @@ for x, y in (('Тевосгинку', 'Шуршуне'), ('Тевосгинка'
     old_body = old_body.replace(x, y)
 old_js = rep(old_js, 'const fs=Math.max(w*.1,Math.min(w*.22,w*11/Math.max(t.length,1)));', 'const fs=Math.max(w*.08,Math.min(w*.22,w*11/Math.max(t.length,1),w*.84/(mw*.66)));')
 old_js = rep(old_js, 'l:a[9]?a[9].split(","):[],hr:a[10]}));', 'l:a[9]?a[9].split(","):[],hr:a[10],s:a[11]||0}));')
+old_js = rep(old_js, 'const GUEST=!!(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)&&(!_tgu||String(_tgu.username||"").toLowerCase()!==OWNER);',
+  'const GUEST=(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)?(!_tgu||String(_tgu.username||"").toLowerCase()!==OWNER):!!(window.NSYNC&&NSYNC.on&&localStorage.getItem("zal.who")!==\'"owner"\');')
 old_js = rep(old_js, '<b>${b.r}</b><span>/ 10</span>', '<b>${Math.round(b.r/2)}</b><span>/ 5</span>')
 
 # старая разметка: прячем, тост — новый
@@ -197,6 +200,9 @@ html = f'''<!doctype html>
 </div>
 <div class="L legacy-views" lang="ru" aria-hidden="true">{old_views}</div>
 <div class="L legacy-over" lang="ru">{old_over}</div>
+<script>
+{sync_js}
+</script>
 <script>
 {old_js}
 ;(function(){{

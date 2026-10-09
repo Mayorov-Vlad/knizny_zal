@@ -343,7 +343,7 @@ function drawSum(){const F=isF(),r=DATA().read(),u=T[REALM].u,known=r.filter(x=>
   const cs=cntBy(known,x=>x.c),au=F?[]:cntBy(r.filter(x=>x.a&&x.a!=="Автор не указан"),x=>x.a),dated=r.filter(x=>x.y);
   const eras=F?cntBy(dated,x=>Math.floor(x.y/10)*10+"-е"):cntBy(dated,x=>(ROMAN[centuryOf(x.y)]||centuryOf(x.y))+" век");
   const gens=F?cntBy(r,x=>{const g=genreList(x.g||0);return g[0]||""}):cntBy(r,x=>GEN[x.g]);const vol=F?Math.round(r.reduce((a,x)=>a+(x.m||0),0)/60):r.reduce((a,x)=>a+(x.pg||0),0);const wn=DATA().want().length;
-  const links=VIEW?"":`<div class="sc gl s3"><button data-share>Поделиться полками</button><button data-backup>Резервная копия</button><div class="themes"><span>Тема</span>${[["dark","тёмная"],["light","светлая"]].map(([v,l])=>`<button data-theme-set="${v}" class="${(themePref()==="light"?"light":"dark")===v?"on":""}">${l}</button>`).join("")}</div></div>`;
+  const links=VIEW?"":syncCard()+`<div class="sc gl s3"><button data-share>Поделиться полками</button><button data-backup>Резервная копия</button><div class="themes"><span>Тема</span>${[["dark","тёмная"],["light","светлая"]].map(([v,l])=>`<button data-theme-set="${v}" class="${(themePref()==="light"?"light":"dark")===v?"on":""}">${l}</button>`).join("")}</div></div>`;
   if(!r.length){$("#sumMore").innerHTML=`<div class="sc gl"><p style="margin:0;color:var(--ink2)">Статистика появится, когда на полке будет что-то ${F?"просмотренное":"прочитанное"}.</p></div>${links}`;return}
   const avgS=rated.length?avg.toFixed(1).replace(".",","):"—";
   const head=`<div class="sc gl s1"><div class="big"><b>${r.length}</b><span>${plural(r.length,...u)}<br>${F?"посмотрено":"прочитано"}</span></div>
@@ -374,6 +374,7 @@ function drawSum(){const F=isF(),r=DATA().read(),u=T[REALM].u,known=r.filter(x=>
    ${au.length&&au[0][1]>1?`<div class="sc gl"><h3>${esc(au[0][0])}</h3><p style="margin:8px 0 0;color:var(--ink2);font-size:14px">Главный автор: ${au[0][1]} ${plural(au[0][1],...u)} на полке.</p></div>`:""}
    ${links}`}
 $("#sumMore").addEventListener("click",e=>{const t=e.target;
+  if(syncClick(t))return;
   if(t.closest("[data-share]")){openShare();return}if(t.closest("[data-backup]")){openBackup();return}
   const th=t.closest("[data-theme-set]");if(th){const v=th.dataset.themeSet;try{v?localStorage.setItem("zal.theme",v):localStorage.removeItem("zal.theme")}catch(x){}if(TG&&TG.CloudStorage){try{TG.CloudStorage.setItem("theme",v||"")}catch(x){}}applyTheme();drawSum();tgHaptic();return}
   const o=t.closest("[data-open]");if(o){const x=DATA().read().find(y=>String(y.id)===o.dataset.open);if(x)openItem(x,"read")}});
@@ -397,6 +398,7 @@ function introShow(){const L=popBooks(),cells=12,reel=$("#reel");
     if(t>2600&&!$("#intro").classList.contains("ready")){$("#flash").classList.add("on");$("#intro").classList.add("ready");tgHaptic("medium")}
     setTimeout(tick,t>2600?1400:delay)};
   setTimeout(tick,200)}
+if(window.NSYNC&&NSYNC.on&&!TG){$("#introGo").insertAdjacentHTML("afterend",`<button class="intro-login" id="introLogin">Уже есть Нора? Войти по почте</button>`);$("#introLogin").onclick=()=>loginSheet()}
 $("#introGo").onclick=()=>{$("#intro").classList.remove("on");$("#onb").classList.add("on");onbDraw();tgHaptic("medium");if(!FILMS)loadFilms().catch(()=>{})};
 function onbSave(){const list=$("#onbGrid")._l,D=onbK==="films"?FM:BK,cs=checkStamps;checkStamps=()=>{};try{Object.entries(onbPick).forEach(([i,n])=>{const x=list[+i];if(!D.has(x))D.markRead(x,n*2,true)})}finally{checkStamps=cs}checkStamps(true)}
 function onbFinish(){LS.set("zal.onb",1);$("#onb").classList.remove("on");setRealmUI("books");checkStamps(true);pickCol();fi=0;buildFeed();show("col");toast("Полки готовы")}
@@ -577,6 +579,40 @@ new MutationObserver(()=>{const sh=$("#vsheet");if(!sh.classList.contains("on")&
 function emptyInner(){const act=activeList();if(!act.length)return endInner();const d=bestDrop();
   return `<h2>Ничего не нашлось</h2><p>С такими фильтрами ${isF()?"фильмов":"книг"} не осталось.${d?` Если убрать «${esc(d[1])}», найдётся ${d[2].toLocaleString("ru-RU")}.`:""}</p><div class="acts col">${d?`<button class="btn w" data-fdrop2="${esc(d[0])}">Убрать «${esc(d[1])}»</button>`:""}<button class="btn" data-freset2>Сбросить все фильтры</button></div>`}
 $("#feed").addEventListener("click",e=>{const d=e.target.closest("[data-fdrop2]");if(d){dropFilter(d.dataset.fdrop2);applyFilters();return}if(e.target.closest("[data-freset2]")){resetAll();applyFilters()}});
+
+
+// ---------- синхронизация: карточка, вход по почте ----------
+const NS=window.NSYNC||{on:false};
+const agoTxt=t=>{if(!t)return "ещё не было";const m=Math.round((Date.now()-t)/60000);return m<1?"только что":m<60?m+" мин назад":Math.round(m/60)<24?Math.round(m/60)+" ч назад":new Date(t).toLocaleDateString("ru-RU")};
+function syncCard(){if(!NS.on)return "";const k=NS.key();
+  const st=NS.err?`<span class="sy-err">Не синхронизировано: ${esc(NS.err)}</span>`:k?`Синхронизировано ${agoTxt(NS.last)}`:"Пока только на этом устройстве";
+  return `<div class="sc gl sy"><h3>Синхронизация</h3><p class="sy-st">${st}</p>
+   ${TG&&k?`<button data-sy-open>Открыть в браузере</button>`:""}${k?`<button data-sy-copy>Скопировать ссылку для входа</button>`:""}
+   ${NS.email?`<p class="sy-mail">Вход по почте: <b>${esc(NS.email)}</b></p>`:k?`<button data-sy-mail>Привязать почту</button>`:`<button data-sy-login>Войти по почте</button>`}
+   <p class="sy-note">${NS.email?"Если Telegram недоступен — открой Нору в любом браузере и войди с этой почтой.":"С почтой Нору можно открыть в любом браузере, даже если Telegram недоступен."}</p></div>`}
+function syncClick(t){
+  if(t.closest("[data-sy-open]")){const u=NS.link();try{TG&&TG.openLink?TG.openLink(u,{try_instant_view:false}):window.open(u,"_blank")}catch(e){window.open(u,"_blank")}return true}
+  if(t.closest("[data-sy-copy]")){const u=NS.link();(navigator.clipboard?navigator.clipboard.writeText(u):Promise.reject()).then(()=>toast("Ссылка скопирована — не показывай её чужим")).catch(()=>{vOpen(`<h3 class="vh">Ссылка для входа</h3><p class="sy-note">Скопируй и открой в любом браузере. Не показывай её чужим: по ней открываются твои полки.</p><textarea class="sy-in" readonly rows="3">${esc(u)}</textarea>`)});return true}
+  if(t.closest("[data-sy-mail]")){mailSheet("link");return true}
+  if(t.closest("[data-sy-login]")){loginSheet();return true}
+  return false}
+function mailSheet(mode){const L=mode==="link";
+  vOpen(`<h3 class="vh">${L?"Привязать почту":"Войти по почте"}</h3><p class="sy-note">${L?"Придумай пароль — с почтой и паролем Нору можно открыть в любом браузере, даже без Telegram.":"Почта и пароль, которые ты привязала к Норе."}</p>
+   <input class="sy-in" id="syE" type="email" autocomplete="email" placeholder="Почта" inputmode="email">
+   <input class="sy-in" id="syP" type="password" autocomplete="${L?"new-password":"current-password"}" placeholder="${L?"Пароль, от 6 символов":"Пароль"}">
+   <p class="sy-msg" id="syM"></p><div class="one"><button class="btn w" id="syGo">${L?"Привязать":"Войти"}</button></div>${L?"":`<button class="sy-link" id="syR">Забыли пароль?</button>`}`);
+  $("#vsheet").classList.toggle("ontop",$("#intro").classList.contains("on")||$("#onb").classList.contains("on"));
+  const go=$("#syGo"),msg=$("#syM");
+  go.onclick=async()=>{const e=$("#syE").value.trim(),p=$("#syP").value;if(!e||!p){msg.textContent="Заполни почту и пароль";return}go.disabled=true;go.textContent=L?"Привязываю…":"Вхожу…";msg.textContent="";
+    try{if(L){try{await NS.signUp(e,p)}catch(x){if(/уже есть Нора/.test(x.message))await NS.signIn(e,p);else throw x}}else await NS.signIn(e,p);
+      vClose();toast(L?"Почта привязана":"Вошла — загружаю полки");if(SCREEN==="sum")drawSum()}
+    catch(x){msg.textContent=x.message;go.disabled=false;go.textContent=L?"Привязать":"Войти"}};
+  const r=$("#syR");if(r)r.onclick=async()=>{const e=$("#syE").value.trim();if(!e){msg.textContent="Впиши почту — пришлю ссылку для нового пароля";return}
+    try{await NS.reset(e);msg.textContent="Письмо отправлено. Задай новый пароль по ссылке и возвращайся."}catch(x){msg.textContent=x.message}}}
+const loginSheet=()=>mailSheet("login");
+addEventListener("nsync",()=>{if(SCREEN==="sum"&&!$("#vsheet").classList.contains("on"))drawSum()});
+try{if(sessionStorage.getItem("nsync.applied")){sessionStorage.removeItem("nsync.applied");setTimeout(()=>toast("Подтянула изменения с другого устройства"),600);
+  if(TG){try{saveMine();saveEdits();saveWant();saveF();saveNow()}catch(e){}}}}catch(e){}
 
 // ---------- запуск ----------
 if(VIEW){document.body.classList.add("viewing");REALM="books"}

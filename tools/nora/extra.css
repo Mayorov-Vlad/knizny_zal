@@ -115,3 +115,21 @@ html[data-theme="light"] #app .fc[data-fdrop],html[data-theme="light"] #app .fk.
 html[data-theme="light"] #app .fk{background:rgba(20,21,27,.06);color:var(--ink);box-shadow:inset 0 0 0 .5px rgba(20,21,27,.1)}
 html[data-theme="light"] #app .ffoot{background:linear-gradient(transparent,rgba(250,249,246,.97) 30%)}
 #app .acts.col{flex-direction:column}#app .acts.col .btn{width:100%}
+
+/* ---------- синхронизация ---------- */
+#app .sy h3{margin:0}
+#app .sy-st{margin:6px 0 10px;font-size:13.5px;color:var(--ink2)}
+#app .sy-err{color:#FFB4A8}
+#app .sy>button{display:block;width:100%;text-align:left;padding:12px 0;font-size:15px;font-weight:500;border-top:.5px solid rgba(255,255,255,.1)}
+#app .sy-mail{margin:0;padding:12px 0;font-size:14px;color:var(--ink2);border-top:.5px solid rgba(255,255,255,.1)}
+#app .sy-mail b{color:var(--ink);font-weight:500}
+#app .sy-note{margin:8px 0 0;font-size:12.5px;line-height:1.45;color:var(--ink3)}
+#app .sy-in{display:block;width:100%;margin-top:10px;padding:13px 15px;border-radius:14px;border:0;outline:0;background:rgba(255,255,255,.08);color:var(--ink);font:inherit;font-size:16px;resize:none}
+#app .sy-msg{min-height:18px;margin:10px 0 0;font-size:13px;color:#FFB4A8}
+#app .sy-link{display:block;margin:14px auto 0;font-size:13.5px;color:var(--ink2);text-decoration:underline;text-underline-offset:3px}
+#app .intro-login{position:relative;z-index:2;margin-top:14px;font-size:14px;color:rgba(255,255,255,.75);text-decoration:underline;text-underline-offset:3px}
+html[data-theme="light"] #app .sy>button,html[data-theme="light"] #app .sy-mail{border-top-color:rgba(0,0,0,.1)}
+html[data-theme="light"] #app .sy-in{background:rgba(20,21,27,.06)}
+html[data-theme="light"] #app .sy-err,html[data-theme="light"] #app .sy-msg{color:#B3261E}
+#app .intro .intro-login{opacity:0;transition:opacity .7s .36s}#app .intro.ready .intro-login{opacity:1}
+#app #vsheet.ontop{z-index:96}

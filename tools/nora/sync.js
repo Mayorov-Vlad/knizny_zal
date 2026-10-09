@@ -8,7 +8,7 @@
 const FB={apiKey:"AIzaSyD9yfazxfKpaEk1BNFDN61dEB3pfxT9cS4",projectId:"nora-ed429"};
 const ON=!!(FB.apiKey&&FB.projectId);
 const ls=window.localStorage,P=Storage.prototype,_set=P.setItem,_rm=P.removeItem,_get=P.getItem;
-const SKIP=k=>!k||!k.startsWith("zal.")||k==="zal.img"||k==="zal.recent"||k.startsWith("zal.sync");
+const SKIP=k=>!k||!k.startsWith("zal.")||k==="zal.img"||k==="zal.img2"||k==="zal.desc"||k==="zal.recent"||k.startsWith("zal.sync");
 const jget=(k,d)=>{try{const v=_get.call(ls,k);return v?JSON.parse(v):d}catch(e){return d}};
 const jset=(k,v)=>{try{_set.call(ls,k,JSON.stringify(v))}catch(e){}};
 const TG=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData?Telegram.WebApp:null;
@@ -32,7 +32,7 @@ async function vaultPut(d){const body=JSON.stringify({fields:{d:{stringValue:JSO
   if(body.length>950000)throw new Error("Слишком много данных для облака");
   const r=await fetch(base()+"vaults/"+key+"?key="+FB.apiKey,{method:"PATCH",headers:{"Content-Type":"application/json"},body});if(!r.ok)throw new Error("HTTP "+r.status)}
 async function sync(){if(!S.on||!key||!ready)return;if(busy){again=true;return}busy=true;
-  try{const d=await vaultGet();let changed=false,dirty=false;applying=true;
+  try{const d=await vaultGet();let changed=false,dirty=false;for(const k in d)if(SKIP(k)){delete d[k];dirty=true}applying=true;
     for(const k in d){if(SKIP(k))continue;const rt=d[k].t||0,lt=k in T?T[k]:-1;if(rt<=lt)continue;const cur=_get.call(ls,k);
       if(d[k].v!==cur){if(d[k].v==null)_rm.call(ls,k);else _set.call(ls,k,d[k].v);changed=true}T[k]=rt}
     applying=false;

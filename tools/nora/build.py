@@ -118,10 +118,10 @@ v5_body = rep(v5_body, '<div class="sheet" id="sheet"><div class="sh-bg" data-cl
 v5_body = rep(v5_body, '<section class="screen" id="s-feed"><div class="feed" id="feed"></div>',
               '<section class="screen" id="s-feed"><div class="feed" id="feed"></div><button class="ffil gl press" id="ffil" hidden aria-label="Фильтры"></button>')
 v5_body = rep(v5_body, '<div class="seg gl" role="tablist"><i></i><button data-realm="books" class="on press">Книги</button><button data-realm="films" class="press">Кино</button></div>',
-              '<div class="seg" hidden><button data-realm="books" class="on">Книги</button></div><button class="addb gl press" id="addB" aria-label="Добавить книгу"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Добавить</button>')
+              '<div class="seg" hidden><button data-realm="books" class="on">Книги</button></div><button class="addb gl press" id="addB" aria-label="Поставить книгу на полку"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Поставить книгу на полку</button>')
 v5_body = rep(v5_body, 'отметь несколько книг и фильмов, которые ты уже знаешь', 'отметь несколько книг, которые уже прочитаны')
 v5_body = rep(v5_body, '<div class="stp" id="onbStep">1 из 2</div>', '<div class="stp" id="onbStep" hidden></div>')
-v5_body = '<div class="splash on" id="splash" aria-hidden="true"><div class="sp-reel" id="spReel">'+''.join('<i></i>' for _ in range(15))+'</div><div class="sp-fade"></div><div class="sp-logo">Нора</div><div class="sp-flash"></div></div>' + v5_body
+v5_body = '<div class="splash on" id="splash" aria-hidden="true"><div class="sp-reel" id="spReel">'+''.join('<i></i>' for _ in range(15))+'</div><div class="sp-fade"></div><div class="sp-logo"><b>НОРА</b><small>книжная</small></div><div class="sp-flash"></div></div>' + v5_body
 v5_body = rep(v5_body, '<div class="scroll" id="colScroll">', '<div class="scroll" id="colScroll"><div class="vbanner gl" id="vbanner" hidden></div>')
 
 

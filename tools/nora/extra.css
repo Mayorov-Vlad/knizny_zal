@@ -242,3 +242,25 @@ html[data-theme="light"] .covsw button.on{background:#14151B;color:#F3F1EC}
 .legacy-over .imp-link{display:block;width:100%;margin:10px 0 4px;padding:12px;border-radius:12px;border:1px dashed var(--line);background:none;color:var(--ink-2);font:inherit;font-size:14px}
 html[data-theme="light"] #app .imp-step{background:rgba(20,21,27,.04)}
 html[data-theme="light"] #app .imp-to button.on{background:#14151B;color:#F3F1EC}
+
+/* ---------- правки: шапка, лента, меню ---------- */
+#app .addb{font-size:13.5px}
+body:not(.col):not(.sum) #app .addb{opacity:0;pointer-events:none}
+body.sum #app .addb{opacity:0;pointer-events:none}
+/* фильтры над карточкой, в её ширину */
+#app #s-feed .wrap{top:calc(112px + env(safe-area-inset-top,0px))}
+#app .fbar{top:calc(66px + env(safe-area-inset-top,0px));left:10px;right:10px;padding:0;-webkit-mask:linear-gradient(90deg,#000 90%,transparent);mask:linear-gradient(90deg,#000 90%,transparent)}
+/* нижнее меню читается на любой обложке */
+#app .bottom::before{content:"";position:fixed;left:0;right:0;bottom:0;height:calc(130px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(5,6,10,0),rgba(5,6,10,.78) 55%,rgba(5,6,10,.92));pointer-events:none;z-index:-1}
+#app .dock{background:rgba(16,16,22,.74)}
+html[data-theme="light"] #app .bottom::before{background:linear-gradient(180deg,rgba(243,241,236,0),rgba(243,241,236,.82) 55%,rgba(243,241,236,.94))}
+html[data-theme="light"] #app .dock{background:rgba(250,249,246,.86)}
+body:not(.col) #app .bottom::before{opacity:0}
+/* заставка: логотип плашкой, как у Marvel */
+#app .sp-logo{font-family:'Oswald',var(--f);font-size:0;transform:translateY(-50%) scale(1.6)}
+#app .sp-logo b{display:inline-block;padding:6px 22px 8px;background:#A3142B;color:#fff;font-weight:700;font-size:82px;line-height:1;letter-spacing:.06em;box-shadow:0 24px 60px -18px rgba(0,0,0,.8)}
+#app .sp-logo small{display:block;margin-top:12px;font-family:var(--f);font-size:13px;font-weight:600;letter-spacing:.42em;text-transform:uppercase;color:rgba(255,255,255,.8);padding-left:.42em}
+#app .splash.frozen .sp-logo{transform:translateY(-50%) scale(1)}
+/* описание в ленте — длиннее, обычным шрифтом */
+#app .info p.ds{font-family:var(--f);font-style:normal;font-size:14.5px;line-height:1.45;color:rgba(255,255,255,.86);-webkit-line-clamp:6}
+html[data-theme="light"] #app .info p.ds{color:rgba(255,255,255,.88)}

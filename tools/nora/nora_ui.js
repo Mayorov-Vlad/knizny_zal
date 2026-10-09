@@ -88,7 +88,18 @@ function bItem(b,kind){const c=catOf(b)||{};
     ds:b.ann||c.ann||"",wy:b.why||b.when||c.when||"",tags:b.tags||c.tags||[],src:b,kind,id:b.id||c.id,bg:b.bg||c.bg,fg:b.fg||c.fg}}
 function fItem(f,kind){return {s:f.s||undefined,_f:1,t:fTitle(f),a:f.o&&f.o!==fTitle(f)?f.o:"",y:f.y||null,c:(f.c||[]).map(cName)[0]||"",cs:f.c||[],g:f.g||0,m:f.m||0,
     rd:f.d,r:f.r,ds:f.ds||"",wy:f.wy||"",s:f.s,src:f,kind,id:f.id,img:f.img}}
-const descOf=x=>x.ds||x.wy||"";
+// ---------- описания: подробное с Фантлаба (у каждой книги своё), иначе аннотация каталога ----------
+const DESC=LS.get("zal.desc",{});let descT=0;const descSave=()=>{clearTimeout(descT);descT=setTimeout(()=>LS.set("zal.desc",DESC),600)};
+const descOf=x=>{const d=DESC[ikey(x)];return (d&&d.length>(x.ds||"").length?d:"")||x.ds||x.wy||""};
+const dClean=d=>{d=String(d||"").replace(/\[[^\]]*\]/g,"").replace(/<[^>]+>/g,"").replace(/\s+/g," ").trim();if(d.length<=620)return d;const cut=d.slice(0,620),i=Math.max(cut.lastIndexOf(". "),cut.lastIndexOf("! "),cut.lastIndexOf("? "));return i>200?cut.slice(0,i+1):cut.slice(0,cut.lastIndexOf(" "))+"…"};
+const DQ=[],DX={};let dqn=0;
+function wantDesc(x,cb){if(!x||x._f)return;const k=ikey(x);if(DESC[k]!==undefined){if(cb)cb();return}if(DX[k]){(DX[k].cbs=DX[k].cbs||[]).push(cb);return}DX[k]={cbs:cb?[cb]:[]};DQ.push({x,k});dpump()}
+function dpump(){while(dqn<3&&DQ.length){const {x,k}=DQ.shift();dqn++;
+  (async()=>{const s=await flj("/search-works?q="+encodeURIComponent(x.t)+"&page=1&onlymatches=1");const sur=norm(String(x.a||"").split(" ").slice(-1)[0]);const L=Array.isArray(s)?s:[];
+    const w=L.find(w=>!sur||norm(w.autor_rusname||"").includes(sur)||norm(w.autor_name||"").includes(sur))||L.find(w=>norm(w.rusname||w.name||"")===norm(x.t));if(!w)return "";
+    const j=await flj("/work/"+w.work_id);return dClean(j.work_description||"")})()
+  .then(d=>{DESC[k]=d||"";descSave()}).catch(()=>{}).finally(()=>{const cbs=(DX[k]||{}).cbs||[];delete DX[k];dqn--;cbs.forEach(f=>{try{f&&f()}catch(e){}});dpump()})}}
+
 
 // ---------- адаптер данных: книги ----------
 const BK={
@@ -144,9 +155,10 @@ function bookFeed(){const q=tasteQ();let rank=rankFor(q);{const extra=rankFor({t
   const all=[...out,...later];let i=0;feedMore=()=>{const chunk=all.slice(i,i+25);i+=25;return chunk.map(b=>{const it=bItem(b,"feed");it.why=whyBook(b);return it})};return feedMore()}
 function filmFeed(){if(!FILMS)return [];const res=filmList();let i=0;
   feedMore=()=>{const chunk=res.slice(i,i+25);i+=25;return chunk.map(f=>fItem(f,"feed"))};return feedMore()}
-function slideHTML(x,j){const meta=[x.a,x.y,x.c,x._f&&x.g?genreList(x.g).slice(0,2).join(", ").toLowerCase():"",x.s?"сериал":""].filter(Boolean).join(" · ");
-  return `<article class="slide" data-j="${j}"><div class="wrap"><div class="fly gl"><div class="bg"></div><div class="lean r"><i>${IC.v}</i><b>Добавить</b></div><div class="lean l"><i>${IC.x}</i><b>Не предлагать</b></div><div class="obj">${cv(x,220)}</div><div class="info"><h2>${esc(x.t)}</h2><div class="meta">${esc(meta)}</div>${x.why||x.wy||x.ds?`<p>${esc(x.why||x.wy||x.ds)}</p>`:""}
+function slideHTML(x,j){const meta=x.a||"";
+  return `<article class="slide" data-j="${j}"><div class="wrap"><div class="fly gl"><div class="bg"></div><div class="lean r"><i>${IC.v}</i><b>Добавить</b></div><div class="lean l"><i>${IC.x}</i><b>Не предлагать</b></div><div class="obj">${cv(x,220)}</div><div class="info"><h2>${esc(x.t)}</h2><div class="meta">${esc(meta)}</div><p class="ds">${esc(descOf(x))}</p>
   <div class="acts3"><button class="rb gl press" data-skip="${j}" aria-label="Не предлагать">${IC.x}</button><button class="rb sm gl press" data-undo aria-label="Отменить действие">${IC.u}</button><button class="rb w press" data-want="${j}" aria-label="Добавить">${IC.v}</button></div></div></div></div></article>`}
+function slideDesc(el,x){const upd=()=>{const p=el.querySelector(".info p.ds");if(p)p.textContent=descOf(x)};upd();wantDesc(x,upd);const nx=el.nextElementSibling;if(nx&&nx.dataset.j!=null){const y=slides[+nx.dataset.j];if(y)wantDesc(y,()=>{const p=nx.querySelector(".info p.ds");if(p)p.textContent=descOf(y)})}}
 function bgFill(sl,x){const u=imgOf(x),bg=sl.querySelector(".bg");if(u&&bg&&!bg.firstChild)bg.innerHTML=`<img src="${esc(u)}" alt="" referrerpolicy="no-referrer">`}
 function endInner(){return `<h2>Пока всё</h2><p>Шуршуня подберёт новое, как только ты что-нибудь отметишь. А пока можно поискать через лупу.</p><div class="acts"><button class="btn w" data-find>Найти через поиск</button></div>`}
 function drawDots(){const n=$("#feed").children.length;$("#dots").innerHTML=Array.from({length:Math.min(n,30)},(_,k)=>`<i class="${k===Math.max(0,cur)?"on":""}"></i>`).join("")}
@@ -158,7 +170,7 @@ function buildFeed(){acts=[];const f=$("#feed");$("#ffil").hidden=true;if(!VIEW)
 function moreSlides(){if(!feedMore)return;const add=feedMore();if(!add.length)return;const base=slides.length;slides.push(...add);
   $("#feed [data-end]").insertAdjacentHTML("beforebegin",add.map((x,i)=>slideHTML(x,base+i)).join(""));drawDots();updUndo()}
 function onFeedScroll(){const f=$("#feed");if(!f.clientHeight)return;const j=Math.round(f.scrollTop/f.clientHeight);if(j===cur)return;cur=j;
-  const el=f.children[j],x=el&&el.dataset.j!=null?slides[+el.dataset.j]:null;if(x){ambFor(x);bgFill(el,x)}const nx=f.children[j+1];if(nx&&nx.dataset.j!=null)bgFill(nx,slides[+nx.dataset.j]);
+  const el=f.children[j],x=el&&el.dataset.j!=null?slides[+el.dataset.j]:null;if(x){ambFor(x);bgFill(el,x);slideDesc(el,x)}const nx=f.children[j+1];if(nx&&nx.dataset.j!=null)bgFill(nx,slides[+nx.dataset.j]);
   document.querySelectorAll("#dots i").forEach((d,k)=>d.classList.toggle("on",k===j));if(f.children.length-j<6)moreSlides();tgHaptic("soft")}
 $("#feed").addEventListener("scroll",onFeedScroll,{passive:true});
 const slideEl=j=>$(`#feed .slide[data-j="${j}"]`);
@@ -220,6 +232,7 @@ function layoutFlow(first){const L=flowList().slice(0,60),n=L.length;if($("#flow
   cap.innerHTML=x?`${x.now?`<span class="fm" style="margin:0 0 6px">Сейчас читаю</span>`:""}<b>${esc(x.t)}</b><span class="fm">${esc(x.a||"")}</span><p>${esc(descOf(x))}</p>`
     :`<span class="fm">${VIEW?"Здесь пусто.":colF==="want"?"Здесь пока пусто — добавь что-нибудь из ленты или через лупу вверху.":isF()&&!FILMS?"Загружаю киноархив…":"Здесь пока пусто."}</span>`;
   if(!first){cap.classList.remove("sw");void cap.offsetWidth;cap.classList.add("sw")}
+  if(x)wantDesc(x,()=>{if(flowList()[fi]===x){const p=cap.querySelector("p");if(p)p.textContent=descOf(x)}});
   ambFor(x)}
 function stepFlow(d){const n=Math.min(60,flowList().length);if(n<2)return;fi=((fi+d)%n+n)%n;layoutFlow()}
 (function(){const el=$("#flow");let x0=null,y0=null,mode=null,moved=0;
@@ -249,7 +262,7 @@ function centHTML(){const dated=BOOKS.filter(b=>b.y).sort((a,b)=>a.y-b.y),byCt={
    (undated.length?`<div class="cent"><h2>Без года</h2><div class="tl">${undated.map(b=>`<button class="tl-row" data-id="${b.id}"><span class="yr">—</span>${cover(b,40)}<span class="tx"><b>${esc(b.t)}</b><span>${esc(b.a||"")}</span></span></button>`).join("")}</div></div>`:"")}
 function authorsHTML(){const by={};BOOKS.forEach(b=>{const a=b.a&&b.a!=="Автор не указан"?b.a:"Автор не указан";(by[a]=by[a]||[]).push(b)});
   return `<div class="authors">${Object.entries(by).sort((x,y)=>(y[1].length-x[1].length)||x[0].localeCompare(y[0],"ru")).map(([a,bs])=>`<div class="au-card"><h3>${esc(a)}</h3><div class="sub">${esc(bs[0].c&&!NOCOUNTRY.has(bs[0].c)?bs[0].c:"")}</div><div class="au-books">${bs.map(b=>`<button class="au-book" data-id="${b.id}">${cover(b,34)}<b>${esc(b.t)}</b></button>`).join("")}</div></div>`).join("")}</div>`}
-function drawViews(){const L=VIEW?[["grid","Обложки"],["shelves","Полки"],["cent","Века"],["map","Карта"]]:VIEWS[colF]||VIEWS.read,v=L.some(x=>x[0]===colV[colF])?colV[colF]:"grid";
+function drawViews(){cvw.hidden=true;oldv.hidden=true;$("#grid").hidden=false;return;const L=VIEW?[["grid","Обложки"],["shelves","Полки"],["cent","Века"],["map","Карта"]]:VIEWS[colF]||VIEWS.read,v=L.some(x=>x[0]===colV[colF])?colV[colF]:"grid";
   const empty=!gridList().length;cvw.hidden=empty;
   cvw.innerHTML=L.map(([k,l])=>`<button class="${v===k?"on":""}" data-cv="${k}">${l}</button>`).join("");
   $("#grid").hidden=v!=="grid"&&!empty;oldv.hidden=v==="grid"||empty;
@@ -274,10 +287,10 @@ $("#vsheet").addEventListener("click",e=>{if(e.target.closest("[data-close],[dat
     if(dy>90){el.style.transition="transform .26s cubic-bezier(.4,0,1,1)";el.style.transform="translateY(110%)";setTimeout(()=>{el.style.transition="none";vClose();requestAnimationFrame(()=>{el.style.transform="";requestAnimationFrame(()=>{el.style.transition=""})})},250)}
     else{el.style.transition="transform .35s cubic-bezier(.2,1.2,.4,1)";el.style.transform="";setTimeout(()=>{el.style.transition=""},360)}})})();
 const starsHTML=(x,attr)=>`<div class="stars">${Array.from({length:6},(_,n)=>`<button ${attr}="${n}" class="${r5(x.r)===n?"on":""}">${n}</button>`).join("")}</div>`;
-function itemHTML(){const x=cardX,L=cardL,F=!!x._f;const meta=[x.a,x.y,x.c&&!NOCOUNTRY.has(x.c)?x.c:"",F&&x.g?genreList(x.g).slice(0,3).join(", ").toLowerCase():"",F&&x.m?x.m+" мин":"",x.s?"сериал":""].filter(Boolean).join(", ");
+function itemHTML(){const x=cardX,L=cardL,F=!!x._f;const meta=x.a||"";
   const src=x.src||{},acc=(src.acclaim||[]).slice(0,3);
   return `<div class="dt">${cv(x,150)}${F?"":covRow(x)}<h2>${esc(x.t)}</h2><div class="meta">${esc(meta)}</div>
-  ${x.ds?`<p class="dd">${esc(x.ds)}</p>`:""}${x.why||x.wy?`<p class="dd q">${esc(x.why||x.wy)}</p>`:""}
+  <p class="dd" id="cardDesc">${esc(descOf(x))}</p>${x.wy&&x.wy!==descOf(x)?`<p class="dd q">${esc(x.wy)}</p>`:""}
   ${acc.length?`<div class="acc">${acc.map(a=>`<span>${esc(a)}</span>`).join("")}</div>`:""}
   ${F&&src.r&&L!=="read"?`<p class="dd sm">IMDb ${fmtR(src.r)}${src.v?" · "+fmtVotes(src.v)+" оценок":""}${src.hr===0?" · не выходил в России":""}</p>`:""}
   ${L==="rec"?`<div class="one"><button class="btn w" data-cwant>Добавить в избранное</button></div>`
@@ -285,7 +298,7 @@ function itemHTML(){const x=cardX,L=cardL,F=!!x._f;const meta=[x.a,x.y,x.c&&!NOC
    :`<div class="acts"><button class="btn w" data-cmv>${T[REALM].did}</button><button class="btn" data-crm>Убрать</button></div>`}</div>`}
 function openItem(x,L){if(!x)return;
   if(L==="read"){if(x._f)openFilm(x.src);else openBook(x.src.id);return}
-  if(VIEW)return;cardX=x;cardL=L;ambFor(x);vOpen(itemHTML())}
+  if(VIEW)return;cardX=x;cardL=L;ambFor(x);vOpen(itemHTML());if(!x._f)wantDesc(x,()=>{const d=$("#cardDesc");if(d&&cardX===x)d.textContent=descOf(x)})}
 $("#vshBody").addEventListener("click",e=>{const t=e.target;if(!cardX||$("#fres"))return;const D=cardX._f?FM:BK;
   if(t.closest("[data-cmv]")){const x=cardX;vClose();rmAsk(x,null,n=>{D.markRead(x,n*2);toast(x._f?"Отмечено как просмотренное":"Отмечено как прочитанное");refresh()},"Без оценки",()=>{D.markRead(x,null);refresh()});return}
   if(t.closest("[data-cwant]")){D.addWant(cardX);vDirty=true;toast("Добавлено в избранное");vClose();return}
@@ -379,7 +392,7 @@ function drawSum(){const F=isF(),r=DATA().read(),u=T[REALM].u,known=r.filter(x=>
   const cs=cntBy(known,x=>x.c),au=F?[]:cntBy(r.filter(x=>x.a&&x.a!=="Автор не указан"),x=>x.a),dated=r.filter(x=>x.y);
   const eras=F?cntBy(dated,x=>Math.floor(x.y/10)*10+"-е"):cntBy(dated,x=>(ROMAN[centuryOf(x.y)]||centuryOf(x.y))+" век");
   const gens=F?cntBy(r,x=>{const g=genreList(x.g||0);return g[0]||""}):cntBy(r,x=>GEN[x.g]);const vol=F?Math.round(r.reduce((a,x)=>a+(x.m||0),0)/60):r.reduce((a,x)=>a+(x.pg||0),0);const wn=DATA().want().length;
-  const links=VIEW?"":syncCard()+`<div class="sc gl s3"><button data-import>Перенести книги из других сервисов</button><button data-share>Поделиться полками</button><button data-backup>Резервная копия</button><div class="themes"><span>Тема</span>${[["dark","тёмная"],["light","светлая"]].map(([v,l])=>`<button data-theme-set="${v}" class="${(themePref()==="light"?"light":"dark")===v?"on":""}">${l}</button>`).join("")}</div></div>`;
+  const links=VIEW?"":`<div class="sc gl s3"><div class="themes" style="border-top:0;margin-top:0"><span>Тема</span>${[["dark","тёмная"],["light","светлая"]].map(([v,l])=>`<button data-theme-set="${v}" class="${(themePref()==="light"?"light":"dark")===v?"on":""}">${l}</button>`).join("")}</div></div>`;
   if(!r.length){$("#sumMore").innerHTML=`<div class="sc gl"><p style="margin:0;color:var(--ink2)">Статистика появится, когда на полке будет что-то ${F?"просмотренное":"прочитанное"}.</p></div>${links}`;return}
   const avgS=rated.length?avg.toFixed(1).replace(".",","):"—";
   const head=`<div class="sc gl s1"><div class="big"><b>${r.length}</b><span>${plural(r.length,...u)}<br>${F?"посмотрено":"прочитано"}</span></div>

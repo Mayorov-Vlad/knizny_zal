@@ -121,6 +121,7 @@ v5_body = rep(v5_body, '<div class="seg gl" role="tablist"><i></i><button data-r
               '<div class="seg" hidden><button data-realm="books" class="on">Книги</button></div><button class="addb gl press" id="addB" aria-label="Добавить книгу"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Добавить</button>')
 v5_body = rep(v5_body, 'отметь несколько книг и фильмов, которые ты уже знаешь', 'отметь несколько книг, которые уже прочитаны')
 v5_body = rep(v5_body, '<div class="stp" id="onbStep">1 из 2</div>', '<div class="stp" id="onbStep" hidden></div>')
+v5_body = '<div class="splash on" id="splash" aria-hidden="true"><div class="sp-reel" id="spReel">'+''.join('<i></i>' for _ in range(15))+'</div><div class="sp-fade"></div><div class="sp-logo">Нора</div><div class="sp-flash"></div></div>' + v5_body
 v5_body = rep(v5_body, '<div class="scroll" id="colScroll">', '<div class="scroll" id="colScroll"><div class="vbanner gl" id="vbanner" hidden></div>')
 
 
@@ -228,7 +229,8 @@ if(tg)document.write('<script src="https://telegram.org/js/telegram-web-app.js">
 html = f'''<!doctype html>
 <html lang="ru" data-theme="dark">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-{tg_loader}<title>Нора</title>
+{tg_loader}
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="icon" href="icons/icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Нора"><meta name="theme-color" content="#05060A"><title>Нора</title>
 {fonts}
 <style>{font_block}</style>
 <style>

@@ -178,3 +178,34 @@ html[data-theme="light"] #app .cviews button.on{background:rgba(20,21,27,.08)}
 #app .oldv .tl-row .yr::before{background:#0B0C11;border-color:rgba(255,255,255,.5)}
 html[data-theme="light"] #app .oldv .tl{border-left-color:rgba(0,0,0,.12)}
 html[data-theme="light"] #app .oldv .tl-row .yr::before{background:#F3F1EC;border-color:rgba(0,0,0,.4)}
+
+/* ---------- заставка (как начало фильмов Marvel): мелькают обложки, потом замирают ---------- */
+#app .splash{position:fixed;inset:0;z-index:99;background:#05060A;overflow:hidden;display:none}
+#app .splash.on{display:block}
+#app .sp-reel{position:absolute;left:-10%;right:-10%;top:-8%;bottom:-8%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;align-content:start;transform:scale(1.18) rotate(-4deg);animation:spIn 2.4s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes spIn{to{transform:scale(1.04) rotate(-4deg)}}
+#app .sp-reel>i{display:block;aspect-ratio:2/3;border-radius:6px;animation:spFl .9s steps(1) infinite}
+#app .sp-reel>i:nth-child(5n+1){background:#3B4C7A}#app .sp-reel>i:nth-child(5n+2){background:#8E2F45;animation-delay:-.3s}#app .sp-reel>i:nth-child(5n+3){background:#E9DFC9;animation-delay:-.6s}
+#app .sp-reel>i:nth-child(5n+4){background:#2F5A4A;animation-delay:-.15s}#app .sp-reel>i:nth-child(5n){background:#B5843A;animation-delay:-.45s}
+@keyframes spFl{0%{opacity:1}33%{opacity:.55}66%{opacity:.85}}
+#app .sp-reel .cv{border-radius:6px;box-shadow:none}
+#app .sp-fade{position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 45%,rgba(5,6,10,.05),rgba(5,6,10,.55) 70%,rgba(5,6,10,.85));pointer-events:none;transition:background .6s}
+#app .sp-logo{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%) scale(1.25);text-align:center;font-family:var(--serif);font-size:96px;font-weight:600;letter-spacing:-.01em;color:#fff;opacity:0;text-shadow:0 10px 40px rgba(0,0,0,.6);transition:opacity .45s ease,transform 1s cubic-bezier(.2,.8,.2,1)}
+#app .sp-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#app .splash.frozen .sp-reel{animation-play-state:paused}
+#app .splash.frozen .sp-reel>i{animation:none}
+#app .splash.frozen .sp-fade{background:radial-gradient(120% 80% at 50% 45%,rgba(5,6,10,.45),rgba(5,6,10,.8) 70%,rgba(5,6,10,.95))}
+#app .splash.frozen .sp-logo{opacity:1;transform:translateY(-50%) scale(1)}
+#app .splash.frozen .sp-flash{animation:spFlash .5s ease-out}
+@keyframes spFlash{0%{opacity:.35}100%{opacity:0}}
+#app .splash.out{opacity:0;transition:opacity .55s ease}
+@media (prefers-reduced-motion:reduce){#app .sp-reel,#app .sp-reel>i{animation:none}}
+
+/* ---------- регистрация ---------- */
+#app .auth{position:fixed;inset:0;z-index:92;background:#07070b;display:none;flex-direction:column;justify-content:center;padding:24px 24px calc(24px + env(safe-area-inset-bottom,0px))}
+#app .auth.on{display:flex}
+#app .au-in{max-width:420px;width:100%;margin:0 auto}
+#app .au-in h1{margin:0;font-family:var(--serif);font-size:44px;font-weight:600;line-height:1;color:#fff}
+#app .au-in>p{margin:12px 0 18px;font-size:15px;line-height:1.5;color:rgba(255,255,255,.7)}
+#app .au-in .btn{width:100%;margin-top:6px}
+#app .au-sw{display:block;margin:16px auto 0;font-size:14px;color:rgba(255,255,255,.7);text-decoration:underline;text-underline-offset:3px}

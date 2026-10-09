@@ -17,7 +17,7 @@ const VIEWING=/[#&]s=/.test(location.hash)||(!!sp&&!/^k/.test(sp));
 let T=jget("zal.sync.t",null);
 if(!T){T={};for(let i=0;i<ls.length;i++){const k=ls.key(i);if(!SKIP(k))T[k]=1}jset("zal.sync.t",T)}
 let key=_get.call(ls,"zal.sync.k")||"",ready=false,booting=true,applying=false,timer=0,busy=false,again=false;
-const S={on:ON&&!VIEWING,key:()=>key,last:+(_get.call(ls,"zal.sync.last")||0),err:"",email:_get.call(ls,"zal.sync.email")||""};
+const S={on:ON&&!VIEWING,key:()=>key,last:+(_get.call(ls,"zal.sync.last")||0),err:"",email:_get.call(ls,"zal.sync.email")||(()=>{try{return JSON.parse(_get.call(ls,"zal.acct")||"\"\"")}catch(e){return ""}})()};
 const emit=()=>{try{dispatchEvent(new Event("nsync"))}catch(e){}};
 function mark(k){if(applying||SKIP(k))return;if(booting){if(!(k in T)){T[k]=0;jset("zal.sync.t",T)}return}T[k]=Date.now();jset("zal.sync.t",T);schedule(2500)}
 P.setItem=function(k,v){_set.call(this,k,v);if(this===ls)mark(k)};
@@ -63,7 +63,7 @@ async function idt(path,body){const r=await fetch(`https://identitytoolkit.googl
 async function userDoc(j,method,k){const r=await fetch(base()+"users/"+j.localId,{method,headers:{"Content-Type":"application/json",Authorization:"Bearer "+j.idToken},body:method==="PATCH"?JSON.stringify({fields:{k:{stringValue:k}}}):undefined});
   if(method==="GET"){if(r.status===404)return null;if(!r.ok)throw new Error("Не получилось: облако недоступно");const x=await r.json();return x.fields&&x.fields.k&&x.fields.k.stringValue||null}
   if(!r.ok)throw new Error("Не получилось сохранить вход")}
-const keep=email=>{S.email=email;_set.call(ls,"zal.sync.email",email);emit()};
+const keep=email=>{S.email=email;_set.call(ls,"zal.sync.email",email);ls.setItem("zal.acct",JSON.stringify(email));emit()};
 S.signUp=async(email,pw)=>{if(!key)setKey(gen());const j=await idt("signUp",{email,password:pw,returnSecureToken:true});await userDoc(j,"PATCH",key);keep(email);ready=true;await sync()};
 S.signIn=async(email,pw)=>{const j=await idt("signInWithPassword",{email,password:pw,returnSecureToken:true});const k=await userDoc(j,"GET");
   if(k){if(k!==key)setKey(k)}else{if(!key)setKey(gen());await userDoc(j,"PATCH",key)}keep(email);ready=true;booting=false;await sync();emit()};

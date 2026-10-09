@@ -423,8 +423,8 @@ function introShow(){const L=popBooks(),cells=12,reel=$("#reel");
     if(t>2600&&!$("#intro").classList.contains("ready")){$("#flash").classList.add("on");$("#intro").classList.add("ready");tgHaptic("medium")}
     setTimeout(tick,t>2600?1400:delay)};
   setTimeout(tick,200)}
-if(window.NSYNC&&NSYNC.on&&!TG){$("#introGo").insertAdjacentHTML("afterend",`<button class="intro-login" id="introLogin">Уже есть Нора? Войти по почте</button>`);$("#introLogin").onclick=()=>loginSheet()}
-$("#introGo").onclick=()=>{$("#intro").classList.remove("on");$("#onb").classList.add("on");onbDraw();tgHaptic("medium");if(!FILMS)loadFilms().catch(()=>{})};
+if(window.NSYNC&&NSYNC.on){$("#introGo").insertAdjacentHTML("afterend",`<button class="intro-login" id="introLogin">Уже есть аккаунт? Войти</button>`);$("#introLogin").onclick=()=>{authMode="in";authShow(()=>{$("#intro").classList.remove("on");if(emptyAll()){$("#onb").classList.add("on");onbDraw()}})}}
+$("#introGo").onclick=()=>{const go=()=>{$("#intro").classList.remove("on");$("#onb").classList.add("on");onbDraw()};tgHaptic("medium");if(needAuth()){authMode="up";authShow(go)}else go()};
 function onbSave(){const list=$("#onbGrid")._l,D=onbK==="films"?FM:BK,cs=checkStamps;checkStamps=()=>{};try{Object.entries(onbPick).forEach(([i,n])=>{const x=list[+i];if(!D.has(x))D.markRead(x,n*2,true)})}finally{checkStamps=cs}checkStamps(true)}
 function onbFinish(){LS.set("zal.onb",1);$("#onb").classList.remove("on");setRealmUI("books");checkStamps(true);pickCol();fi=0;buildFeed();show("col");toast("Полки готовы")}
 $("#onbNext").onclick=()=>{onbSave();tgHaptic("medium");onbFinish()};
@@ -663,9 +663,47 @@ addEventListener("nsync",()=>{if(SCREEN==="sum"&&!$("#vsheet").classList.contain
 try{if(sessionStorage.getItem("nsync.applied")){sessionStorage.removeItem("nsync.applied");setTimeout(()=>toast("Подтянуты изменения с другого устройства"),600);
   if(TG){try{saveMine();saveEdits();saveWant();saveF();saveNow()}catch(e){}}}}catch(e){}
 
+
+// ---------- заставка при каждом открытии: обложки мелькают, пока всё грузится, потом замирают ----------
+const SPL={stop:false,k:0};
+function splashRun(){const sp=$("#splash"),reel=$("#spReel");if(!sp||!reel)return;
+  const own=[...BOOKS.map(b=>bItem(b,"read")),...want.map(w=>bItem(w,"want"))],L=own.length>=8?own.sort(()=>Math.random()-.5):[...own,...popBooks()];
+  const cells=reel.children.length;for(let c=0;c<cells;c++){reel.children[c].outerHTML=cv(L[c%L.length],130)}SPL.k=cells;
+  let delay=70;const tick=()=>{if(SPL.stop)return;const n=2+Math.floor(Math.random()*4);for(let m=0;m<n;m++){const c=reel.children[Math.floor(Math.random()*cells)];if(c)c.outerHTML=cv(L[(SPL.k++)%L.length],130)}
+    setTimeout(tick,delay)};setTimeout(tick,90)}
+function splashReady(){const imgs=[...document.querySelectorAll("#flow .cv.mid img,#flow .cv img,#grid .cv img")].slice(0,9);
+  const one=im=>im.complete?Promise.resolve():new Promise(r=>{im.addEventListener("load",r,{once:true});im.addEventListener("error",r,{once:true})});
+  return Promise.all([document.fonts?document.fonts.ready:0,...imgs.map(one)])}
+function splashEnd(){const sp=$("#splash");if(!sp||SPL.done)return;SPL.done=true;SPL.stop=true;sp.classList.add("frozen");tgHaptic("medium");
+  setTimeout(()=>sp.classList.add("out"),700);setTimeout(()=>{sp.classList.remove("on");sp.remove();afterSplash()},1300)}
+function splashStart(){splashRun();const t0=performance.now();
+  Promise.race([new Promise(r=>setTimeout(r,1600)).then(splashReady),new Promise(r=>setTimeout(r,3200))]).then(()=>{const wait=Math.max(0,1900-(performance.now()-t0));setTimeout(splashEnd,wait)})}
+
+// ---------- обязательная регистрация ----------
+const needAuth=()=>!!(NS.on&&!VIEW&&!NS.email);
+const authEl=document.createElement("div");authEl.className="auth";authEl.id="auth";$("#app").appendChild(authEl);
+let authNext=null,authMode="up";
+function authShow(next){authNext=next||null;authDraw();authEl.classList.add("on")}
+function authDraw(){const up=authMode==="up";
+  authEl.innerHTML=`<div class="au-in"><h1>${up?"Создай аккаунт":"Вход"}</h1><p>${up?"Почта и пароль нужны, чтобы полки не потерялись и открывались на любом устройстве — в Telegram, в браузере, на телефоне и компьютере.":"Почта и пароль, привязанные к Норе."}</p>
+   <input class="sy-in" id="auE" type="email" autocomplete="email" inputmode="email" placeholder="Почта">
+   <input class="sy-in" id="auP" type="password" autocomplete="${up?"new-password":"current-password"}" placeholder="${up?"Пароль, от 6 символов":"Пароль"}">
+   <p class="sy-msg" id="auM"></p><button class="btn w" id="auGo">${up?"Создать аккаунт":"Войти"}</button>
+   <button class="au-sw" id="auSw">${up?"Уже есть аккаунт? Войти":"Нет аккаунта? Создать"}</button>${up?"":`<button class="au-sw" id="auR">Забыли пароль?</button>`}</div>`;
+  const go=$("#auGo"),msg=$("#auM");
+  $("#auSw").onclick=()=>{authMode=up?"in":"up";authDraw();tgHaptic()};
+  const r=$("#auR");if(r)r.onclick=async()=>{const e=$("#auE").value.trim();if(!e){msg.textContent="Впиши почту — придёт ссылка для нового пароля";return}try{await NS.reset(e);msg.textContent="Письмо отправлено. Задай новый пароль по ссылке и возвращайся."}catch(x){msg.textContent=x.message}};
+  go.onclick=async()=>{const e=$("#auE").value.trim(),p=$("#auP").value;if(!e||!p){msg.textContent="Заполни почту и пароль";return}go.disabled=true;go.textContent=up?"Создаю…":"Вхожу…";msg.textContent="";
+    try{if(up){try{await NS.signUp(e,p)}catch(x){if(/уже есть Нора/.test(x.message)){await NS.signIn(e,p)}else throw x}}else await NS.signIn(e,p);
+      authEl.classList.remove("on");tgHaptic("medium");toast(up?"Аккаунт создан":"Вход выполнен");const n=authNext;authNext=null;if(n)n()}
+    catch(x){msg.textContent=x.message;go.disabled=false;go.textContent=up?"Создать аккаунт":"Войти"}};
+  $("#auP").onkeydown=e=>{if(e.key==="Enter")go.click()}}
+function afterSplash(){if(needAuth()&&!$("#intro").classList.contains("on")&&!$("#onb").classList.contains("on")&&LS.get("zal.onb",0))authShow()}
+
 // ---------- запуск ----------
 if(VIEW){document.body.classList.add("viewing");REALM="books"}
 setRealmUI(REALM);pickCol();buildFeed();show("col");
+if(VIEW){const sp=$("#splash");if(sp)sp.remove()}else splashStart();
 // заранее подтягиваем обложки всего, что лежит на полках (обеих)
 setTimeout(()=>{try{[BK,FM].forEach(D=>{D.want().forEach(wantImg);D.read().forEach(wantImg)})}catch(e){}},1200);
 moveLens();document.fonts&&document.fonts.ready.then(moveLens);

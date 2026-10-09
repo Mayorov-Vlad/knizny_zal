@@ -3,7 +3,8 @@
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
 <script>/* Скрипт Telegram нужен только внутри Telegram; в обычном браузере он может грузиться десятки секунд и держать чёрный экран */
 (function(){var tg=/tgWebApp/.test(location.hash)||!!window.TelegramWebviewProxy||!!(window.external&&"notify" in window.external);try{tg=tg||!!sessionStorage.getItem("__telegram__initParams")}catch(e){}
-if(tg)document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>')})();</script><title>Нора</title>
+if(tg)document.write('<script src="https://telegram.org/js/telegram-web-app.js"><\/script>')})();</script>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-180.png"><link rel="icon" href="icons/icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Нора"><meta name="theme-color" content="#05060A"><title>Нора</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>@font-face{font-family:'Literata';font-style:normal;font-weight:200 900;font-display:swap;src:url(fonts/literata-cyrillic-wght-normal.woff2) format('woff2');unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}
@@ -1216,11 +1217,42 @@ html[data-theme="light"] #app .cviews button.on{background:rgba(20,21,27,.08)}
 html[data-theme="light"] #app .oldv .tl{border-left-color:rgba(0,0,0,.12)}
 html[data-theme="light"] #app .oldv .tl-row .yr::before{background:#F3F1EC;border-color:rgba(0,0,0,.4)}
 
+/* ---------- заставка (как начало фильмов Marvel): мелькают обложки, потом замирают ---------- */
+#app .splash{position:fixed;inset:0;z-index:99;background:#05060A;overflow:hidden;display:none}
+#app .splash.on{display:block}
+#app .sp-reel{position:absolute;left:-10%;right:-10%;top:-8%;bottom:-8%;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:8px;align-content:start;transform:scale(1.18) rotate(-4deg);animation:spIn 2.4s cubic-bezier(.2,.7,.2,1) forwards}
+@keyframes spIn{to{transform:scale(1.04) rotate(-4deg)}}
+#app .sp-reel>i{display:block;aspect-ratio:2/3;border-radius:6px;animation:spFl .9s steps(1) infinite}
+#app .sp-reel>i:nth-child(5n+1){background:#3B4C7A}#app .sp-reel>i:nth-child(5n+2){background:#8E2F45;animation-delay:-.3s}#app .sp-reel>i:nth-child(5n+3){background:#E9DFC9;animation-delay:-.6s}
+#app .sp-reel>i:nth-child(5n+4){background:#2F5A4A;animation-delay:-.15s}#app .sp-reel>i:nth-child(5n){background:#B5843A;animation-delay:-.45s}
+@keyframes spFl{0%{opacity:1}33%{opacity:.55}66%{opacity:.85}}
+#app .sp-reel .cv{border-radius:6px;box-shadow:none}
+#app .sp-fade{position:absolute;inset:0;background:radial-gradient(120% 80% at 50% 45%,rgba(5,6,10,.05),rgba(5,6,10,.55) 70%,rgba(5,6,10,.85));pointer-events:none;transition:background .6s}
+#app .sp-logo{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%) scale(1.25);text-align:center;font-family:var(--serif);font-size:96px;font-weight:600;letter-spacing:-.01em;color:#fff;opacity:0;text-shadow:0 10px 40px rgba(0,0,0,.6);transition:opacity .45s ease,transform 1s cubic-bezier(.2,.8,.2,1)}
+#app .sp-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+#app .splash.frozen .sp-reel{animation-play-state:paused}
+#app .splash.frozen .sp-reel>i{animation:none}
+#app .splash.frozen .sp-fade{background:radial-gradient(120% 80% at 50% 45%,rgba(5,6,10,.45),rgba(5,6,10,.8) 70%,rgba(5,6,10,.95))}
+#app .splash.frozen .sp-logo{opacity:1;transform:translateY(-50%) scale(1)}
+#app .splash.frozen .sp-flash{animation:spFlash .5s ease-out}
+@keyframes spFlash{0%{opacity:.35}100%{opacity:0}}
+#app .splash.out{opacity:0;transition:opacity .55s ease}
+@media (prefers-reduced-motion:reduce){#app .sp-reel,#app .sp-reel>i{animation:none}}
+
+/* ---------- регистрация ---------- */
+#app .auth{position:fixed;inset:0;z-index:92;background:#07070b;display:none;flex-direction:column;justify-content:center;padding:24px 24px calc(24px + env(safe-area-inset-bottom,0px))}
+#app .auth.on{display:flex}
+#app .au-in{max-width:420px;width:100%;margin:0 auto}
+#app .au-in h1{margin:0;font-family:var(--serif);font-size:44px;font-weight:600;line-height:1;color:#fff}
+#app .au-in>p{margin:12px 0 18px;font-size:15px;line-height:1.5;color:rgba(255,255,255,.7)}
+#app .au-in .btn{width:100%;margin-top:6px}
+#app .au-sw{display:block;margin:16px auto 0;font-size:14px;color:rgba(255,255,255,.7);text-decoration:underline;text-underline-offset:3px}
+
 </style>
 </head>
 <body>
 <div id="app" lang="ru">
-
+<div class="splash on" id="splash" aria-hidden="true"><div class="sp-reel" id="spReel"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><div class="sp-fade"></div><div class="sp-logo">Нора</div><div class="sp-flash"></div></div>
 <div class="aurora"></div><div class="grain" aria-hidden="true"></div>
 <div class="amb" id="amb"><img id="ambA" alt=""><img id="ambB" alt=""></div>
 
@@ -1334,7 +1366,7 @@ const VIEWING=/[#&]s=/.test(location.hash)||(!!sp&&!/^k/.test(sp));
 let T=jget("zal.sync.t",null);
 if(!T){T={};for(let i=0;i<ls.length;i++){const k=ls.key(i);if(!SKIP(k))T[k]=1}jset("zal.sync.t",T)}
 let key=_get.call(ls,"zal.sync.k")||"",ready=false,booting=true,applying=false,timer=0,busy=false,again=false;
-const S={on:ON&&!VIEWING,key:()=>key,last:+(_get.call(ls,"zal.sync.last")||0),err:"",email:_get.call(ls,"zal.sync.email")||""};
+const S={on:ON&&!VIEWING,key:()=>key,last:+(_get.call(ls,"zal.sync.last")||0),err:"",email:_get.call(ls,"zal.sync.email")||(()=>{try{return JSON.parse(_get.call(ls,"zal.acct")||"\"\"")}catch(e){return ""}})()};
 const emit=()=>{try{dispatchEvent(new Event("nsync"))}catch(e){}};
 function mark(k){if(applying||SKIP(k))return;if(booting){if(!(k in T)){T[k]=0;jset("zal.sync.t",T)}return}T[k]=Date.now();jset("zal.sync.t",T);schedule(2500)}
 P.setItem=function(k,v){_set.call(this,k,v);if(this===ls)mark(k)};
@@ -1380,7 +1412,7 @@ async function idt(path,body){const r=await fetch(`https://identitytoolkit.googl
 async function userDoc(j,method,k){const r=await fetch(base()+"users/"+j.localId,{method,headers:{"Content-Type":"application/json",Authorization:"Bearer "+j.idToken},body:method==="PATCH"?JSON.stringify({fields:{k:{stringValue:k}}}):undefined});
   if(method==="GET"){if(r.status===404)return null;if(!r.ok)throw new Error("Не получилось: облако недоступно");const x=await r.json();return x.fields&&x.fields.k&&x.fields.k.stringValue||null}
   if(!r.ok)throw new Error("Не получилось сохранить вход")}
-const keep=email=>{S.email=email;_set.call(ls,"zal.sync.email",email);emit()};
+const keep=email=>{S.email=email;_set.call(ls,"zal.sync.email",email);ls.setItem("zal.acct",JSON.stringify(email));emit()};
 S.signUp=async(email,pw)=>{if(!key)setKey(gen());const j=await idt("signUp",{email,password:pw,returnSecureToken:true});await userDoc(j,"PATCH",key);keep(email);ready=true;await sync()};
 S.signIn=async(email,pw)=>{const j=await idt("signInWithPassword",{email,password:pw,returnSecureToken:true});const k=await userDoc(j,"GET");
   if(k){if(k!==key)setKey(k)}else{if(!key)setKey(gen());await userDoc(j,"PATCH",key)}keep(email);ready=true;booting=false;await sync();emit()};
@@ -3655,8 +3687,8 @@ function introShow(){const L=popBooks(),cells=12,reel=$("#reel");
     if(t>2600&&!$("#intro").classList.contains("ready")){$("#flash").classList.add("on");$("#intro").classList.add("ready");tgHaptic("medium")}
     setTimeout(tick,t>2600?1400:delay)};
   setTimeout(tick,200)}
-if(window.NSYNC&&NSYNC.on&&!TG){$("#introGo").insertAdjacentHTML("afterend",`<button class="intro-login" id="introLogin">Уже есть Нора? Войти по почте</button>`);$("#introLogin").onclick=()=>loginSheet()}
-$("#introGo").onclick=()=>{$("#intro").classList.remove("on");$("#onb").classList.add("on");onbDraw();tgHaptic("medium");if(!FILMS)loadFilms().catch(()=>{})};
+if(window.NSYNC&&NSYNC.on){$("#introGo").insertAdjacentHTML("afterend",`<button class="intro-login" id="introLogin">Уже есть аккаунт? Войти</button>`);$("#introLogin").onclick=()=>{authMode="in";authShow(()=>{$("#intro").classList.remove("on");if(emptyAll()){$("#onb").classList.add("on");onbDraw()}})}}
+$("#introGo").onclick=()=>{const go=()=>{$("#intro").classList.remove("on");$("#onb").classList.add("on");onbDraw()};tgHaptic("medium");if(needAuth()){authMode="up";authShow(go)}else go()};
 function onbSave(){const list=$("#onbGrid")._l,D=onbK==="films"?FM:BK,cs=checkStamps;checkStamps=()=>{};try{Object.entries(onbPick).forEach(([i,n])=>{const x=list[+i];if(!D.has(x))D.markRead(x,n*2,true)})}finally{checkStamps=cs}checkStamps(true)}
 function onbFinish(){LS.set("zal.onb",1);$("#onb").classList.remove("on");setRealmUI("books");checkStamps(true);pickCol();fi=0;buildFeed();show("col");toast("Полки готовы")}
 $("#onbNext").onclick=()=>{onbSave();tgHaptic("medium");onbFinish()};
@@ -3895,9 +3927,47 @@ addEventListener("nsync",()=>{if(SCREEN==="sum"&&!$("#vsheet").classList.contain
 try{if(sessionStorage.getItem("nsync.applied")){sessionStorage.removeItem("nsync.applied");setTimeout(()=>toast("Подтянуты изменения с другого устройства"),600);
   if(TG){try{saveMine();saveEdits();saveWant();saveF();saveNow()}catch(e){}}}}catch(e){}
 
+
+// ---------- заставка при каждом открытии: обложки мелькают, пока всё грузится, потом замирают ----------
+const SPL={stop:false,k:0};
+function splashRun(){const sp=$("#splash"),reel=$("#spReel");if(!sp||!reel)return;
+  const own=[...BOOKS.map(b=>bItem(b,"read")),...want.map(w=>bItem(w,"want"))],L=own.length>=8?own.sort(()=>Math.random()-.5):[...own,...popBooks()];
+  const cells=reel.children.length;for(let c=0;c<cells;c++){reel.children[c].outerHTML=cv(L[c%L.length],130)}SPL.k=cells;
+  let delay=70;const tick=()=>{if(SPL.stop)return;const n=2+Math.floor(Math.random()*4);for(let m=0;m<n;m++){const c=reel.children[Math.floor(Math.random()*cells)];if(c)c.outerHTML=cv(L[(SPL.k++)%L.length],130)}
+    setTimeout(tick,delay)};setTimeout(tick,90)}
+function splashReady(){const imgs=[...document.querySelectorAll("#flow .cv.mid img,#flow .cv img,#grid .cv img")].slice(0,9);
+  const one=im=>im.complete?Promise.resolve():new Promise(r=>{im.addEventListener("load",r,{once:true});im.addEventListener("error",r,{once:true})});
+  return Promise.all([document.fonts?document.fonts.ready:0,...imgs.map(one)])}
+function splashEnd(){const sp=$("#splash");if(!sp||SPL.done)return;SPL.done=true;SPL.stop=true;sp.classList.add("frozen");tgHaptic("medium");
+  setTimeout(()=>sp.classList.add("out"),700);setTimeout(()=>{sp.classList.remove("on");sp.remove();afterSplash()},1300)}
+function splashStart(){splashRun();const t0=performance.now();
+  Promise.race([new Promise(r=>setTimeout(r,1600)).then(splashReady),new Promise(r=>setTimeout(r,3200))]).then(()=>{const wait=Math.max(0,1900-(performance.now()-t0));setTimeout(splashEnd,wait)})}
+
+// ---------- обязательная регистрация ----------
+const needAuth=()=>!!(NS.on&&!VIEW&&!NS.email);
+const authEl=document.createElement("div");authEl.className="auth";authEl.id="auth";$("#app").appendChild(authEl);
+let authNext=null,authMode="up";
+function authShow(next){authNext=next||null;authDraw();authEl.classList.add("on")}
+function authDraw(){const up=authMode==="up";
+  authEl.innerHTML=`<div class="au-in"><h1>${up?"Создай аккаунт":"Вход"}</h1><p>${up?"Почта и пароль нужны, чтобы полки не потерялись и открывались на любом устройстве — в Telegram, в браузере, на телефоне и компьютере.":"Почта и пароль, привязанные к Норе."}</p>
+   <input class="sy-in" id="auE" type="email" autocomplete="email" inputmode="email" placeholder="Почта">
+   <input class="sy-in" id="auP" type="password" autocomplete="${up?"new-password":"current-password"}" placeholder="${up?"Пароль, от 6 символов":"Пароль"}">
+   <p class="sy-msg" id="auM"></p><button class="btn w" id="auGo">${up?"Создать аккаунт":"Войти"}</button>
+   <button class="au-sw" id="auSw">${up?"Уже есть аккаунт? Войти":"Нет аккаунта? Создать"}</button>${up?"":`<button class="au-sw" id="auR">Забыли пароль?</button>`}</div>`;
+  const go=$("#auGo"),msg=$("#auM");
+  $("#auSw").onclick=()=>{authMode=up?"in":"up";authDraw();tgHaptic()};
+  const r=$("#auR");if(r)r.onclick=async()=>{const e=$("#auE").value.trim();if(!e){msg.textContent="Впиши почту — придёт ссылка для нового пароля";return}try{await NS.reset(e);msg.textContent="Письмо отправлено. Задай новый пароль по ссылке и возвращайся."}catch(x){msg.textContent=x.message}};
+  go.onclick=async()=>{const e=$("#auE").value.trim(),p=$("#auP").value;if(!e||!p){msg.textContent="Заполни почту и пароль";return}go.disabled=true;go.textContent=up?"Создаю…":"Вхожу…";msg.textContent="";
+    try{if(up){try{await NS.signUp(e,p)}catch(x){if(/уже есть Нора/.test(x.message)){await NS.signIn(e,p)}else throw x}}else await NS.signIn(e,p);
+      authEl.classList.remove("on");tgHaptic("medium");toast(up?"Аккаунт создан":"Вход выполнен");const n=authNext;authNext=null;if(n)n()}
+    catch(x){msg.textContent=x.message;go.disabled=false;go.textContent=up?"Создать аккаунт":"Войти"}};
+  $("#auP").onkeydown=e=>{if(e.key==="Enter")go.click()}}
+function afterSplash(){if(needAuth()&&!$("#intro").classList.contains("on")&&!$("#onb").classList.contains("on")&&LS.get("zal.onb",0))authShow()}
+
 // ---------- запуск ----------
 if(VIEW){document.body.classList.add("viewing");REALM="books"}
 setRealmUI(REALM);pickCol();buildFeed();show("col");
+if(VIEW){const sp=$("#splash");if(sp)sp.remove()}else splashStart();
 // заранее подтягиваем обложки всего, что лежит на полках (обеих)
 setTimeout(()=>{try{[BK,FM].forEach(D=>{D.want().forEach(wantImg);D.read().forEach(wantImg)})}catch(e){}},1200);
 moveLens();document.fonts&&document.fonts.ready.then(moveLens);

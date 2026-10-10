@@ -504,3 +504,15 @@ html[data-theme="light"] #app .hsb{background:rgba(250,249,246,.95)}
 #app .shp-plank{left:10%;right:10%;height:6px;border-radius:3px;background:linear-gradient(rgba(255,255,255,.28),rgba(255,255,255,.08));box-shadow:0 12px 26px -6px rgba(0,0,0,.9)}
 #app .shp-t{font-family:var(--f);font-size:14px;font-weight:500;color:var(--ink2);padding:0 30px}
 #app .shp-t b{display:block;font-family:var(--serif);font-size:26px;font-weight:600;color:#fff;line-height:1.1;margin-bottom:6px}
+/* фильтры в поиске */
+#app .sxf{display:flex;gap:6px;overflow-x:auto;margin:10px -4px 4px;padding:0 4px 2px;scrollbar-width:none;-webkit-mask:linear-gradient(90deg,#000 90%,transparent);mask:linear-gradient(90deg,#000 90%,transparent)}
+#app .sxf::-webkit-scrollbar{display:none}
+#app .sxf .fc{flex:none}
+#app .sx-moref{display:block;width:100%;margin:12px 0 4px;padding:13px;border-radius:14px;background:rgba(255,255,255,.07);font-size:14.5px;font-weight:600}
+#app .fc[data-sxfdrop]{background:rgba(255,255,255,.92);color:#0B0C11}#app .fc[data-sxfdrop]::before{display:none}#app .fc[data-sxfdrop] svg{width:13px;height:13px;opacity:.6}
+#app .sx-tabs[hidden]{display:none!important}
+/* поделиться */
+#app .shr-g{display:grid;grid-template-columns:repeat(4,1fr);gap:14px 6px;margin-top:16px}
+#app .shr-g button{display:flex;flex-direction:column;align-items:center;gap:7px;font-size:12px;color:var(--ink2)}
+#app .shi{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:20px;font-weight:700;color:#fff}
+#app .shi.tg{background:#2AABEE}#app .shi.wa{background:#25D366}#app .shi.vk{background:#0077FF}#app .shi.vb{background:#7360F2}#app .shi.ok{background:#EE8208}#app .shi.sys,#app .shi.cp{background:rgba(255,255,255,.12)}

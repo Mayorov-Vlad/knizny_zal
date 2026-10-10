@@ -162,10 +162,7 @@ function bookFeed(){FSHOWN=new Set();const q=tasteQ();
   feedMore=()=>{const sc=CAT.filter(b=>!FSHOWN.has(b.id)).map(b=>({b,s:feedScore(b,q)})).filter(x=>x.s!=null).sort((a,b)=>b.s-a.s);
     const out=[],au=new Set();for(const {b} of sc){if(au.has(b.a))continue;au.add(b.a);out.push(b);if(out.length>=8)break}
     out.forEach(b=>FSHOWN.add(b.id));return out.map(b=>{const it=bItem(b,"feed");it.why=whyBook(b);return it})};return feedMore()}
-function shareBook(x){const link=TG?`https://t.me/${SHARE_BOT}?startapp`:"https://moya-nora.github.io/",text=`«${x.t}»${x.a?" — "+x.a:""}. Нашлось в Норе`;learn(x,2.2);
-  if(TG&&TG.openTelegramLink){try{TG.openTelegramLink("https://t.me/share/url?url="+encodeURIComponent(link)+"&text="+encodeURIComponent(text));return}catch(e){}}
-  if(navigator.share){navigator.share({title:x.t,text,url:link}).catch(()=>{});return}
-  try{navigator.clipboard.writeText(text+" "+link);toast("Скопировано — можно вставить в сообщение")}catch(e){}}
+function shareBook(x){learn(x,2.2);shareSheet("Переслать книгу",`«${x.t}»${x.a?" — "+x.a:""}. Нашлось в Норе`,`https://t.me/${SHARE_BOT}?startapp`,"https://moya-nora.github.io/")}
 const SHR='<svg viewBox="0 0 24 24"><path d="M12 15V4M8 8l4-4 4 4"/><path d="M6 12v6.5A1.5 1.5 0 0 0 7.5 20h9a1.5 1.5 0 0 0 1.5-1.5V12"/></svg>';
 function filmFeed(){if(!FILMS)return [];const res=filmList();let i=0;
   feedMore=()=>{const chunk=res.slice(i,i+25);i+=25;return chunk.map(f=>fItem(f,"feed"))};return feedMore()}
@@ -376,20 +373,25 @@ async function onlineSeries(q){const j=await (await fetch("https://ru.wikipedia.
   const out=[];Object.values((j.query||{}).pages||{}).sort((a,b)=>a.index-b.index).forEach(p=>{const m=p.title.match(/^(.*?)\s*\((мини-сериал|телесериал|сериал|мультсериал|аниме)(?:,\s*(\d{4}))?[^)]*\)$/i);if(!m)return;
     const x={_f:1,t:m[1],y:m[3]?+m[3]:null,s:1,img:p.thumbnail?p.thumbnail.source:"",kind:"wiki"};x.id="w"+hsh(norm(x.t)+(x.y||"")).toString(36);out.push(x)});return {works:out.slice(0,8),au:[]}}
 // прочитанное в поиске не показываем (можно раскрыть) — фишка Норы
-function sxVis(){const hid=SX.list.filter(x=>sxHas(x)==="read");return {vis:SX.showRead?SX.list:SX.list.filter(x=>sxHas(x)!=="read"),hid}}
+function sxVis(){const base=SX.list.filter(sxPassX),hid=base.filter(x=>sxHas(x)==="read");return {vis:SX.showRead?base:base.filter(x=>sxHas(x)!=="read"),hid}}
 const sxHidBar=hid=>hid.length?`<button class="sx-hid" data-sxread><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>${SX.showRead?"Прочитанное показано":`Скрыто прочитанное: ${hid.length} ${plural(hid.length,"книга","книги","книг")}`}</span><u>${SX.showRead?"скрыть":"показать"}</u></button>`:"";
 function sxDraw(state){const box=$("#fres");if(!box)return;const q=SX.q,F=SX.k==="films";let h="";
   if(SX.mode==="au"){const {vis,hid}=sxVis();h=`<div class="sx-h">${esc(SX.au.name)} — по популярности</div>`+sxHidBar(hid)+(state==="load"?'<div class="sk"></div><div class="sk"></div><div class="sk"></div>':vis.map(sxRow).join("")||(hid.length?"":'<p class="hint">У автора не нашлось книг.</p>'));box.innerHTML=h;box._l=vis;return}
+  if(norm(q).length<2&&sxFilt()&&!F){const all=filterPicks(),L=all.slice(0,SX.fn||40).map(b=>bItem(b,"hit"));SX.list=L;
+    h=`<div class="sx-h">Подобрано по фильтрам: ${all.length.toLocaleString("ru-RU")}</div>`+(all.length?L.map(sxRow).join("")+(all.length>L.length?`<button class="sx-moref" data-sxmore>Показать ещё</button>`:""):`<p class="hint">С такими фильтрами ничего не нашлось.${(()=>{const d=bestDrop();return d?` Если убрать «${esc(d[1])}», найдётся ${d[2].toLocaleString("ru-RU")}.`:""})()}</p><button class="sx-moref" data-sxfreset>Сбросить фильтры</button>`);
+    box.innerHTML=h;box._l=L;return}
   if(norm(q).length<2){const rec=recentGet(),pop=(F?popFilms():popBooks()).filter(x=>!sxHas(x)).slice(0,8);SX.list=pop;
     h=`<div class="sx-feat"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span><b>Здесь нет прочитанного.</b> Нора помнит каждую книгу на полке и не предлагает её снова — ни в поиске, ни в ленте.</span></div>`+(rec.length?`<div class="sx-h">Недавние</div><div class="sx-rec">${rec.map(r=>`<button data-rq="${esc(r)}">${esc(r)}</button>`).join("")}</div>`:"")+
       `<div class="sx-h">${F?"Популярные фильмы и сериалы":"Популярные книги"}</div>`+pop.map(sxRow).join("");box.innerHTML=h;box._l=pop;return}
   if(SX.authors.length)h+=`<div class="sx-h">Авторы</div><div class="sx-au">${SX.authors.map((a,i)=>`<button data-au="${i}"><i>${esc(a.name[0]||"?")}</i>${hl(a.name,q)}</button>`).join("")}</div>`;
   const {vis,hid}=sxVis();
   h+=vis.length||hid.length?`<div class="sx-h">${F?"Фильмы и сериалы":"Книги"}</div>`+sxHidBar(hid)+vis.map(sxRow).join(""):"";
+  if(state==="done"&&sxFilt()&&SX.list.length&&!vis.length&&!hid.length)h+=`<p class="hint">Нашлось ${SX.list.length} ${plural(SX.list.length,"книга","книги","книг")}, но под выбранные фильтры не подходит ни одна.</p><button class="sx-moref" data-sxfreset>Искать без фильтров</button>`;
   if(state==="load")h+='<div class="sk"></div><div class="sk"></div><div class="sk"></div>';
   if(state==="done"&&!SX.list.length&&!SX.authors.length)h+=`<p class="hint">Ничего не нашлось. Попробуй часть названия${F?"":" или фамилию автора"}.</p>${F?`<button class="sx-manual" data-man>Добавить «${esc(q.trim())}» вручную</button>`:""}`;
   if(state==="err")h+='<p class="hint">Каталог не ответил — проверь интернет.</p>';
   box.innerHTML=h;box._l=vis}
+function sxRefilter(){tgHaptic();SX.fn=40;const b=$("#sxf");if(b)b.innerHTML=sxFbar();if(norm(SX.q).length<2)sxDraw();else sxDraw("done")}
 function sxRun(){const q=$("#fq").value,my=++SX.seq;SX.q=q;SX.mode="q";clearTimeout(SX.t);$(".sx-clear").hidden=!q;
   if(norm(q).length<2){SX.authors=[];sxDraw();return}
   SX.list=localFind(q);SX.authors=[];sxDraw("load");
@@ -400,18 +402,37 @@ function sxRun(){const q=$("#fq").value,my=++SX.seq;SX.q=q;SX.mode="q";clearTime
 async function sxAuthor(a){SX.mode="au";SX.au=a;SX.list=[];sxDraw("load");const my=++SX.seq;
   try{const L=await libAuthorBooks(a.id);if(my!==SX.seq)return;SX.list=L.slice(0,30).map(x=>({t:x.t,a:x.a||a.name,y:x.y,c:x.c,kind:"fl"}));sxDraw("done")}catch(e){sxDraw("err")}}
 $("#addB").onclick=()=>{if(VIEW)return;tgHaptic();openAddBook(SCREEN==="col"&&colF==="want"?"want":"read")};
-$("#srchB").onclick=()=>{if(VIEW)return;SX.k=REALM;SX.q="";SX.mode="q";SX.showRead=false;cardX=null;tgHaptic();
+$("#srchB").onclick=()=>openSearch();
+function openSearch(keep){if(VIEW)return;const q0=keep?SX.q:"";SX.k=REALM;SX.q=q0;SX.mode="q";if(!keep)SX.showRead=false;SX.fn=keep?SX.fn:40;cardX=null;tgHaptic();$("#vsheet").classList.remove("filters");
   vOpen(`<div class="sbar gl"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg><input id="fq" type="text" enterkeyhint="search" autocomplete="off" autocorrect="off" spellcheck="false"><button class="sx-clear" hidden aria-label="Очистить"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-   <div class="sx-tabs" hidden><button data-sk="books">Книги</button></div><div id="fres"></div><button class="sx-photo" data-photo>Добавить книгу по фото обложки или вручную</button>`,true);
+   <div class="sx-tabs" hidden><button data-sk="books">Книги</button></div><div class="sxf" id="sxf">${sxFbar()}</div><div id="fres"></div><button class="sx-photo" data-photo>Добавить книгу по фото обложки или вручную</button>`,true);
   const upd=()=>{document.querySelectorAll("[data-sk]").forEach(b=>b.classList.toggle("on",b.dataset.sk===SX.k));$("#fq").placeholder=SX.k==="films"?"Фильм или сериал":"Название или автор";$("[data-photo]").hidden=SX.k==="films"};upd();
   $("#fq").addEventListener("input",sxRun);$("#fq").addEventListener("keydown",e=>{if(e.key==="Enter"){recentAdd($("#fq").value);$("#fq").blur()}});
   $(".sx-clear").onclick=()=>{$("#fq").value="";sxRun();$("#fq").focus()};
   document.querySelector(".sx-tabs").onclick=e=>{const b=e.target.closest("[data-sk]");if(!b||b.dataset.sk===SX.k)return;SX.k=b.dataset.sk;upd();sxRun();tgHaptic()};
   if(SX.k==="films")loadFilms().then(()=>{if($("#fres")&&norm(SX.q).length<2)sxDraw()}).catch(()=>{});
-  sxDraw();setTimeout(()=>$("#fq").focus(),80)};
+  if(q0){$("#fq").value=q0;sxRun()}else sxDraw();if(!keep)setTimeout(()=>$("#fq").focus(),80)}
+// фильтры в поиске: кнопка «Фильтры», выбранное с крестиком и быстрые настроения
+function sxFbar(){const act=activeList(),sel=NF.mood;
+  return `<button class="fc gl main${act.length?" on":""}" data-sxfopen><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Фильтры${act.length?` <i>${act.length}</i>`:""}</button>`+
+    act.map(([k,l])=>`<button class="fc gl on" data-sxfdrop="${esc(k)}">${esc(l)}<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button>`).join("")+
+    B_MOOD.filter(m=>!sel.includes(m[0])).map(m=>`<button class="fc gl" data-sxfmood="${m[0]}">${m[1]}</button>`).join("")}
+// подборка по фильтрам из каталога: без прочитанного, лучшие и по вкусу — сверху
+function filterPicks(){let pool=bookPool().filter(b=>bookPass(b));
+  if(NF.ask){const aq=parse(NF.ask);if(Object.keys(aq.tags).length||aq.g||aq.c){const hit=rankFor(aq).filter(b=>bookPass(b));const hs=new Set(hit);pool=[...hit,...pool.filter(b=>!hs.has(b))]}}
+  else{const tq=tasteQ(),sc=b=>{let s=b.q*1.6+((b.acclaim||[]).length?.6:0);(b.tags||[]).forEach(t=>{s+=2*(tq.tags[t]||0)+1.4*(TASTE.t[t]||0)});return s+1.2*(TASTE.g[b.g]||0)};pool=pool.map(b=>({b,s:sc(b)})).sort((a,b)=>b.s-a.s).map(x=>x.b)}
+  if(NF.mood.length>1)pool=pool.map((b,k)=>({b,k:k-bookMoodHits(b)*40})).sort((x,y)=>x.k-y.k).map(x=>x.b);
+  return pool}
+const sxFilt=()=>activeList().length>0;
+const sxPassX=x=>{if(!sxFilt())return true;const c=catOf(x);return !!c&&bookPass(c)};
 $("#vshBody").addEventListener("click",e=>{const t=e.target;if(!$("#fres"))return;
   if(t.closest("[data-photo]")){vClose();setTimeout(()=>openAddBook(),300);return}
   if(t.closest("[data-sxread]")){SX.showRead=!SX.showRead;sxDraw("done");tgHaptic();return}
+  if(t.closest("[data-sxfopen]")){openFilters();return}
+  const fd=t.closest("[data-sxfdrop]");if(fd){dropFilter(fd.dataset.sxfdrop);sxRefilter();return}
+  const fm=t.closest("[data-sxfmood]");if(fm){NF.mood.push(fm.dataset.sxfmood);saveNF();sxRefilter();$("#sxf").scrollLeft=0;return}
+  if(t.closest("[data-sxmore]")){SX.fn=(SX.fn||40)+40;sxDraw("done");return}
+  if(t.closest("[data-sxfreset]")){resetAll();sxRefilter();return}
   const rq=t.closest("[data-rq]");if(rq){$("#fq").value=rq.dataset.rq;sxRun();return}
   const au=t.closest("[data-au]");if(au){recentAdd($("#fq").value);sxAuthor(SX.authors[+au.dataset.au]);tgHaptic();return}
   if(t.closest("[data-man]")){const q=SX.q.trim();const x={_f:1,t:q.charAt(0).toUpperCase()+q.slice(1),id:"u"+Date.now(),kind:"man"};FM.addWant(x);vDirty=true;toast("Добавлено в избранное");sxDraw("done");return}
@@ -640,7 +661,7 @@ function drawFbar(){const act=activeList(),moods=isF()?F_MOOD:B_MOOD,sel=isF()?T
   fbar.innerHTML=`<button class="fc gl main${act.length?" on":""}" data-fopen><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg>Фильтры${act.length?` <i>${act.length}</i>`:""}</button>`+
     act.map(([k,l])=>`<button class="fc gl on" data-fdrop="${esc(k)}">${esc(l)}<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg></button>`).join("")+
     moods.filter(m=>!sel.includes(m[0])).map(m=>`<button class="fc gl" data-fmood="${m[0]}">${m[1]}</button>`).join("")}
-function applyFilters(){vDirty=false;buildFeed()}
+function applyFilters(){vDirty=false}
 fbar.addEventListener("click",e=>{const t=e.target.closest("button");if(!t)return;tgHaptic();
   if(t.dataset.fopen!=null){openFilters();return}
   if(t.dataset.fdrop){dropFilter(t.dataset.fdrop);applyFilters();return}
@@ -680,7 +701,7 @@ $("#vshBody").addEventListener("input",e=>{if(e.target.id!=="fAsk")return;NF.ask
 $("#vshBody").addEventListener("keydown",e=>{if(e.target.id==="fAsk"&&e.key==="Enter")e.target.blur()});
 $("#vshBody").addEventListener("click",e=>{
   if(e.target.closest("[data-freset]")){resetAll();redrawFilters();tgHaptic();return}
-  if(e.target.closest("[data-fshow]")){$("#vsheet").classList.remove("filters");vClose();applyFilters();return}
+  if(e.target.closest("[data-fshow]")){$("#vsheet").classList.remove("filters");openSearch(true);return}
   const t=e.target.closest("[data-fg]");if(!t)return;tgHaptic();const g=t.dataset.fg,v=t.dataset.fv;
   const tog=(arr,x)=>arr.includes(x)?arr.filter(y=>y!==x):[...arr,x];
   if(isF()){const T=TF;
@@ -789,10 +810,20 @@ function drawFr(){const box=$("#frBox");if(!box)return;const me=myName();
      return `<div class="sc gl frc"><button class="frh" data-fr-open="${esc(f.uid)}">${avatar(f.n,f.uid)}<b>${esc(f.n||"Друг")}</b><span>${whenTxt(ev[0].ts)}${fresh?` · новых: ${fresh}`:""}</span></button>
        <div class="frs">${ev.map((e,i)=>`<button class="fre" data-fr-ev="${esc(f.uid)}|${i}">${cv(fbItem(e),84)}<em>${esc(evLabel(e))}</em><small>${esc(e.t)}</small></button>`).join("")}</div></div>`}).join(""):FRIENDS.length?`<p class="fr-note">Когда друзья что-нибудь прочитают или оценят, это появится здесь.</p>`:""}
    <div class="fr-me">Тебя видят как <b>${esc(me||"без имени")}</b> <button data-fr-name>изменить</button></div>`}
-async function frInvite(){const link=inviteLink();if(!link){toast("Сначала нужен вход");authShow();return}const text="Добавь меня в друзья в Норе — будем видеть книжные полки друг друга";
-  if(TG&&TG.openTelegramLink){try{TG.openTelegramLink("https://t.me/share/url?url="+encodeURIComponent(link)+"&text="+encodeURIComponent(text));return}catch(e){}}
-  if(navigator.share){try{await navigator.share({title:"Нора",text,url:link});return}catch(e){}}
-  try{await navigator.clipboard.writeText(link);toast("Ссылка-приглашение скопирована")}catch(e){vOpen(`<h3 class="vh">Приглашение</h3><textarea class="sy-in" rows="3" readonly>${esc(link)}</textarea>`)}}
+async function frInvite(){const u=NS.uid&&NS.uid();if(!u){toast("Сначала нужен вход");authShow();return}
+  // в Telegram — ссылка на мини-приложение, в остальные соцсети — на сайт (откроется и без Telegram)
+  shareSheet("Пригласить в Нору","Добавь меня в друзья в Норе — будем видеть книжные полки друг друга",`https://t.me/${SHARE_BOT}?startapp=f_${u}_${frTok()}`,`https://moya-nora.github.io/#f=${u}&fk=${frTok()}`)}
+const SHARE_TO=[["tg","Telegram",(t,u)=>"https://t.me/share/url?url="+encodeURIComponent(u)+"&text="+encodeURIComponent(t)],["wa","WhatsApp",(t,u)=>"https://wa.me/?text="+encodeURIComponent(t+" "+u)],
+  ["vk","ВКонтакте",(t,u)=>"https://vk.com/share.php?url="+encodeURIComponent(u)+"&title="+encodeURIComponent(t)],["vb","Viber",(t,u)=>"viber://forward?text="+encodeURIComponent(t+" "+u)],
+  ["ok","Одноклассники",(t,u)=>"https://connect.ok.ru/offer?url="+encodeURIComponent(u)+"&title="+encodeURIComponent(t)]];
+function shareSheet(title,text,tgLink,webLink){vOpen(`<h3 class="vh">${esc(title)}</h3><div class="shr-g">${SHARE_TO.map(([k,n])=>`<button data-shto="${k}"><i class="shi ${k}">${n[0]}</i><span>${n}</span></button>`).join("")}
+   ${navigator.share?`<button data-shto="sys"><i class="shi sys">…</i><span>Другое</span></button>`:""}<button data-shto="copy"><i class="shi cp">⧉</i><span>Скопировать</span></button></div>`);$("#vsheet").classList.add("ontop");$("#vshBody")._sh={text,tgLink,webLink,title}}
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-shto]");if(!b)return;const s=$("#vshBody")._sh;if(!s)return;const k=b.dataset.shto;tgHaptic();
+  if(k==="copy"){try{await navigator.clipboard.writeText(s.text+" "+s.webLink);toast("Скопировано — вставьте в любое сообщение")}catch(x){vOpen(`<h3 class="vh">Ссылка</h3><textarea class="sy-in" rows="3" readonly>${esc(s.text+" "+s.webLink)}</textarea>`)}return}
+  if(k==="sys"){try{await navigator.share({title:s.title,text:s.text,url:s.webLink})}catch(x){}return}
+  const f=SHARE_TO.find(x=>x[0]===k);const url=f[2](s.text,k==="tg"?s.tgLink:s.webLink);
+  if(k==="tg"&&TG&&TG.openTelegramLink){try{vClose();TG.openTelegramLink(url);return}catch(x){}}
+  vClose();if(url.startsWith("viber:")){location.href=url;return}openLink(url)});
 function frShelf(uid,tab){const f=FRIENDS.find(x=>x.uid===uid),p=FRP[uid];if(!f)return;FSEEN2[uid]=Date.now();frSeenSave();frDotUpd();
   if(!p){vOpen(`<h3 class="vh">${esc(f.n||"Друг")}</h3><p class="sy-note">Полки пока не загрузились — проверь интернет.</p>`);return}
   tab=tab||"read";const L=(tab==="read"?p.read:p.want)||[];

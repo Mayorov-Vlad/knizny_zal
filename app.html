@@ -4418,9 +4418,14 @@ function shareSheet(title,text,tgLink,webLink){vOpen(`<h3 class="vh">${esc(title
 document.addEventListener("click",async e=>{const b=e.target.closest("[data-shto]");if(!b)return;const s=$("#vshBody")._sh;if(!s)return;const k=b.dataset.shto;tgHaptic();
   if(k==="copy"){try{await navigator.clipboard.writeText(s.text+" "+s.webLink);toast("Скопировано — вставьте в любое сообщение")}catch(x){vOpen(`<h3 class="vh">Ссылка</h3><textarea class="sy-in" rows="3" readonly>${esc(s.text+" "+s.webLink)}</textarea>`)}return}
   if(k==="sys"){try{await navigator.share({title:s.title,text:s.text,url:s.webLink})}catch(x){}return}
-  const f=SHARE_TO.find(x=>x[0]===k);const url=f[2](s.text,k==="tg"?s.tgLink:s.webLink);
-  if(k==="tg"&&TG&&TG.openTelegramLink){try{vClose();TG.openTelegramLink(url);return}catch(x){}}
-  vClose();if(url.startsWith("viber:")){location.href=url;return}openLink(url)});
+  // открываем сразу приложение соцсети: в браузере — по схеме приложения, внутри Telegram — через системное меню «Поделиться»
+  const f=SHARE_TO.find(x=>x[0]===k),url=f[2](s.text,k==="tg"?s.tgLink:s.webLink),full=s.text+" "+(k==="tg"?s.tgLink:s.webLink),E=encodeURIComponent;
+  const APP={tg:`tg://msg_url?url=${E(s.tgLink)}&text=${E(s.text)}`,wa:`whatsapp://send?text=${E(s.text+" "+s.webLink)}`,vb:`viber://forward?text=${E(s.text+" "+s.webLink)}`};vClose();
+  if(k==="tg"&&TG&&TG.openTelegramLink){try{TG.openTelegramLink(url);return}catch(x){}}
+  if(!TG&&APP[k]){const t0=Date.now();const a=document.createElement("a");a.href=APP[k];a.style.display="none";document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>{if(!document.hidden&&Date.now()-t0<2600)openLink(url)},1600);return}
+  if(navigator.share){try{await navigator.share({title:s.title,text:s.text,url:k==="tg"?s.tgLink:s.webLink});return}catch(x){if(x&&x.name==="AbortError")return}}
+  openLink(url)});
 function frShelf(uid,tab){const f=FRIENDS.find(x=>x.uid===uid),p=FRP[uid];if(!f)return;FSEEN2[uid]=Date.now();frSeenSave();frDotUpd();
   if(!p){vOpen(`<h3 class="vh">${esc(f.n||"Друг")}</h3><p class="sy-note">Полки пока не загрузились — проверь интернет.</p>`);return}
   tab=tab||"read";const L=(tab==="read"?p.read:p.want)||[];
